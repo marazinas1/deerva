@@ -1,24 +1,57 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
   component: Index,
+  head: () => ({
+    meta: [
+      { title: "Deerva" },
+      {
+        name: "description",
+        content: "We build and maintain custom platforms for growing businesses.",
+      },
+      { property: "og:title", content: "Deerva" },
+      {
+        property: "og:description",
+        content: "We build and maintain custom platforms for growing businesses.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "/" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "/" }],
+  }),
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="relative flex min-h-screen flex-col bg-background text-foreground">
+      <main className="flex flex-1 items-center justify-center px-6">
+        <div className="animate-fade-rise w-full max-w-[420px] text-center">
+          <h1 className="font-wordmark text-[clamp(2.5rem,6vw,4rem)] font-medium tracking-tight text-foreground">
+            Deerva
+          </h1>
+          <div
+            className="mx-auto mt-5 h-px w-12 bg-accent"
+            aria-hidden="true"
+          />
+          <p className="mt-5 font-body text-[1.0625rem] font-normal leading-[1.6] text-muted">
+            We build and maintain custom platforms for growing businesses.
+          </p>
+          <div className="mt-10">
+            <a
+              href="mailto:marius@deerva.com"
+              className="font-body text-[1.0625rem] font-medium text-foreground underline decoration-accent underline-offset-4 transition-colors hover:text-accent focus-visible:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              marius@deerva.com
+            </a>
+          </div>
+        </div>
+      </main>
+      <footer className="pb-8 text-center">
+        <p className="font-body text-[0.8125rem] font-normal text-muted">
+          © 2026 Deerva
+        </p>
+      </footer>
     </div>
   );
 }
