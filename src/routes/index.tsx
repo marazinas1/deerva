@@ -7,12 +7,12 @@ export const Route = createFileRoute("/")({
       { title: "Deerva" },
       {
         name: "description",
-        content: "We build and maintain custom platforms for growing businesses.",
+        content: "We build and maintain custom websites and platforms for growing businesses.",
       },
       { property: "og:title", content: "Deerva" },
       {
         property: "og:description",
-        content: "We build and maintain custom platforms for growing businesses.",
+        content: "We build and maintain custom websites and platforms for growing businesses.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "/" },
@@ -35,14 +35,14 @@ function Index() {
             aria-hidden="true"
           />
           <p className="mt-5 font-body text-[1.0625rem] font-normal leading-[1.6] text-muted">
-            We build and maintain custom platforms for growing businesses.
+            We build and maintain custom websites and platforms for growing businesses.
           </p>
           <div className="mt-10">
             <a
-              href="mailto:marius@deerva.com"
+              href="mailto:hello@deerva.com"
               className="font-body text-[1.0625rem] font-medium text-foreground underline decoration-accent underline-offset-4 transition-colors hover:text-accent focus-visible:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
-              marius@deerva.com
+              hello@deerva.com
             </a>
           </div>
         </div>
