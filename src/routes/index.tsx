@@ -31,7 +31,7 @@ function Index() {
             <img
               src="/logo.png"
               alt="Deerva"
-              width={512}
+              width={1024}
               height={512}
               className="h-[clamp(2.5rem,6vw,4rem)] w-auto"
             />
