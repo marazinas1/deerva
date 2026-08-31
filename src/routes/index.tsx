@@ -33,7 +33,7 @@ function Index() {
               alt="Deerva"
               width={1024}
               height={512}
-              className="h-[clamp(2.5rem,6vw,4rem)] w-auto"
+              className="h-[clamp(3rem,7vw,5rem)] w-auto"
             />
           </h1>
           <div
