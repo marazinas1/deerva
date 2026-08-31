@@ -27,8 +27,14 @@ function Index() {
     <div className="relative flex min-h-screen flex-col bg-background text-foreground">
       <main className="flex flex-1 items-center justify-center px-6">
         <div className="animate-fade-rise w-full max-w-[420px] text-center">
-          <h1 className="font-wordmark text-[clamp(2.5rem,6vw,4rem)] font-medium tracking-tight text-foreground">
-            Deerva
+          <h1 className="flex justify-center">
+            <img
+              src="/logo.png"
+              alt="Deerva"
+              width={512}
+              height={512}
+              className="h-[clamp(2.5rem,6vw,4rem)] w-auto"
+            />
           </h1>
           <div
             className="mx-auto mt-5 h-px w-12 bg-accent"
