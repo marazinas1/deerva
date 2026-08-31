@@ -29,9 +29,9 @@ function Index() {
         <div className="animate-fade-rise w-full max-w-[420px] text-center">
           <h1 className="flex justify-center">
             <img
-              src="/logo.png"
+              src="/logo.png?v=2"
               alt="Deerva"
-              width={512}
+              width={1024}
               height={512}
               className="h-[clamp(2.5rem,6vw,4rem)] w-auto"
             />
