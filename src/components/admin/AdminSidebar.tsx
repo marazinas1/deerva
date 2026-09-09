@@ -1,4 +1,4 @@
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { ArrowLeft, Building2, LayoutDashboard, LogOut, UserCog } from "lucide-react";
 
 import BrandLogo from "@/components/admin/BrandLogo";
@@ -15,7 +15,6 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { supabase } from "@/integrations/supabase/client";
 
 type Item = {
   title: string;
@@ -71,12 +70,9 @@ export default function AdminSidebar({
   isManager: boolean;
   onSignOut: () => void | Promise<void>;
 }) {
-  const navigate = useNavigate();
   const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (router) => router.location.pathname });
-
-  void navigate;
 
   return (
     <Sidebar collapsible="icon">
@@ -154,5 +150,3 @@ export default function AdminSidebar({
     </Sidebar>
   );
 }
-
-export { supabase };
