@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -6,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { createFirstAdmin, isFirstRunSetup } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin/login")({
   ssr: false,
@@ -28,16 +26,9 @@ function AdminLogin() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const { data: setup } = useQuery({
-    queryKey: ["admin", "first-run"],
-    queryFn: () => isFirstRunSetup(),
-    retry: false,
-  });
-  const needsSetup = setup?.needsSetup === true;
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {
@@ -49,43 +40,41 @@ function AdminLogin() {
     event.preventDefault();
     setLoading(true);
     setError(null);
+    setNotice(null);
 
-    try {
-      if (needsSetup) {
-        await createFirstAdmin({
-          data: { email, password, ...(fullName ? { fullName } : {}) },
-        });
-      }
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      if (signInError) throw new Error(signInError.message);
-      void navigate({ to: "/admin", replace: true });
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Something went wrong");
-    } finally {
-      setLoading(false);
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
+    if (signInError) {
+      setError(signInError.message);
+      return;
     }
+    void navigate({ to: "/admin", replace: true });
+  }
+
+  async function onForgotPassword() {
+    setError(null);
+    setNotice(null);
+    if (!email) {
+      setError("Enter your email first.");
+      return;
+    }
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/admin/set-password`,
+    });
+    if (resetError) {
+      setError(resetError.message);
+      return;
+    }
+    setNotice("Check your inbox for the password link.");
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-6">
       <div className="w-full max-w-[360px]">
         <img src="/logo.png?v=5" alt="Deerva" className="mx-auto h-8 w-auto" />
-        <p className="mt-6 text-center font-body text-sm text-muted">
-          {needsSetup ? "Create the first admin account" : "Admin panel"}
-        </p>
+        <p className="mt-6 text-center font-body text-sm text-muted">Admin panel</p>
 
         <form onSubmit={onSubmit} className="mt-8 space-y-4">
-          {needsSetup ? (
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full name</Label>
-              <Input
-                id="fullName"
-                autoComplete="name"
-                value={fullName}
-                onChange={(event) => setFullName(event.target.value)}
-              />
-            </div>
-          ) : null}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -102,23 +91,24 @@ function AdminLogin() {
             <Input
               id="password"
               type="password"
-              autoComplete={needsSetup ? "new-password" : "current-password"}
+              autoComplete="current-password"
               required
-              minLength={needsSetup ? 8 : undefined}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
             />
           </div>
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
+          {notice ? <p className="text-sm text-muted">{notice}</p> : null}
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading
-              ? needsSetup
-                ? "Creating…"
-                : "Signing in…"
-              : needsSetup
-                ? "Create account"
-                : "Sign in"}
+            {loading ? "Signing in…" : "Sign in"}
           </Button>
+          <button
+            type="button"
+            onClick={onForgotPassword}
+            className="w-full text-center text-xs text-muted underline underline-offset-4 hover:text-foreground"
+          >
+            Forgot password?
+          </button>
         </form>
       </div>
     </div>
