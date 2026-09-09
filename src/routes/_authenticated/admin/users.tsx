@@ -4,7 +4,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -41,14 +40,16 @@ export const Route = createFileRoute("/_authenticated/admin/users")({
   component: UsersPage,
 });
 
-const ROLES: AppRole[] = ["developer", "owner", "editor"];
+/** developer -> owner -> editor. Developer is hardcoded and cannot be granted here. */
+const ASSIGNABLE: AppRole[] = ["owner", "editor"];
+const NO_ACCESS = "none";
 
 function UsersPage() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<AppRole>("editor");
+  const [role, setRole] = useState<"owner" | "editor">("editor");
 
   const { data: me } = useQuery({ queryKey: ["admin", "me"], queryFn: () => getAdminMe() });
   const { data: users, isLoading } = useQuery({
@@ -57,6 +58,7 @@ function UsersPage() {
   });
 
   const canManage = me?.isManager ?? false;
+  const isDeveloper = me?.isDeveloper ?? false;
 
   const invite = useMutation({
     mutationFn: () =>
@@ -78,15 +80,24 @@ function UsersPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  const toggleRole = useMutation({
-    mutationFn: (input: { userId: string; role: AppRole; enabled: boolean }) =>
-      setUserRole({ data: input }),
+  const changeRole = useMutation({
+    mutationFn: (input: { userId: string; role: AppRole | null }) => setUserRole({ data: input }),
     onSuccess: () => {
+      toast.success("Role updated");
       void queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       void queryClient.invalidateQueries({ queryKey: ["admin", "me"] });
     },
     onError: (error: Error) => toast.error(error.message),
   });
+
+  if (!canManage) {
+    return (
+      <div className="mx-auto max-w-4xl">
+        <h1 className="text-2xl font-semibold text-foreground">Users</h1>
+        <p className="mt-2 text-sm text-muted">Only owners can manage people.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -95,7 +106,7 @@ function UsersPage() {
           <h1 className="text-2xl font-semibold text-foreground">Users</h1>
           <p className="mt-1 text-sm text-muted">Who can access the Deerva admin, and how.</p>
         </div>
-        {canManage ? <Button onClick={() => setOpen(true)}>Invite user</Button> : null}
+        <Button onClick={() => setOpen(true)}>Invite user</Button>
       </div>
 
       <div className="mt-8 rounded-lg border border-border">
@@ -103,45 +114,62 @@ function UsersPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Person</TableHead>
-              {ROLES.map((item) => (
-                <TableHead key={item} className="capitalize">
-                  {item}
-                </TableHead>
-              ))}
+              <TableHead className="w-56">Role</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-sm text-muted">
+                <TableCell colSpan={2} className="text-sm text-muted">
                   Loading…
                 </TableCell>
               </TableRow>
             ) : (
-              (users ?? []).map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>
-                    <p className="font-medium text-foreground">{user.full_name ?? "—"}</p>
-                    <p className="text-xs text-muted">{user.email}</p>
-                  </TableCell>
-                  {ROLES.map((item) => (
-                    <TableCell key={item}>
-                      <Checkbox
-                        checked={user.roles.includes(item)}
-                        disabled={!canManage || toggleRole.isPending}
-                        aria-label={`${item} role for ${user.email ?? user.id}`}
-                        onCheckedChange={(checked) =>
-                          toggleRole.mutate({
-                            userId: user.id,
-                            role: item,
-                            enabled: checked === true,
-                          })
-                        }
-                      />
+              (users ?? []).map((user) => {
+                const isSelf = user.id === me?.userId;
+                const locked = isSelf || (user.isDeveloper && !isDeveloper);
+                return (
+                  <TableRow key={user.id}>
+                    <TableCell>
+                      <p className="font-medium text-foreground">{user.full_name ?? "—"}</p>
+                      <p className="text-xs text-muted">{user.email}</p>
                     </TableCell>
-                  ))}
-                </TableRow>
-              ))
+                    <TableCell>
+                      {locked ? (
+                        <p className="text-sm capitalize text-muted">
+                          {user.role ?? "No access"}
+                          <span className="ml-2 text-xs">
+                            {isSelf ? "(you)" : "· managed by the developer"}
+                          </span>
+                        </p>
+                      ) : (
+                        <Select
+                          value={user.role ?? NO_ACCESS}
+                          disabled={changeRole.isPending}
+                          onValueChange={(value) =>
+                            changeRole.mutate({
+                              userId: user.id,
+                              role: value === NO_ACCESS ? null : (value as AppRole),
+                            })
+                          }
+                        >
+                          <SelectTrigger aria-label={`Role for ${user.email ?? user.id}`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {ASSIGNABLE.map((item) => (
+                              <SelectItem key={item} value={item} className="capitalize">
+                                {item}
+                              </SelectItem>
+                            ))}
+                            <SelectItem value={NO_ACCESS}>No access</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
@@ -179,12 +207,12 @@ function UsersPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="invite-role">Role</Label>
-              <Select value={role} onValueChange={(value) => setRole(value as AppRole)}>
+              <Select value={role} onValueChange={(value) => setRole(value as "owner" | "editor")}>
                 <SelectTrigger id="invite-role">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {ROLES.map((item) => (
+                  {ASSIGNABLE.map((item) => (
                     <SelectItem key={item} value={item} className="capitalize">
                       {item}
                     </SelectItem>

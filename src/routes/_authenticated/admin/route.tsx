@@ -11,9 +11,9 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 const NAV = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/admin/clients", label: "Clients", icon: Building2, exact: false },
-  { to: "/admin/users", label: "Users", icon: Users, exact: false },
+  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true, managerOnly: false },
+  { to: "/admin/clients", label: "Clients", icon: Building2, exact: false, managerOnly: false },
+  { to: "/admin/users", label: "Users", icon: Users, exact: false, managerOnly: true },
 ] as const;
 
 function AdminLayout() {
@@ -52,7 +52,7 @@ function AdminLayout() {
     );
   }
 
-  if (me.roles.length === 0) {
+  if (!me.role) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
         <h1 className="text-lg font-semibold">No access yet</h1>
@@ -66,12 +66,15 @@ function AdminLayout() {
     );
   }
 
+  // Editors never see the Users section.
+  const nav = NAV.filter((item) => !item.managerOnly || me.isManager);
+
   return (
     <div className="flex min-h-screen bg-background">
       <aside className="hidden w-60 shrink-0 flex-col border-r border-border px-4 py-6 md:flex">
         <img src="/logo.png?v=5" alt="Deerva" className="h-6 w-auto self-start" />
         <nav className="mt-8 flex flex-1 flex-col gap-1">
-          {NAV.map((item) => (
+          {nav.map((item) => (
             <Link
               key={item.to}
               to={item.to}
@@ -85,7 +88,7 @@ function AdminLayout() {
         </nav>
         <div className="border-t border-border pt-4">
           <p className="truncate text-sm text-foreground">{me.fullName ?? me.email}</p>
-          <p className="mt-0.5 text-xs capitalize text-muted">{me.roles.join(", ")}</p>
+          <p className="mt-0.5 text-xs capitalize text-muted">{me.role}</p>
           <Button variant="ghost" size="sm" className="mt-3 w-full justify-start" onClick={signOut}>
             <LogOut className="mr-2 h-4 w-4" />
             Sign out
@@ -97,7 +100,7 @@ function AdminLayout() {
         <header className="flex items-center gap-3 border-b border-border px-4 py-3 md:hidden">
           <img src="/logo.png?v=5" alt="Deerva" className="h-5 w-auto" />
           <nav className="flex flex-1 items-center gap-1 overflow-x-auto">
-            {NAV.map((item) => (
+            {nav.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}

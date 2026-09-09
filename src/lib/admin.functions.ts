@@ -3,14 +3,16 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+/** developer -> owner -> editor. Exactly one role per person. */
 export type AppRole = "developer" | "owner" | "editor";
 
 export type AdminMe = {
   userId: string;
   email: string | null;
   fullName: string | null;
-  roles: AppRole[];
+  role: AppRole | null;
   isManager: boolean;
+  isDeveloper: boolean;
 };
 
 export type ClientRow = {
@@ -31,9 +33,11 @@ export type AdminUserRow = {
   id: string;
   email: string | null;
   full_name: string | null;
-  roles: AppRole[];
+  role: AppRole | null;
+  isDeveloper: boolean;
   created_at: string;
 };
+
 
 const clientInput = z.object({
   id: z.string().uuid().optional(),
@@ -57,29 +61,31 @@ function emptyToNull(value: string | null | undefined): string | null {
   return trimmed === "" ? null : trimmed;
 }
 
-/** Current signed-in staff member with their roles. */
+/** Current signed-in staff member with their single role. */
 export const getAdminMe = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminMe> => {
     const { supabase, userId } = context;
 
-    const [{ data: profile }, { data: roleRows, error: roleError }] = await Promise.all([
+    const [{ data: profile }, { data: roleRow, error: roleError }] = await Promise.all([
       supabase.from("profiles").select("full_name, email").eq("id", userId).maybeSingle(),
-      supabase.from("user_roles").select("role").eq("user_id", userId),
+      supabase.from("user_roles").select("role").eq("user_id", userId).maybeSingle(),
     ]);
 
     if (roleError) throw new Error(roleError.message);
 
-    const roles = (roleRows ?? []).map((row) => row.role as AppRole);
+    const role = (roleRow?.role ?? null) as AppRole | null;
 
     return {
       userId,
       email: profile?.email ?? (context.claims["email"] as string | undefined) ?? null,
       fullName: profile?.full_name ?? null,
-      roles,
-      isManager: roles.includes("developer") || roles.includes("owner"),
+      role,
+      isManager: role === "developer" || role === "owner",
+      isDeveloper: role === "developer",
     };
   });
+
 
 export const listClients = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -155,16 +161,32 @@ export const listAdminUsers = createServerFn({ method: "GET" })
       .select("user_id, role");
     if (roleError) throw new Error(roleError.message);
 
-    return (profiles ?? []).map((profile) => ({
-      id: profile.id,
-      email: profile.email,
-      full_name: profile.full_name,
-      created_at: profile.created_at,
-      roles: (roles ?? [])
-        .filter((row) => row.user_id === profile.id)
-        .map((row) => row.role as AppRole),
-    }));
+    return (profiles ?? []).map((profile) => {
+      const role = ((roles ?? []).find((row) => row.user_id === profile.id)?.role ?? null) as
+        | AppRole
+        | null;
+      return {
+        id: profile.id,
+        email: profile.email,
+        full_name: profile.full_name,
+        created_at: profile.created_at,
+        role,
+        isDeveloper: role === "developer",
+      };
+    });
   });
+
+/** Only a developer may touch a developer account. */
+async function assertMayManageTarget(
+  supabase: { rpc: (fn: "is_developer", args: { _user_id: string }) => PromiseLike<{ data: unknown; error: unknown }> },
+  callerId: string,
+  targetRole: AppRole | null,
+  requestedRole: AppRole | null,
+) {
+  if (targetRole !== "developer" && requestedRole !== "developer") return;
+  const { data, error } = await supabase.rpc("is_developer", { _user_id: callerId });
+  if (error || data !== true) throw new Error("This account is managed by the developer.");
+}
 
 export const inviteAdminUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -173,7 +195,7 @@ export const inviteAdminUser = createServerFn({ method: "POST" })
       .object({
         email: z.string().email().max(200),
         fullName: z.string().max(200).optional(),
-        role: z.enum(["developer", "owner", "editor"]),
+        role: z.enum(["owner", "editor"]),
         redirectTo: z.string().url(),
       })
       .parse(input),
@@ -182,7 +204,9 @@ export const inviteAdminUser = createServerFn({ method: "POST" })
     await assertManager(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: invited, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
+    const email = data.email.trim().toLowerCase();
+
+    const { data: invited, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
       redirectTo: data.redirectTo,
       data: data.fullName ? { full_name: data.fullName } : {},
     });
@@ -193,96 +217,57 @@ export const inviteAdminUser = createServerFn({ method: "POST" })
 
     const { error: roleError } = await supabaseAdmin
       .from("user_roles")
-      .insert({ user_id: userId, role: data.role });
-    if (roleError && !roleError.message.includes("duplicate")) throw new Error(roleError.message);
+      .upsert({ user_id: userId, role: data.role }, { onConflict: "user_id" });
+    if (roleError) throw new Error(roleError.message);
 
     return { ok: true as const, userId };
   });
 
+/** Sets the single role of a person, or removes their access when role is null. */
 export const setUserRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z
       .object({
         userId: z.string().uuid(),
-        role: z.enum(["developer", "owner", "editor"]),
-        enabled: z.boolean(),
+        role: z.enum(["developer", "owner", "editor"]).nullable(),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     await assertManager(context.supabase, context.userId);
 
-    if (!data.enabled && data.userId === context.userId) {
-      throw new Error("You cannot remove your own role");
+    if (data.userId === context.userId) {
+      throw new Error("You cannot change your own role");
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    if (data.enabled) {
+    const { data: existing } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.userId)
+      .maybeSingle();
+
+    await assertMayManageTarget(
+      context.supabase,
+      context.userId,
+      (existing?.role ?? null) as AppRole | null,
+      data.role,
+    );
+
+    if (data.role) {
       const { error } = await supabaseAdmin
         .from("user_roles")
-        .upsert({ user_id: data.userId, role: data.role }, { onConflict: "user_id,role" });
+        .upsert({ user_id: data.userId, role: data.role }, { onConflict: "user_id" });
       if (error) throw new Error(error.message);
     } else {
       const { error } = await supabaseAdmin
         .from("user_roles")
         .delete()
-        .eq("user_id", data.userId)
-        .eq("role", data.role);
+        .eq("user_id", data.userId);
       if (error) throw new Error(error.message);
     }
-
-    return { ok: true as const };
-  });
-
-/**
- * One-time setup: creates the very first admin account (developer role).
- * Self-disabling — it refuses as soon as any role exists in the system.
- */
-export const isFirstRunSetup = createServerFn({ method: "GET" }).handler(async () => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { count, error } = await supabaseAdmin
-    .from("user_roles")
-    .select("id", { count: "exact", head: true });
-  if (error) throw new Error(error.message);
-  return { needsSetup: (count ?? 0) === 0 };
-});
-
-export const createFirstAdmin = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
-    z
-      .object({
-        email: z.string().email().max(200),
-        password: z.string().min(8).max(200),
-        fullName: z.string().max(200).optional(),
-      })
-      .parse(input),
-  )
-  .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-    const { count, error: countError } = await supabaseAdmin
-      .from("user_roles")
-      .select("id", { count: "exact", head: true });
-    if (countError) throw new Error(countError.message);
-    if ((count ?? 0) > 0) throw new Error("Setup already completed");
-
-    const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
-      email: data.email,
-      password: data.password,
-      email_confirm: true,
-      user_metadata: data.fullName ? { full_name: data.fullName } : {},
-    });
-    if (error) throw new Error(error.message);
-
-    const userId = created.user?.id;
-    if (!userId) throw new Error("Could not create the account");
-
-    const { error: roleError } = await supabaseAdmin
-      .from("user_roles")
-      .insert({ user_id: userId, role: "developer" });
-    if (roleError) throw new Error(roleError.message);
 
     return { ok: true as const };
   });
