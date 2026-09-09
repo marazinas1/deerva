@@ -3,14 +3,16 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+/** developer -> owner -> editor. Exactly one role per person. */
 export type AppRole = "developer" | "owner" | "editor";
 
 export type AdminMe = {
   userId: string;
   email: string | null;
   fullName: string | null;
-  roles: AppRole[];
+  role: AppRole | null;
   isManager: boolean;
+  isDeveloper: boolean;
 };
 
 export type ClientRow = {
@@ -31,9 +33,11 @@ export type AdminUserRow = {
   id: string;
   email: string | null;
   full_name: string | null;
-  roles: AppRole[];
+  role: AppRole | null;
+  isDeveloper: boolean;
   created_at: string;
 };
+
 
 const clientInput = z.object({
   id: z.string().uuid().optional(),
