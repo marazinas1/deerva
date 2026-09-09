@@ -28,6 +28,12 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  useEffect(() => {
+    if (/access_token=|type=(invite|recovery|signup)/.test(initialHash)) {
+      window.location.replace(`/admin/set-password${initialHash}`);
+    }
+  }, []);
+
   return (
     <div className="relative flex min-h-screen flex-col bg-background text-foreground">
       <main className="flex flex-1 items-center justify-center px-6">
