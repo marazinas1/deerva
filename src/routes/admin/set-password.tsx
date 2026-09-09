@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import AuthCard from "@/components/admin/AuthCard";
+import AuthSplit from "@/components/admin/AuthSplit";
+import BrandLogo from "@/components/admin/BrandLogo";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin/set-password")({
@@ -52,41 +52,72 @@ function SetPassword() {
     void navigate({ to: "/admin", replace: true });
   }
 
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-6">
-      <div className="w-full max-w-[360px]">
-        <img src="/logo.png?v=5" alt="Deerva" className="mx-auto h-8 w-auto" />
-        <p className="mt-6 text-center font-body text-sm text-muted">Choose your password</p>
+  const fieldClass =
+    "w-full rounded-sm border border-input bg-background px-4 py-3 text-foreground transition focus:outline-hidden focus:ring-1 focus:ring-foreground";
 
-        <form onSubmit={onSubmit} className="mt-8 space-y-4">
+  return (
+    <AuthSplit>
+      <div className="mb-10 md:hidden">
+        <BrandLogo className="h-10 w-auto" />
+      </div>
+
+      <AuthCard eyebrow="Administrator" title="Set password">
+        <form onSubmit={onSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="password">New password</Label>
-            <Input
+            <label
+              htmlFor="password"
+              className="block text-xs uppercase tracking-[0.2em] text-muted"
+            >
+              New password
+            </label>
+            <input
               id="password"
               type="password"
               autoComplete="new-password"
               required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
+              className={fieldClass}
             />
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="confirm">Repeat password</Label>
-            <Input
+            <label
+              htmlFor="confirm"
+              className="block text-xs uppercase tracking-[0.2em] text-muted"
+            >
+              Repeat password
+            </label>
+            <input
               id="confirm"
               type="password"
               autoComplete="new-password"
               required
               value={confirm}
               onChange={(event) => setConfirm(event.target.value)}
+              className={fieldClass}
             />
           </div>
-          {error ? <p className="text-sm text-destructive">{error}</p> : null}
-          <Button type="submit" className="w-full" disabled={loading}>
+
+          {error ? (
+            <p className="text-sm text-destructive" role="alert">
+              {error}
+            </p>
+          ) : null}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="inline-flex w-full items-center justify-center rounded-sm bg-primary px-8 py-3 text-sm font-medium uppercase tracking-wider text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
+          >
             {loading ? "Saving…" : "Save password"}
-          </Button>
+          </button>
         </form>
-      </div>
-    </div>
+      </AuthCard>
+
+      <p className="mt-8 text-xs uppercase tracking-[0.15em] text-muted">
+        Authorized Personnel Only
+      </p>
+    </AuthSplit>
   );
 }
