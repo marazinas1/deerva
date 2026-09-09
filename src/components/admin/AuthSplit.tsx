@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { Link } from "@tanstack/react-router";
+
 import BrandLogo from "./BrandLogo";
 
 /**
@@ -14,7 +16,9 @@ export default function AuthSplit({ children }: { children: ReactNode }) {
       </div>
 
       <aside className="hidden flex-col items-center justify-center bg-ink px-16 py-24 md:flex">
-        <BrandLogo variant="dark" className="h-16 w-auto" />
+        <Link to="/" className="rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-paper/50">
+          <BrandLogo variant="dark" className="h-16 w-auto" />
+        </Link>
         <div className="mt-10 h-px w-12 bg-paper/20" />
       </aside>
     </main>
