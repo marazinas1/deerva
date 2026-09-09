@@ -4,6 +4,7 @@ import { useState } from "react";
 import AuthCard from "@/components/admin/AuthCard";
 import AuthSplit from "@/components/admin/AuthSplit";
 import BrandLogo from "@/components/admin/BrandLogo";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin/set-password")({
@@ -53,7 +54,7 @@ function SetPassword() {
   }
 
   const fieldClass =
-    "w-full rounded-sm border border-input bg-background px-4 py-3 text-foreground transition focus:outline-hidden focus:ring-1 focus:ring-foreground";
+    "w-full rounded-sm border border-input bg-background px-4 py-3 text-ink transition focus:outline-hidden focus:ring-1 focus:ring-ink";
 
   return (
     <AuthSplit>
@@ -66,7 +67,7 @@ function SetPassword() {
           <div className="space-y-2">
             <label
               htmlFor="password"
-              className="block text-xs uppercase tracking-[0.2em] text-muted"
+              className="block text-xs uppercase tracking-[0.2em] text-stone"
             >
               New password
             </label>
@@ -84,7 +85,7 @@ function SetPassword() {
           <div className="space-y-2">
             <label
               htmlFor="confirm"
-              className="block text-xs uppercase tracking-[0.2em] text-muted"
+              className="block text-xs uppercase tracking-[0.2em] text-stone"
             >
               Repeat password
             </label>
@@ -105,17 +106,17 @@ function SetPassword() {
             </p>
           ) : null}
 
-          <button
+          <Button
             type="submit"
             disabled={loading}
-            className="inline-flex w-full items-center justify-center rounded-sm bg-primary px-8 py-3 text-sm font-medium uppercase tracking-wider text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
+            className="h-auto w-full rounded-sm px-8 py-3 uppercase tracking-wider"
           >
             {loading ? "Saving…" : "Save password"}
-          </button>
+          </Button>
         </form>
       </AuthCard>
 
-      <p className="mt-8 text-xs uppercase tracking-[0.15em] text-muted">
+      <p className="mt-8 text-xs uppercase tracking-[0.15em] text-stone">
         Authorized Personnel Only
       </p>
     </AuthSplit>

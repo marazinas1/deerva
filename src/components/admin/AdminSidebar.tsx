@@ -76,9 +76,9 @@ export default function AdminSidebar({
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-border">
+      <SidebarHeader className="border-b border-line">
         <Link to="/admin" className="flex h-12 items-center px-2">
-          <BrandLogo className={collapsed ? "h-5 w-auto" : "h-7 w-auto"} />
+          <BrandLogo className={collapsed ? "h-6 w-auto" : "h-8 w-auto"} />
         </Link>
       </SidebarHeader>
 
@@ -116,7 +116,7 @@ export default function AdminSidebar({
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-border">
+      <SidebarFooter className="border-t border-line">
         <SidebarMenu>
           <SidebarMenuItem>
             <div className={`px-2 py-1 ${collapsed ? "hidden" : ""}`}>
