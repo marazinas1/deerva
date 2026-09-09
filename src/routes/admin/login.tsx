@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import AuthCard from "@/components/admin/AuthCard";
+import AuthSplit from "@/components/admin/AuthSplit";
+import BrandLogo from "@/components/admin/BrandLogo";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin/login")({
@@ -42,75 +42,117 @@ function AdminLogin() {
     setError(null);
     setNotice(null);
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (signInError) {
-      setError(signInError.message);
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+
+    if (signInError || !data.session) {
+      setError("Invalid email or password.");
+      setLoading(false);
       return;
     }
+
+    // Only accounts with a staff role may enter. RLS hides everyone else.
+    const { data: roleRows, error: roleError } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.session.user.id);
+
+    if (roleError || !roleRows || roleRows.length === 0) {
+      await supabase.auth.signOut();
+      setError("This account is not authorized.");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(false);
     void navigate({ to: "/admin", replace: true });
   }
 
   async function onForgotPassword() {
     setError(null);
     setNotice(null);
-    if (!email) {
-      setError("Enter your email first.");
+    if (!email.trim()) {
+      setError("Enter your email address first.");
       return;
     }
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+    await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: `${window.location.origin}/admin/set-password`,
     });
-    if (resetError) {
-      setError(resetError.message);
-      return;
-    }
-    setNotice("Check your inbox for the password link.");
+    setNotice("If that address has an account, a reset link is on its way.");
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-6">
-      <div className="w-full max-w-[360px]">
-        <img src="/logo.png?v=5" alt="Deerva" className="mx-auto h-8 w-auto" />
-        <p className="mt-6 text-center font-body text-sm text-muted">Admin panel</p>
+    <AuthSplit>
+      {/* The branded panel is hidden on small screens, so show the mark here. */}
+      <div className="mb-10 md:hidden">
+        <BrandLogo className="h-10 w-auto" />
+      </div>
 
-        <form onSubmit={onSubmit} className="mt-8 space-y-4">
+      <AuthCard eyebrow="Administrator" title="Sign in">
+        <form onSubmit={onSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
+            <label htmlFor="email" className="block text-xs uppercase tracking-[0.2em] text-muted">
+              Email
+            </label>
+            <input
               id="email"
               type="email"
               autoComplete="email"
               required
               value={email}
               onChange={(event) => setEmail(event.target.value)}
+              className="w-full rounded-sm border border-input bg-background px-4 py-3 text-foreground transition focus:outline-hidden focus:ring-1 focus:ring-foreground"
             />
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
+            <label
+              htmlFor="password"
+              className="block text-xs uppercase tracking-[0.2em] text-muted"
+            >
+              Password
+            </label>
+            <input
               id="password"
               type="password"
               autoComplete="current-password"
               required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
+              className="w-full rounded-sm border border-input bg-background px-4 py-3 text-foreground transition focus:outline-hidden focus:ring-1 focus:ring-foreground"
             />
           </div>
-          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+
+          {error ? (
+            <p className="text-sm text-destructive" role="alert">
+              {error}
+            </p>
+          ) : null}
           {notice ? <p className="text-sm text-muted">{notice}</p> : null}
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Signing in…" : "Sign in"}
-          </Button>
+
           <button
-            type="button"
-            onClick={onForgotPassword}
-            className="w-full text-center text-xs text-muted underline underline-offset-4 hover:text-foreground"
+            type="submit"
+            disabled={loading}
+            className="inline-flex w-full items-center justify-center rounded-sm bg-primary px-8 py-3 text-sm font-medium uppercase tracking-wider text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
           >
-            Forgot password?
+            {loading ? "Signing In…" : "Sign In"}
           </button>
         </form>
-      </div>
-    </div>
+
+        <button
+          type="button"
+          onClick={onForgotPassword}
+          className="mt-4 w-full text-center text-sm text-muted underline underline-offset-4 transition hover:text-foreground"
+        >
+          Forgot password?
+        </button>
+      </AuthCard>
+
+      <p className="mt-8 text-xs uppercase tracking-[0.15em] text-muted">
+        Authorized Personnel Only
+      </p>
+    </AuthSplit>
   );
 }
