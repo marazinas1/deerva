@@ -52,7 +52,7 @@ function AdminLayout() {
     );
   }
 
-  if (me.roles.length === 0) {
+  if (!me.role) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
         <h1 className="text-lg font-semibold">No access yet</h1>
@@ -85,7 +85,7 @@ function AdminLayout() {
         </nav>
         <div className="border-t border-border pt-4">
           <p className="truncate text-sm text-foreground">{me.fullName ?? me.email}</p>
-          <p className="mt-0.5 text-xs capitalize text-muted">{me.roles.join(", ")}</p>
+          <p className="mt-0.5 text-xs capitalize text-muted">{me.role}</p>
           <Button variant="ghost" size="sm" className="mt-3 w-full justify-start" onClick={signOut}>
             <LogOut className="mr-2 h-4 w-4" />
             Sign out
