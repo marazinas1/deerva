@@ -12,7 +12,7 @@ import { loadEnv } from "vite";
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Load all env vars (including non-VITE_ server secrets) into process.env for server routes.
-Object.assign(process.env, loadEnv(process.env.NODE_ENV ?? "development", process.cwd(), ""));
+Object.assign(process.env, loadEnv(process.env["NODE_ENV"] ?? "development", process.cwd(), ""));
 
 export default defineConfig({
   tanstackStart: {
