@@ -66,36 +66,57 @@ export const EmailChangeEmail = ({
 
 export default EmailChangeEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
+const main = {
+  backgroundColor: '#15171B',
+  fontFamily: "'Urbanist', 'Helvetica Neue', Arial, sans-serif",
+  color: '#EDEAE2',
+  margin: '0',
+  padding: '32px 0',
+}
+const container = {
+  maxWidth: '480px',
+  margin: '0 auto',
+  padding: '32px 28px',
+  backgroundColor: '#15171B',
+  border: '1px solid #2A2D33',
+}
 const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
+  fontSize: '20px',
+  fontWeight: 600 as const,
+  letterSpacing: '-0.01em',
+  color: '#EDEAE2',
   margin: '0 0 20px',
 }
 const text = {
-  fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
+  fontSize: '15px',
+  color: '#8B8D91',
+  lineHeight: '1.6',
+  margin: '0 0 24px',
 }
-const link = { color: 'inherit', textDecoration: 'underline' }
+const link = { color: '#5C7A8A', textDecoration: 'underline' }
 const button = {
-  backgroundColor: '#000000',
-  color: '#ffffff',
+  backgroundColor: '#5C7A8A',
+  color: '#15171B',
   fontSize: '14px',
-  border: '1px solid #000000',
-  borderRadius: '8px',
-  padding: '12px 20px',
+  fontWeight: 600 as const,
+  border: '1px solid #5C7A8A',
+  borderRadius: '2px',
+  padding: '12px 22px',
   textDecoration: 'none',
 }
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
+const footer = {
+  fontSize: '13px',
+  color: '#8B8D91',
+  lineHeight: '1.6',
+  margin: '28px 0 0',
+  paddingTop: '20px',
+  borderTop: '1px solid #2A2D33',
+}
 // Rendered as a text child, which React may HTML-escape: keep this CSS free of >, &, and quotes.
 const darkModeCss = `
   @media (prefers-color-scheme: dark) {
-    .dm-btn { background-color: #ffffff !important; color: #000000 !important; }
+    .dm-btn { background-color: #5C7A8A !important; color: #15171B !important; }
   }
-  [data-ogsc] .dm-btn { background-color: #ffffff !important; color: #000000 !important; }
-  [data-ogsb] .dm-btn { background-color: #ffffff !important; color: #000000 !important; }
+  [data-ogsc] .dm-btn { background-color: #5C7A8A !important; color: #15171B !important; }
+  [data-ogsb] .dm-btn { background-color: #5C7A8A !important; color: #15171B !important; }
 `
