@@ -181,7 +181,8 @@
  * interface. Scoping the overrides to .admin-theme keeps both in one
  * token system without a global theme switch.
  */
-.admin-theme {
+.admin-theme,
+:root:has(.admin-theme) {
   --radius: 0.5rem;
   --paper: oklch(1 0 0);
   --sand: oklch(0.976 0 0);
@@ -215,9 +216,56 @@
   --sidebar-accent-foreground: var(--ink);
   --sidebar-border: var(--line);
   --sidebar-ring: var(--ink);
+
+  /*
+   * @theme inline resolves --color-* on :root, so re-declaring only the raw
+   * tokens above would leave every Tailwind color utility (and the global
+   * border-color reset) on the dark public palette. Re-map them here too.
+   */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-paper: var(--paper);
+  --color-sand: var(--sand);
+  --color-ink: var(--ink);
+  --color-stone: var(--stone);
+  --color-line: var(--line);
+}
+
+.admin-theme {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   font-weight: 400;
   line-height: 1.6;
 }
+
+/* Admin pages own the whole viewport, including the scroll overshoot area. */
+:root:has(.admin-theme) body {
+  background-color: var(--sand);
+}
+
