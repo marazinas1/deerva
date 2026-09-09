@@ -13,12 +13,12 @@ export default function AuthCard({
     <div>
       <div className="mb-10">
         {eyebrow ? (
-          <p className="mb-4 text-xs uppercase tracking-[0.3em] text-muted">{eyebrow}</p>
+          <p className="mb-4 text-xs uppercase tracking-[0.3em] text-stone">{eyebrow}</p>
         ) : null}
-        <h1 className="text-3xl text-foreground">{title}</h1>
-        <div className="mt-6 h-px w-12 bg-foreground/20" />
+        <h1 className="text-3xl text-ink">{title}</h1>
+        <div className="mt-6 h-px w-12 bg-ink/20" />
       </div>
-      <div className="rounded-sm border border-border bg-card p-8">{children}</div>
+      <div className="rounded-sm border border-line bg-card p-8">{children}</div>
     </div>
   );
 }

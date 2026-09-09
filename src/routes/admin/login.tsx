@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import AuthCard from "@/components/admin/AuthCard";
 import AuthSplit from "@/components/admin/AuthSplit";
 import BrandLogo from "@/components/admin/BrandLogo";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin/login")({
@@ -93,7 +94,7 @@ function AdminLogin() {
       <AuthCard eyebrow="Administrator" title="Sign in">
         <form onSubmit={onSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label htmlFor="email" className="block text-xs uppercase tracking-[0.2em] text-muted">
+            <label htmlFor="email" className="block text-xs uppercase tracking-[0.2em] text-stone">
               Email
             </label>
             <input
@@ -103,14 +104,14 @@ function AdminLogin() {
               required
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="w-full rounded-sm border border-input bg-background px-4 py-3 text-foreground transition focus:outline-hidden focus:ring-1 focus:ring-foreground"
+              className="w-full rounded-sm border border-input bg-background px-4 py-3 text-ink transition focus:outline-hidden focus:ring-1 focus:ring-ink"
             />
           </div>
 
           <div className="space-y-2">
             <label
               htmlFor="password"
-              className="block text-xs uppercase tracking-[0.2em] text-muted"
+              className="block text-xs uppercase tracking-[0.2em] text-stone"
             >
               Password
             </label>
@@ -121,7 +122,7 @@ function AdminLogin() {
               required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="w-full rounded-sm border border-input bg-background px-4 py-3 text-foreground transition focus:outline-hidden focus:ring-1 focus:ring-foreground"
+              className="w-full rounded-sm border border-input bg-background px-4 py-3 text-ink transition focus:outline-hidden focus:ring-1 focus:ring-ink"
             />
           </div>
 
@@ -130,27 +131,28 @@ function AdminLogin() {
               {error}
             </p>
           ) : null}
-          {notice ? <p className="text-sm text-muted">{notice}</p> : null}
+          {notice ? <p className="text-sm text-stone">{notice}</p> : null}
 
-          <button
+          <Button
             type="submit"
             disabled={loading}
-            className="inline-flex w-full items-center justify-center rounded-sm bg-primary px-8 py-3 text-sm font-medium uppercase tracking-wider text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
+            className="h-auto w-full rounded-sm px-8 py-3 uppercase tracking-wider"
           >
             {loading ? "Signing In…" : "Sign In"}
-          </button>
+          </Button>
         </form>
 
-        <button
+        <Button
           type="button"
+          variant="link"
           onClick={onForgotPassword}
-          className="mt-4 w-full text-center text-sm text-muted underline underline-offset-4 transition hover:text-foreground"
+          className="mt-4 w-full text-stone underline underline-offset-4 hover:text-ink"
         >
           Forgot password?
-        </button>
+        </Button>
       </AuthCard>
 
-      <p className="mt-8 text-xs uppercase tracking-[0.15em] text-muted">
+      <p className="mt-8 text-xs uppercase tracking-[0.15em] text-stone">
         Authorized Personnel Only
       </p>
     </AuthSplit>
