@@ -271,5 +271,3 @@ export const setUserRole = createServerFn({ method: "POST" })
 
     return { ok: true as const };
   });
-
-  });
