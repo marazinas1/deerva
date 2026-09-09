@@ -1,4 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
+
+// Invitation and password-reset links land on "/" with the token in the URL hash.
+// Capture it before anything can strip it, then hand it to the password page.
+const initialHash = typeof window !== "undefined" ? window.location.hash : "";
 
 export const Route = createFileRoute("/")({
   component: Index,
