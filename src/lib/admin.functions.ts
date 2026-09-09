@@ -61,29 +61,31 @@ function emptyToNull(value: string | null | undefined): string | null {
   return trimmed === "" ? null : trimmed;
 }
 
-/** Current signed-in staff member with their roles. */
+/** Current signed-in staff member with their single role. */
 export const getAdminMe = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminMe> => {
     const { supabase, userId } = context;
 
-    const [{ data: profile }, { data: roleRows, error: roleError }] = await Promise.all([
+    const [{ data: profile }, { data: roleRow, error: roleError }] = await Promise.all([
       supabase.from("profiles").select("full_name, email").eq("id", userId).maybeSingle(),
-      supabase.from("user_roles").select("role").eq("user_id", userId),
+      supabase.from("user_roles").select("role").eq("user_id", userId).maybeSingle(),
     ]);
 
     if (roleError) throw new Error(roleError.message);
 
-    const roles = (roleRows ?? []).map((row) => row.role as AppRole);
+    const role = (roleRow?.role ?? null) as AppRole | null;
 
     return {
       userId,
       email: profile?.email ?? (context.claims["email"] as string | undefined) ?? null,
       fullName: profile?.full_name ?? null,
-      roles,
-      isManager: roles.includes("developer") || roles.includes("owner"),
+      role,
+      isManager: role === "developer" || role === "owner",
+      isDeveloper: role === "developer",
     };
   });
+
 
 export const listClients = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
