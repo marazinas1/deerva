@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ArrowLeft, Building2, LayoutDashboard, LogOut, UserCog } from "lucide-react";
+import { ArrowLeft, BarChart3, Building2, LayoutDashboard, LogOut, UserCog } from "lucide-react";
 
 import BrandLogo from "@/components/admin/BrandLogo";
 import {
@@ -41,6 +41,13 @@ const GROUPS: { label: string; items: Item[] }[] = [
         icon: Building2,
         managerOnly: false,
         match: (p) => p.startsWith("/admin/clients"),
+      },
+      {
+        title: "Analytics",
+        url: "/admin/analytics",
+        icon: BarChart3,
+        managerOnly: false,
+        match: (p) => p.startsWith("/admin/analytics"),
       },
       {
         title: "Users",
