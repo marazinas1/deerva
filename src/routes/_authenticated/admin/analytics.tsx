@@ -320,6 +320,25 @@ function AnalyticsPage() {
               }))}
             />
             <BreakdownList
+              title="Client sites & referrers"
+              total={totalViews}
+              empty="No referrals from other websites yet. They appear here once visitors arrive through links such as the footer badge on client sites."
+              rows={(() => {
+                const byHost = new Map<string, number>();
+                for (const r of data?.referrers ?? []) {
+                  byHost.set(r.host, (byHost.get(r.host) ?? 0) + Number(r.views));
+                }
+                for (const u of data?.utm_sources ?? []) {
+                  const key = byHost.has(u.source) ? u.source : `${u.source} (badge)`;
+                  byHost.set(key, (byHost.get(key) ?? 0) + Number(u.views));
+                }
+                return [...byHost.entries()]
+                  .map(([label, views]) => ({ label, views }))
+                  .sort((a, b) => b.views - a.views)
+                  .slice(0, 12);
+              })()}
+            />
+            <BreakdownList
               title="Devices"
               total={totalViews}
               empty="No device data yet."
