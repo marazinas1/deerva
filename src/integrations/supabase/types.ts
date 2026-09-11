@@ -70,8 +70,12 @@ export type Database = {
           is_bot: boolean
           path: string
           referrer: string
+          referrer_host: string
           session_id: string
           user_agent: string
+          utm_campaign: string
+          utm_medium: string
+          utm_source: string
         }
         Insert: {
           country_code?: string
@@ -83,8 +87,12 @@ export type Database = {
           is_bot?: boolean
           path: string
           referrer?: string
+          referrer_host?: string
           session_id: string
           user_agent?: string
+          utm_campaign?: string
+          utm_medium?: string
+          utm_source?: string
         }
         Update: {
           country_code?: string
@@ -96,8 +104,12 @@ export type Database = {
           is_bot?: boolean
           path?: string
           referrer?: string
+          referrer_host?: string
           session_id?: string
           user_agent?: string
+          utm_campaign?: string
+          utm_medium?: string
+          utm_source?: string
         }
         Relationships: []
       }
