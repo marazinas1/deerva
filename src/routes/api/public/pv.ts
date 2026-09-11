@@ -13,6 +13,9 @@ const schema = z.object({
   path: z.string().min(1).max(2048),
   sessionId: z.string().min(1).max(64),
   referrer: z.string().max(2048).default(""),
+  utmSource: z.string().max(200).default(""),
+  utmMedium: z.string().max(200).default(""),
+  utmCampaign: z.string().max(200).default(""),
   durationMs: z
     .number()
     .int()
@@ -30,6 +33,16 @@ function countryFrom(request: Request): string {
   const code = raw.trim().toUpperCase();
   if (!code || code === "XX" || code === "T1" || code.length !== 2) return "";
   return code;
+}
+
+/** Hostname of the external referrer ("" when direct or unparseable). */
+function referrerHost(referrer: string): string {
+  if (!referrer) return "";
+  try {
+    return new URL(referrer).hostname.toLowerCase().slice(0, 255);
+  } catch {
+    return "";
+  }
 }
 
 function deviceFrom(userAgent: string): string {
@@ -67,6 +80,10 @@ export const Route = createFileRoute("/api/public/pv")({
             path: parsed.data.path,
             session_id: parsed.data.sessionId,
             referrer: parsed.data.referrer,
+            referrer_host: referrerHost(parsed.data.referrer),
+            utm_source: parsed.data.utmSource,
+            utm_medium: parsed.data.utmMedium,
+            utm_campaign: parsed.data.utmCampaign,
             user_agent: userAgent,
             country_code: countryFrom(request),
             device: deviceFrom(userAgent),

@@ -14,6 +14,8 @@ export interface AnalyticsSummary {
   top_pages: { path: string; views: number }[];
   countries: { code: string; views: number; visitors: number }[];
   sources: { source: string; views: number }[];
+  referrers: { host: string; views: number; visitors: number }[];
+  utm_sources: { source: string; views: number; visitors: number }[];
   devices: { device: string; views: number }[];
 }
 
@@ -27,6 +29,8 @@ const EMPTY: AnalyticsSummary = {
   top_pages: [],
   countries: [],
   sources: [],
+  referrers: [],
+  utm_sources: [],
   devices: [],
 };
 
