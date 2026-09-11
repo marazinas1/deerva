@@ -17,6 +17,7 @@ import { Route as AdminSetPasswordRouteImport } from './routes/admin/set-passwor
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminClientsRouteImport } from './routes/_authenticated/admin/clients'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
+import { Route as ApiPublicPvRouteImport } from './routes/api/public/pv'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 
@@ -60,6 +61,11 @@ const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const ApiPublicPvRoute = ApiPublicPvRouteImport.update({
+  id: '/api/public/pv',
+  path: '/api/public/pv',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   id: '/lovable/email/auth/preview',
   path: '/lovable/email/auth/preview',
@@ -78,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/admin/set-password': typeof AdminSetPasswordRoute
   '/admin/clients': typeof AuthenticatedAdminClientsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/api/public/pv': typeof ApiPublicPvRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/admin/set-password': typeof AdminSetPasswordRoute
   '/admin/clients': typeof AuthenticatedAdminClientsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/api/public/pv': typeof ApiPublicPvRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/admin/set-password': typeof AdminSetPasswordRoute
   '/_authenticated/admin/clients': typeof AuthenticatedAdminClientsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/api/public/pv': typeof ApiPublicPvRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
     | '/admin/set-password'
     | '/admin/clients'
     | '/admin/users'
+    | '/api/public/pv'
     | '/admin/'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
     | '/admin/set-password'
     | '/admin/clients'
     | '/admin/users'
+    | '/api/public/pv'
     | '/admin'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
     | '/admin/set-password'
     | '/_authenticated/admin/clients'
     | '/_authenticated/admin/users'
+    | '/api/public/pv'
     | '/_authenticated/admin/'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -146,6 +158,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AdminLoginRoute: typeof AdminLoginRoute
   AdminSetPasswordRoute: typeof AdminSetPasswordRoute
+  ApiPublicPvRoute: typeof ApiPublicPvRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
 }
@@ -208,6 +221,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/api/public/pv': {
+      id: '/api/public/pv'
+      path: '/api/public/pv'
+      fullPath: '/api/public/pv'
+      preLoaderRoute: typeof ApiPublicPvRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/auth/preview': {
       id: '/lovable/email/auth/preview'
       path: '/lovable/email/auth/preview'
@@ -259,6 +279,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AdminLoginRoute: AdminLoginRoute,
   AdminSetPasswordRoute: AdminSetPasswordRoute,
+  ApiPublicPvRoute: ApiPublicPvRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
 }
