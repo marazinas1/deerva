@@ -59,6 +59,48 @@ export type Database = {
         }
         Relationships: []
       }
+      page_views: {
+        Row: {
+          country_code: string
+          created_at: string
+          device: string
+          duration_ms: number
+          engaged: boolean
+          id: string
+          is_bot: boolean
+          path: string
+          referrer: string
+          session_id: string
+          user_agent: string
+        }
+        Insert: {
+          country_code?: string
+          created_at?: string
+          device?: string
+          duration_ms?: number
+          engaged?: boolean
+          id?: string
+          is_bot?: boolean
+          path: string
+          referrer?: string
+          session_id: string
+          user_agent?: string
+        }
+        Update: {
+          country_code?: string
+          created_at?: string
+          device?: string
+          duration_ms?: number
+          engaged?: boolean
+          id?: string
+          is_bot?: boolean
+          path?: string
+          referrer?: string
+          session_id?: string
+          user_agent?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -112,6 +154,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      analytics_summary: {
+        Args: { _from: string; _include_short?: boolean; _to: string }
+        Returns: Json
+      }
       developer_email: { Args: never; Returns: string }
       has_role: {
         Args: {
@@ -123,6 +169,7 @@ export type Database = {
       is_admin_staff: { Args: { _user_id: string }; Returns: boolean }
       is_developer: { Args: { _user_id?: string }; Returns: boolean }
       is_manager: { Args: { _user_id: string }; Returns: boolean }
+      prune_page_views: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "developer" | "owner" | "editor"
