@@ -35,6 +35,16 @@ function countryFrom(request: Request): string {
   return code;
 }
 
+/** Hostname of the external referrer ("" when direct or unparseable). */
+function referrerHost(referrer: string): string {
+  if (!referrer) return "";
+  try {
+    return new URL(referrer).hostname.toLowerCase().slice(0, 255);
+  } catch {
+    return "";
+  }
+}
+
 function deviceFrom(userAgent: string): string {
   const ua = userAgent.toLowerCase();
   if (!ua) return "unknown";
