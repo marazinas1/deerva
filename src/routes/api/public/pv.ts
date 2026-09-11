@@ -13,6 +13,9 @@ const schema = z.object({
   path: z.string().min(1).max(2048),
   sessionId: z.string().min(1).max(64),
   referrer: z.string().max(2048).default(""),
+  utmSource: z.string().max(200).default(""),
+  utmMedium: z.string().max(200).default(""),
+  utmCampaign: z.string().max(200).default(""),
   durationMs: z
     .number()
     .int()

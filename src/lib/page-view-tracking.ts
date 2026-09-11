@@ -47,11 +47,18 @@ export function usePageViewTracking(pathname: string, enabled: boolean) {
 
     const id = crypto.randomUUID();
     const startedAt = Date.now();
+    // UTM tags only matter for the first page of a visit — the referrer of
+    // later in-site navigations is our own site.
+    const params = new URLSearchParams(window.location.search);
+    const utm = (key: string) => (params.get(key) ?? "").slice(0, 200);
     const base = {
       id,
       path: pathname.slice(0, 2048),
       sessionId: sessionId(),
       referrer: (document.referrer || "").slice(0, 2048),
+      utmSource: utm("utm_source"),
+      utmMedium: utm("utm_medium"),
+      utmCampaign: utm("utm_campaign"),
     };
 
     let recorded = false;
