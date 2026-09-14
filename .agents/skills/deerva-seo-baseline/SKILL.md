@@ -41,7 +41,7 @@ Placeholder antraštės „Home" ar bendras aprašymas keliems puslapiams laikom
 | Sektorius | Schema |
 |---|---|
 | Odontologija / klinika | `Dentist` / `MedicalBusiness` + `OpeningHoursSpecification` |
-| Architektai / studija | `ProfessionalService` + `Organization` |
+| Architektai / studija | `ArchitecturalService` + `Organization` |
 | Brokeris | `RealEstateAgent`, skelbimai kaip `Residence` / `Offer` |
 | Vystytojas | `Organization` + `Place` kiekvienam projektui |
 | Bet kur | `BreadcrumbList`, `Article` straipsniuose, `FAQPage` kur yra DUK |

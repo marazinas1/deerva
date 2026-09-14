@@ -36,7 +36,7 @@ Placeholder titles like "Home" or a shared description across pages are treated 
 | Sector | Schema |
 |---|---|
 | Dentist / clinic | `Dentist` / `MedicalBusiness` + `OpeningHoursSpecification` |
-| Architect / studio | `ProfessionalService` + `Organization` |
+| Architect / studio | `ArchitecturalService` + `Organization` |
 | Broker | `RealEstateAgent`, listings as `Residence` / `Offer` |
 | Developer | `Organization` + `Place` per development |
 | Any | `BreadcrumbList`, `Article` on blog posts, `FAQPage` where a FAQ exists |
