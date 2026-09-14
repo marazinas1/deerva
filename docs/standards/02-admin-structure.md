@@ -39,6 +39,14 @@ About texts     …
 Contact texts   …
 <one tab per further public page>
 Maintenance     maintenance mode toggle — visitors see a holding page
+
+## Maintenance mode behaviour
+
+When a signed-in staff member visits the site while maintenance mode is on, they see the real public site, not the holding page, but with a persistent, non-dismissible banner at the top: "Maintenance mode is on — you are seeing this site because you are signed in. Visitors see the holding page." The banner has two actions: "Preview as visitor" (switches the view to the same holding page everyone else sees) and "Turn off" (link straight to Settings → Maintenance).
+
+An unsigned-in visitor always sees the holding page, no exceptions.
+
+The default state, while authentication is still being resolved, must be HIDDEN (the holding page), not visible. Showing real content while still checking whether the person is signed in means a quick visit or a crawler could see real content through that window. The default behaviour always shows less, never more, until proven otherwise.
 ```
 
 Adding a public page means adding its tab in the same change. A page with uneditable text is a bug.
