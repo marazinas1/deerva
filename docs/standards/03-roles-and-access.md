@@ -12,6 +12,23 @@ Identical in every Deerva project. No variations, no per-client exceptions.
 
 Exactly **one role per user**. No stacking.
 
+## Two tiers — pick one, do not mix
+
+**Solo tier (default)** — one owner, no staff. Use the three-role model
+above: `developer` / `owner` / `editor`, one role per user, via `user_roles`
+plus the `has_role`/`is_developer`/`is_manager`/`is_admin_staff` functions.
+
+**Team tier** — the client has staff who each need different scopes (e.g. an
+agent who only sees their own listings vs a manager who sees everyone's).
+Use a `permissions` + `role_permissions` matrix with granular keys
+(`resource.action.own` / `resource.action.any`) instead of the three-role
+enum. `developer` stays hardcoded and identical either way.
+
+Never introduce the three-role enum into a Team-tier project to
+"standardise" it — the granular model is doing a job the enum cannot. Never
+introduce the permission matrix into a Solo-tier project — it is unneeded
+complexity for a single owner.
+
 ## Non-negotiables
 
 1. Roles live in a separate `user_roles` table. Never a column on `profiles` or `users` — that is a privilege-escalation hole.
