@@ -1,6 +1,6 @@
 # 01 — Design system
 
-StageHomy is the reference for visual language. Lumidenta is the reference for applying it to a warm, service-based business. Both are "restrained, confident, generous with space" — that is the Deerva look.
+StageHomy is the reference for space, rhythm and motion — section spacing, hover effects, overall restraint. Do not copy its component code directly: Header.tsx, Footer.tsx, HeroSection.tsx and similar files contain hardcoded colours that this standard forbids. Take the aesthetic, not the code. Lumidenta is the reference for applying it to a warm, service-based business. Both are "restrained, confident, generous with space" — that is the Deerva look.
 
 ## Tokens
 

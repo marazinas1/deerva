@@ -5,7 +5,7 @@ description: Naudok bet kokiam Deerva projekto UI darbui — spalvų tokenams, t
 
 # 01 — Dizaino sistema
 
-StageHomy yra vizualinės kalbos etalonas. Lumidenta — etalonas, kaip ją pritaikyti šiltam paslaugų verslui. Abu „santūrūs, užtikrinti, dosnūs erdvei" — tai ir yra Deerva stilius.
+StageHomy yra etalonas erdvei, ritmui ir judesiui — sekcijų tarpams, hover efektams, bendram santūrumui. Jo paties komponentų kodo tiesiogiai nekopiijuoti: Header.tsx, Footer.tsx, HeroSection.tsx ir kt. turi kietai įrašytų spalvų, kurias šis standartas draudžia. Perimama estetika, ne kodas. Lumidenta — etalonas, kaip ją pritaikyti šiltam paslaugų verslui. Abu „santūrūs, užtikrinti, dosnūs erdvei" — tai ir yra Deerva stilius.
 
 ## Tokenai
 
