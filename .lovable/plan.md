@@ -1,38 +1,22 @@
-# Planas: sukurti du Deerva workspace skills
+# Planas: Deerva workspace skills — atlikta
 
-## Tikslas
-Iš `docs/standards/02-admin-structure.md` ir `docs/standards/03-roles-and-access.md` sukurti du aktyvius workspace skills, kuriuos vėliau galima iškviesti per Settings → Skills arba `/` komandą bet kuriame Deerva projekte.
+Vartotojas rankiniu būdu pridėjo abu skills per Settings → Skills. Patikrinta — abu aktyvūs:
 
-## Žingsniai
+- `deerva-admin-structure` (iš `docs/standards/02-admin-structure.md`)
+- `deerva-roles-and-access` (iš pataisyto `docs/standards/03-roles-and-access.md` su „Two tiers“ skyriumi)
 
-1. **Nuskaityti šaltinius**
-   - Patikrinti `docs/standards/02-admin-structure.md` ir `docs/standards/03-roles-and-access.md` turinį.
-   - Įsitikinti, kad abu failai yra švieži ir neturi papildomų pataisymų, kuriuos reikėtų įtraukti.
+Jokių kodo pakeitimų šiame projekte nereikia.
 
-2. **Sukurti skill draftus**
-   - `.agents/skills/deerva-admin-structure/SKILL.md`
-     - `name`: `deerva-admin-structure`
-     - `description` (lietuviškai): pateiktas aprašymas.
-     - `content`: visas `02-admin-structure.md` turinys angliškai.
-   - `.agents/skills/deerva-roles-and-access/SKILL.md`
-     - `name`: `deerva-roles-and-access`
-     - `description` (lietuviškai): pateiktas aprašymas.
-     - `content`: visas pataisytas `03-roles-and-access.md` turinys (su „Two tiers“ skyriumi).
+## Kas toliau (kituose projektuose)
 
-3. **Pritaikyti skills**
-   - Paleisti `skills--apply_draft` su kiekvienu skill root directory:
-     - `.agents/skills/deerva-admin-structure`
-     - `.agents/skills/deerva-roles-and-access`
-   - Patikrinti, kad apply operacija sugrįžta be klaidų.
+Skills dabar galioja workspace lygmeniu — jie automatiškai iškyla, kai atitinkama užduotis daroma bet kuriame Deerva projekte (Dorothe, OCDG, Lumidenta, StageHomy ir kt.):
 
-4. **Patikrinti aktyvumą**
-   - Įsitikinti, kad abu skills atsiranda workspace skills sąraše (Settings → Skills).
-   - Trumpai patikrinti, ar skill aprašymas ir content atvaizduojamas teisingai.
+- `deerva-admin-structure` — kai tvarkomas admin meniu, settings tabai, overview arba logo.
+- `deerva-roles-and-access` — kai diegiamos ar tikrinamos rolės ir teisės.
 
-## Kas nepatenka į šį planą
-- Skill turinio vertimas į lietuvių kalbą — paliekamas atskirai pagal pageidavimą.
-- Trečiųjų standartų (pvz., design-system, analytics) konvertavimas į skills.
-- Bet kokie kodo ar admin pakeitimai projekte.
+Kiekviename kliento projekte atskirame chate pakanka paprašyti „suvarkyk admin panelę pagal Deerva standartus“ — atitinkamas skill bus pritaikytas automatiškai.
 
-## Po patvirtinimo
-Patvirtinus planą sukursiu draft skill failus ir pritaikysiu juos, kad jie taptų prieinami workspace lygmeniu.
+## Nepatenka į šį etapą
+
+- Likusių standartų (00, 01, 04, 05, 06, 07) konvertavimas į skills — darome vėliau, jei prireiks.
+- Bet kokie admin ar kodo pakeitimai kliento projektuose — daroma tų projektų chatuose.
