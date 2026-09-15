@@ -805,9 +805,9 @@ function ProjectsPage() {
                       {capture.isPending ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : (
-                        <Camera className="h-3.5 w-3.5" />
+                        <ImageDown className="h-3.5 w-3.5" />
                       )}
-                      Capture from live site
+                      Get image from site
                     </Button>
                   </div>
                 </div>
