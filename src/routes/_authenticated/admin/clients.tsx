@@ -313,8 +313,15 @@ function ProjectsPage() {
   });
 
   const capture = useMutation({
-    mutationFn: ({ id, url }: { id: string; url: string }) =>
-      fetchClientImage({ data: { id, url } }),
+    mutationFn: ({
+      id,
+      url,
+      mode,
+    }: {
+      id: string;
+      url: string;
+      mode: "auto" | "screenshot";
+    }) => fetchClientImage({ data: { id, url, mode } }),
     onSuccess: (result) => {
       toast.success(
         result.source === "og" ? "Image taken from the site" : "Screenshot saved",
