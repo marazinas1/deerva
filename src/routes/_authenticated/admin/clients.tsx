@@ -461,9 +461,20 @@ function ProjectsPage() {
                       ? ` · setup ${money(client.onboarding_fee, client.onboarding_fee_currency)}`
                       : ""}
                   </p>
+                  {(() => {
+                    const payment = paymentLabel(client.next_payment_on);
+                    if (!payment) return null;
+                    return (
+                      <p
+                        className={`text-xs ${payment.overdue ? "text-red-600" : "text-muted"}`}
+                      >
+                        Next payment {client.next_payment_on} · {payment.text}
+                      </p>
+                    );
+                  })()}
                 </div>
               </button>
-              <div className="flex flex-wrap gap-2 border-t border-border px-4 py-3">
+              <div className="flex flex-wrap items-center gap-2 border-t border-border px-4 py-3">
                 {client.live_url ? (
                   <Button asChild size="sm" variant="outline">
                     <a href={client.live_url} target="_blank" rel="noreferrer">
