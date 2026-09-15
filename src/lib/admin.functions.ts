@@ -375,7 +375,13 @@ const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 export const fetchClientImage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ id: z.string().uuid(), url: z.string().url() }).parse(input),
+    z
+      .object({
+        id: z.string().uuid(),
+        url: z.string().url(),
+        mode: z.enum(["auto", "screenshot"]).default("auto"),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     await assertManager(context.supabase, context.userId);
@@ -393,7 +399,8 @@ export const fetchClientImage = createServerFn({ method: "POST" })
         const html = await page.text();
         const found = readHeadImages(html, page.url || data.url);
         favicon = found.favicon;
-        if (found.image) {
+        // In screenshot mode we still read the head, but only for the favicon.
+        if (found.image && data.mode !== "screenshot") {
           const image = await fetch(found.image, { headers: { Accept: "image/*" } });
           const type = image.headers.get("content-type") ?? "";
           if (image.ok && type.startsWith("image/")) {
