@@ -130,6 +130,7 @@ function toForm(client: ClientRow): FormState {
     monthly_fee: client.monthly_fee != null ? String(client.monthly_fee) : "",
     monthly_fee_currency: (client.monthly_fee_currency as Currency) ?? "EUR",
     billing_cycle: (client.billing_cycle as Cycle) ?? "monthly",
+    next_payment_on: client.next_payment_on ?? "",
     notes: client.notes ?? "",
   };
 }
