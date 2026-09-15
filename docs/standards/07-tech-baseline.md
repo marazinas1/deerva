@@ -42,6 +42,18 @@ The same stack in every project. Sameness is the point: a fix written once appli
 - Client uploads go through the image optimise pipeline: resize, WebP, strip EXIF.
 - Replacing or deleting an image deletes the old object. No orphans.
 
+### Image numbers (identical in every project)
+
+| Setting | Value |
+| --- | --- |
+| Longest side | 1600 px |
+| Format | WebP |
+| Quality | 0.82 |
+| Input cap | 25 MB, rejected before decoding |
+| Metadata | dropped — the file is re-drawn through a canvas |
+
+The pipeline runs in the browser, in one shared helper (`src/lib/image-optimise.ts`), because the server is an edge worker with no native image library. Images fetched server-side (og:image, screenshots) are re-processed through the same helper before they are kept.
+
 ## Project documents
 
 Every repo carries `AGENTS.md`, `FRONTEND.md` and `PLAN.md` at the root, written before the build and kept current. An agent reading only those three files should be able to work correctly in the project.
