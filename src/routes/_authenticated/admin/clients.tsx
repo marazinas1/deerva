@@ -145,21 +145,19 @@ function money(amount: number | null, currency: string | null) {
   }).format(amount);
 }
 
-/** Downscales to ~1200px wide WebP before upload so storage stays small. */
-async function toOptimisedWebp(file: File): Promise<Blob> {
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, 1200 / bitmap.width);
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(bitmap.width * scale);
-  canvas.height = Math.round(bitmap.height * scale);
-  const context = canvas.getContext("2d");
-  if (!context) throw new Error("Could not process the image");
-  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, "image/webp", 0.82),
-  );
-  if (!blob) throw new Error("Could not process the image");
-  return blob;
+/** Uploads an optimised copy and points the project at it. */
+async function storeOptimised(
+  clientId: string,
+  source: Blob,
+): Promise<{ bytes: number; width: number; height: number }> {
+  const { blob, width, height } = await optimiseImage(source);
+  const path = `${clientId}/${Date.now()}.webp`;
+  const { error } = await supabase.storage
+    .from("client-thumbnails")
+    .upload(path, blob, { contentType: "image/webp", upsert: true });
+  if (error) throw new Error(error.message);
+  await setClientThumbnail({ data: { id: clientId, path } });
+  return { bytes: blob.size, width, height };
 }
 
 const DAY = 86_400_000;
