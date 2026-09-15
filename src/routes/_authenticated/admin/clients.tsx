@@ -496,6 +496,24 @@ function ProjectsPage() {
                     </a>
                   </Button>
                 ) : null}
+                {canManage && client.next_payment_on ? (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={markPaid.isPending}
+                    onClick={() => markPaid.mutate(client.id)}
+                  >
+                    Mark paid
+                  </Button>
+                ) : null}
+                {client.thumbnail_source ? (
+                  <span className="ml-auto text-[11px] text-muted">
+                    {SOURCE_LABEL[client.thumbnail_source] ?? client.thumbnail_source}
+                    {client.thumbnail_captured_at
+                      ? ` · ${client.thumbnail_captured_at.slice(0, 10)}`
+                      : ""}
+                  </span>
+                ) : null}
               </div>
             </article>
           ))}
