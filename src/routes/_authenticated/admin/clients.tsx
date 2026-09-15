@@ -1,7 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Camera, Github, Globe, Loader2, Sparkles, Trash2, Upload } from "lucide-react";
-import { useRef, useState } from "react";
+import {
+  Github,
+  Globe,
+  ImageDown,
+  Loader2,
+  Search,
+  Sparkles,
+  Trash2,
+  Upload,
+} from "lucide-react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
