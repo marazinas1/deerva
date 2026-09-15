@@ -64,20 +64,25 @@ export type Database = {
           country: string | null
           created_at: string
           created_by: string | null
+          favicon_url: string | null
           github_url: string | null
           id: string
+          last_paid_on: string | null
           live_url: string | null
           lovable_project_url: string | null
           monthly_fee: number | null
           monthly_fee_currency: string | null
           name: string
+          next_payment_on: string | null
           notes: string | null
           onboarding_fee: number | null
           onboarding_fee_currency: string | null
           sector: string | null
           slug: string
           status: string
+          thumbnail_captured_at: string | null
           thumbnail_path: string | null
+          thumbnail_source: string | null
           updated_at: string
         }
         Insert: {
@@ -85,20 +90,25 @@ export type Database = {
           country?: string | null
           created_at?: string
           created_by?: string | null
+          favicon_url?: string | null
           github_url?: string | null
           id?: string
+          last_paid_on?: string | null
           live_url?: string | null
           lovable_project_url?: string | null
           monthly_fee?: number | null
           monthly_fee_currency?: string | null
           name: string
+          next_payment_on?: string | null
           notes?: string | null
           onboarding_fee?: number | null
           onboarding_fee_currency?: string | null
           sector?: string | null
           slug: string
           status?: string
+          thumbnail_captured_at?: string | null
           thumbnail_path?: string | null
+          thumbnail_source?: string | null
           updated_at?: string
         }
         Update: {
@@ -106,20 +116,25 @@ export type Database = {
           country?: string | null
           created_at?: string
           created_by?: string | null
+          favicon_url?: string | null
           github_url?: string | null
           id?: string
+          last_paid_on?: string | null
           live_url?: string | null
           lovable_project_url?: string | null
           monthly_fee?: number | null
           monthly_fee_currency?: string | null
           name?: string
+          next_payment_on?: string | null
           notes?: string | null
           onboarding_fee?: number | null
           onboarding_fee_currency?: string | null
           sector?: string | null
           slug?: string
           status?: string
+          thumbnail_captured_at?: string | null
           thumbnail_path?: string | null
+          thumbnail_source?: string | null
           updated_at?: string
         }
         Relationships: []

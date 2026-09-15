@@ -1,7 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Camera, Github, Globe, Loader2, Sparkles, Trash2, Upload } from "lucide-react";
-import { useRef, useState } from "react";
+import {
+  Github,
+  Globe,
+  ImageDown,
+  Loader2,
+  Search,
+  Sparkles,
+  Trash2,
+  Upload,
+} from "lucide-react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -28,11 +37,12 @@ import {
   BILLING_CYCLES,
   CLIENT_STATUSES,
   CURRENCIES,
-  captureClientThumbnail,
   deleteClient,
   deleteClientContact,
+  fetchClientImage,
   getAdminMe,
   listClients,
+  markClientPaid,
   saveClient,
   saveClientContact,
   setClientThumbnail,
@@ -63,6 +73,7 @@ type FormState = {
   monthly_fee: string;
   monthly_fee_currency: Currency;
   billing_cycle: Cycle;
+  next_payment_on: string;
   notes: string;
 };
 
@@ -80,6 +91,7 @@ const EMPTY_FORM: FormState = {
   monthly_fee: "",
   monthly_fee_currency: "EUR",
   billing_cycle: "monthly",
+  next_payment_on: "",
   notes: "",
 };
 
@@ -118,6 +130,7 @@ function toForm(client: ClientRow): FormState {
     monthly_fee: client.monthly_fee != null ? String(client.monthly_fee) : "",
     monthly_fee_currency: (client.monthly_fee_currency as Currency) ?? "EUR",
     billing_cycle: (client.billing_cycle as Cycle) ?? "monthly",
+    next_payment_on: client.next_payment_on ?? "",
     notes: client.notes ?? "",
   };
 }
@@ -148,9 +161,45 @@ async function toOptimisedWebp(file: File): Promise<Blob> {
   return blob;
 }
 
+const DAY = 86_400_000;
+
+/** Days until the date; negative when it has already passed. */
+function daysUntil(date: string | null): number | null {
+  if (!date) return null;
+  const target = new Date(`${date}T00:00:00Z`).getTime();
+  const today = new Date();
+  const start = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  return Math.round((target - start) / DAY);
+}
+
+function paymentLabel(date: string | null): { text: string; overdue: boolean } | null {
+  const days = daysUntil(date);
+  if (days == null) return null;
+  if (days < 0) return { text: `Overdue by ${Math.abs(days)} d`, overdue: true };
+  if (days === 0) return { text: "Due today", overdue: true };
+  return { text: `Due in ${days} d`, overdue: false };
+}
+
+const SOURCE_LABEL: Record<string, string> = {
+  og: "Image from the site",
+  screenshot: "Screenshot",
+  upload: "Uploaded",
+};
+
+type Sort = "newest" | "oldest" | "fee_desc" | "payment";
+
+const SORTS: { key: Sort; label: string }[] = [
+  { key: "newest", label: "Newest" },
+  { key: "oldest", label: "Oldest" },
+  { key: "fee_desc", label: "Highest fee" },
+  { key: "payment", label: "Nearest payment" },
+];
+
 function ProjectsPage() {
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<"all" | Status>("all");
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<Sort>("newest");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [current, setCurrent] = useState<ClientRow | null>(null);
@@ -165,7 +214,36 @@ function ProjectsPage() {
 
   const canManage = me?.isManager ?? false;
   const rows = clients ?? [];
-  const visible = filter === "all" ? rows : rows.filter((row) => row.status === filter);
+
+  const visible = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    const matched = rows.filter((row) => {
+      if (filter !== "all" && row.status !== filter) return false;
+      if (!term) return true;
+      const haystack = [
+        row.name,
+        row.country ?? "",
+        row.sector ?? "",
+        ...row.contacts.flatMap((c) => [c.name, c.email ?? ""]),
+      ]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(term);
+    });
+
+    const sorted = [...matched];
+    sorted.sort((a, b) => {
+      if (sort === "oldest") return a.created_at.localeCompare(b.created_at);
+      if (sort === "fee_desc") return (b.monthly_fee ?? 0) - (a.monthly_fee ?? 0);
+      if (sort === "payment") {
+        if (!a.next_payment_on) return 1;
+        if (!b.next_payment_on) return -1;
+        return a.next_payment_on.localeCompare(b.next_payment_on);
+      }
+      return b.created_at.localeCompare(a.created_at);
+    });
+    return sorted;
+  }, [rows, filter, search, sort]);
 
   const recurring = rows.reduce<Record<string, number>>((totals, row) => {
     if (row.monthly_fee == null) return totals;
@@ -174,6 +252,19 @@ function ProjectsPage() {
     totals[key] = (totals[key] ?? 0) + row.monthly_fee * factor;
     return totals;
   }, {});
+
+  const onboardingTotals = rows.reduce<Record<string, number>>((totals, row) => {
+    if (row.onboarding_fee == null) return totals;
+    const key = row.onboarding_fee_currency ?? "EUR";
+    totals[key] = (totals[key] ?? 0) + row.onboarding_fee;
+    return totals;
+  }, {});
+
+  const liveCount = rows.filter((row) => row.status === "live").length;
+  const dueCount = rows.filter((row) => {
+    const days = daysUntil(row.next_payment_on);
+    return days != null && days <= 7;
+  }).length;
 
   function refresh() {
     void queryClient.invalidateQueries({ queryKey: ["admin", "clients"] });
@@ -197,6 +288,7 @@ function ProjectsPage() {
           monthly_fee: values.monthly_fee === "" ? null : Number(values.monthly_fee),
           monthly_fee_currency: values.monthly_fee_currency,
           billing_cycle: values.billing_cycle,
+          next_payment_on: values.next_payment_on === "" ? null : values.next_payment_on,
           notes: values.notes,
         },
       });
@@ -222,9 +314,20 @@ function ProjectsPage() {
 
   const capture = useMutation({
     mutationFn: ({ id, url }: { id: string; url: string }) =>
-      captureClientThumbnail({ data: { id, url } }),
+      fetchClientImage({ data: { id, url } }),
+    onSuccess: (result) => {
+      toast.success(
+        result.source === "og" ? "Image taken from the site" : "Screenshot saved",
+      );
+      refresh();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const markPaid = useMutation({
+    mutationFn: (id: string) => markClientPaid({ data: { id } }),
     onSuccess: () => {
-      toast.success("Screenshot saved");
+      toast.success("Payment recorded");
       refresh();
     },
     onError: (error: Error) => toast.error(error.message),
@@ -276,6 +379,32 @@ function ProjectsPage() {
         {canManage ? <Button onClick={openNew}>Add project</Button> : null}
       </div>
 
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { label: "Live projects", value: String(liveCount) },
+          {
+            label: "Monthly recurring",
+            value:
+              Object.entries(recurring)
+                .map(([currency, amount]) => money(Math.round(amount), currency))
+                .join(" · ") || "—",
+          },
+          {
+            label: "Onboarding fees",
+            value:
+              Object.entries(onboardingTotals)
+                .map(([currency, amount]) => money(Math.round(amount), currency))
+                .join(" · ") || "—",
+          },
+          { label: "Payments due", value: String(dueCount) },
+        ].map((kpi) => (
+          <div key={kpi.label} className="rounded-lg border border-border bg-card p-4">
+            <p className="text-xs text-muted">{kpi.label}</p>
+            <p className="mt-1 text-lg font-medium text-foreground">{kpi.value}</p>
+          </div>
+        ))}
+      </div>
+
       <div className="mt-6 flex flex-wrap items-center gap-2">
         {(["all", ...CLIENT_STATUSES] as const).map((value) => (
           <Button
@@ -288,14 +417,31 @@ function ProjectsPage() {
             {value}
           </Button>
         ))}
-        {Object.keys(recurring).length > 0 ? (
-          <span className="ml-auto text-sm text-muted">
-            Monthly recurring:{" "}
-            {Object.entries(recurring)
-              .map(([currency, amount]) => money(Math.round(amount), currency))
-              .join(" · ")}
-          </span>
-        ) : null}
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <div className="relative w-full sm:w-72">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+          <Input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search name, country or contact"
+            className="pl-9"
+            aria-label="Search projects"
+          />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {SORTS.map((option) => (
+            <Button
+              key={option.key}
+              size="sm"
+              variant={sort === option.key ? "secondary" : "ghost"}
+              onClick={() => setSort(option.key)}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </div>
       </div>
 
       {isLoading ? (
@@ -332,7 +478,17 @@ function ProjectsPage() {
                 </div>
                 <div className="space-y-1 p-4">
                   <div className="flex items-center justify-between gap-2">
-                    <h2 className="truncate font-medium text-foreground">{client.name}</h2>
+                    <h2 className="flex min-w-0 items-center gap-2 font-medium text-foreground">
+                      {client.favicon_url ? (
+                        <img
+                          src={client.favicon_url}
+                          alt=""
+                          className="h-4 w-4 shrink-0 rounded-sm"
+                          loading="lazy"
+                        />
+                      ) : null}
+                      <span className="truncate">{client.name}</span>
+                    </h2>
                     <Badge className={`capitalize ${STATUS_TONE[client.status] ?? ""}`} variant="secondary">
                       {client.status}
                     </Badge>
@@ -348,9 +504,20 @@ function ProjectsPage() {
                       ? ` · setup ${money(client.onboarding_fee, client.onboarding_fee_currency)}`
                       : ""}
                   </p>
+                  {(() => {
+                    const payment = paymentLabel(client.next_payment_on);
+                    if (!payment) return null;
+                    return (
+                      <p
+                        className={`text-xs ${payment.overdue ? "text-red-600" : "text-muted"}`}
+                      >
+                        Next payment {client.next_payment_on} · {payment.text}
+                      </p>
+                    );
+                  })()}
                 </div>
               </button>
-              <div className="flex flex-wrap gap-2 border-t border-border px-4 py-3">
+              <div className="flex flex-wrap items-center gap-2 border-t border-border px-4 py-3">
                 {client.live_url ? (
                   <Button asChild size="sm" variant="outline">
                     <a href={client.live_url} target="_blank" rel="noreferrer">
@@ -371,6 +538,24 @@ function ProjectsPage() {
                       <Github className="h-3.5 w-3.5" /> GitHub
                     </a>
                   </Button>
+                ) : null}
+                {canManage && client.next_payment_on ? (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={markPaid.isPending}
+                    onClick={() => markPaid.mutate(client.id)}
+                  >
+                    Mark paid
+                  </Button>
+                ) : null}
+                {client.thumbnail_source ? (
+                  <span className="ml-auto text-[11px] text-muted">
+                    {SOURCE_LABEL[client.thumbnail_source] ?? client.thumbnail_source}
+                    {client.thumbnail_captured_at
+                      ? ` · ${client.thumbnail_captured_at.slice(0, 10)}`
+                      : ""}
+                  </span>
                 ) : null}
               </div>
             </article>
@@ -478,6 +663,17 @@ function ProjectsPage() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="next_payment_on">Next payment</Label>
+                <Input
+                  id="next_payment_on"
+                  type="date"
+                  value={form.next_payment_on}
+                  onChange={(event) =>
+                    setForm((previous) => ({ ...previous, next_payment_on: event.target.value }))
+                  }
+                />
               </div>
             </div>
 
@@ -620,9 +816,9 @@ function ProjectsPage() {
                       {capture.isPending ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : (
-                        <Camera className="h-3.5 w-3.5" />
+                        <ImageDown className="h-3.5 w-3.5" />
                       )}
-                      Capture from live site
+                      Get image from site
                     </Button>
                   </div>
                 </div>
