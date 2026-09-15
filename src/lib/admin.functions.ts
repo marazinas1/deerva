@@ -204,6 +204,7 @@ export const saveClient = createServerFn({ method: "POST" })
       monthly_fee: data.monthly_fee ?? null,
       monthly_fee_currency: data.monthly_fee_currency ?? null,
       billing_cycle: data.billing_cycle ?? null,
+      next_payment_on: emptyToNull(data.next_payment_on),
       notes: emptyToNull(data.notes),
     };
 
