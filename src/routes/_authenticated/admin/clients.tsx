@@ -664,6 +664,17 @@ function ProjectsPage() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="next_payment_on">Next payment</Label>
+                <Input
+                  id="next_payment_on"
+                  type="date"
+                  value={form.next_payment_on}
+                  onChange={(event) =>
+                    setForm((previous) => ({ ...previous, next_payment_on: event.target.value }))
+                  }
+                />
+              </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
