@@ -61,9 +61,6 @@ export type Database = {
       clients: {
         Row: {
           billing_cycle: string | null
-          contact_email: string | null
-          contact_name: string | null
-          contact_phone: string | null
           country: string | null
           created_at: string
           created_by: string | null
@@ -82,13 +79,9 @@ export type Database = {
           status: string
           thumbnail_path: string | null
           updated_at: string
-          website_url: string | null
         }
         Insert: {
           billing_cycle?: string | null
-          contact_email?: string | null
-          contact_name?: string | null
-          contact_phone?: string | null
           country?: string | null
           created_at?: string
           created_by?: string | null
@@ -107,13 +100,9 @@ export type Database = {
           status?: string
           thumbnail_path?: string | null
           updated_at?: string
-          website_url?: string | null
         }
         Update: {
           billing_cycle?: string | null
-          contact_email?: string | null
-          contact_name?: string | null
-          contact_phone?: string | null
           country?: string | null
           created_at?: string
           created_by?: string | null
@@ -132,7 +121,6 @@ export type Database = {
           status?: string
           thumbnail_path?: string | null
           updated_at?: string
-          website_url?: string | null
         }
         Relationships: []
       }
