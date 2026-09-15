@@ -73,6 +73,7 @@ type FormState = {
   monthly_fee: string;
   monthly_fee_currency: Currency;
   billing_cycle: Cycle;
+  next_payment_on: string;
   notes: string;
 };
 
