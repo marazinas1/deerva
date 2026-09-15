@@ -42,6 +42,11 @@ export type ClientRow = {
   monthly_fee: number | null;
   monthly_fee_currency: string | null;
   billing_cycle: string | null;
+  next_payment_on: string | null;
+  last_paid_on: string | null;
+  thumbnail_source: string | null;
+  thumbnail_captured_at: string | null;
+  favicon_url: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
