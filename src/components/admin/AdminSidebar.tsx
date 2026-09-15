@@ -1,5 +1,13 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ArrowLeft, BarChart3, Building2, LayoutDashboard, LogOut, UserCog } from "lucide-react";
+import {
+  ArrowLeft,
+  BarChart3,
+  Building2,
+  LayoutDashboard,
+  LogOut,
+  Settings,
+  UserCog,
+} from "lucide-react";
 
 import BrandLogo from "@/components/admin/BrandLogo";
 import {

@@ -5,7 +5,7 @@ import { CANONICAL_ORIGIN } from "@/lib/settings.functions";
 /** Public, indexable routes only. Admin and API paths never appear here. */
 const PUBLIC_PATHS = [{ path: "/", changefreq: "monthly", priority: "1.0" }];
 
-export const Route = createFileRoute("/sitemap/xml")({
+export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: () => {
