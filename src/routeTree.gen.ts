@@ -18,6 +18,7 @@ import { Route as AdminSetPasswordRouteImport } from './routes/admin/set-passwor
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin/analytics'
 import { Route as AuthenticatedAdminClientsRouteImport } from './routes/_authenticated/admin/clients'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as ApiPublicPvRouteImport } from './routes/api/public/pv'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -69,6 +70,12 @@ const AuthenticatedAdminClientsRoute =
     path: '/clients',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -98,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/admin/set-password': typeof AdminSetPasswordRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/public/pv': typeof ApiPublicPvRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -111,6 +119,7 @@ export interface FileRoutesByTo {
   '/admin/set-password': typeof AdminSetPasswordRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/public/pv': typeof ApiPublicPvRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -127,6 +136,7 @@ export interface FileRoutesById {
   '/admin/set-password': typeof AdminSetPasswordRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/public/pv': typeof ApiPublicPvRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/admin/set-password'
     | '/admin/analytics'
     | '/admin/clients'
+    | '/admin/settings'
     | '/admin/users'
     | '/api/public/pv'
     | '/admin/'
@@ -156,6 +167,7 @@ export interface FileRouteTypes {
     | '/admin/set-password'
     | '/admin/analytics'
     | '/admin/clients'
+    | '/admin/settings'
     | '/admin/users'
     | '/api/public/pv'
     | '/admin'
@@ -171,6 +183,7 @@ export interface FileRouteTypes {
     | '/admin/set-password'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/clients'
+    | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
     | '/api/public/pv'
     | '/_authenticated/admin/'
@@ -254,6 +267,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminClientsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/users': {
       id: '/_authenticated/admin/users'
       path: '/users'
@@ -288,6 +308,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
   AuthenticatedAdminClientsRoute: typeof AuthenticatedAdminClientsRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
@@ -296,6 +317,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
   {
     AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
     AuthenticatedAdminClientsRoute: AuthenticatedAdminClientsRoute,
+    AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
     AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   }
