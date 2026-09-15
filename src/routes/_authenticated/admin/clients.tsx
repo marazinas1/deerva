@@ -313,9 +313,20 @@ function ProjectsPage() {
 
   const capture = useMutation({
     mutationFn: ({ id, url }: { id: string; url: string }) =>
-      captureClientThumbnail({ data: { id, url } }),
+      fetchClientImage({ data: { id, url } }),
+    onSuccess: (result) => {
+      toast.success(
+        result.source === "og" ? "Image taken from the site" : "Screenshot saved",
+      );
+      refresh();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const markPaid = useMutation({
+    mutationFn: (id: string) => markClientPaid({ data: { id } }),
     onSuccess: () => {
-      toast.success("Screenshot saved");
+      toast.success("Payment recorded");
       refresh();
     },
     onError: (error: Error) => toast.error(error.message),
