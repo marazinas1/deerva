@@ -7,10 +7,11 @@ The admin panel is the product. The public site is what it produces. If the clie
 Ordered from most-used to least-used. Same in every project.
 
 ```
-DAILY
-  Overview        dashboard: what needs attention, key numbers
-  Enquiries       incoming leads / requests
-  Messages        conversations (if the sector has them)
+WORKSPACE
+  Dashboard       what needs attention, key numbers
+  Inquiries       incoming leads / requests
+  Calendar        if the sector has one
+  Messages        conversations, if the sector has them and does not have Calendar
   Analytics       real visitors, countries, sources
 
 MANAGE            ← the sector-specific part
@@ -23,7 +24,7 @@ SETTINGS
   Settings        tabbed, see below
 ```
 
-Only the MANAGE group changes between sectors. DAILY and SETTINGS are identical everywhere.
+Only the MANAGE group changes between sectors. WORKSPACE and SETTINGS are identical everywhere.
 
 Footer of the sidebar: user email, role label in small caps, "Back to site", "Sign out".
 

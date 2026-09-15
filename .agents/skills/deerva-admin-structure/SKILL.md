@@ -14,10 +14,11 @@ dar nebaigtas.
 Rikiuojama nuo dažniausiai naudojamo iki rečiausiai. Vienoda kiekviename
 projekte.
 
-DAILY (Kasdien)
-  Overview        dashboard: kas laukia dėmesio, pagrindiniai skaičiai
-  Enquiries       ateinančios užklausos / žinutės
-  Messages        pokalbiai (jei sektorius jų turi)
+WORKSPACE
+  Dashboard       kas laukia dėmesio, pagrindiniai skaičiai
+  Inquiries       ateinančios užklausos / žinutės
+  Calendar        jei sektorius jo turi
+  Messages        pokalbiai, jei sektorius jų turi ir neturi Calendar
   Analytics       tikri lankytojai, šalys, šaltiniai
 
 MANAGE (Valdymas)      ← ši dalis priklauso nuo sektoriaus
@@ -29,7 +30,7 @@ SETTINGS (Nustatymai)
   Users           vartotojai
   Settings        tabais, žr. žemiau
 
-Tik MANAGE grupė keičiasi tarp sektorių. DAILY ir SETTINGS identiški visur.
+Tik MANAGE grupė keičiasi tarp sektorių. WORKSPACE ir SETTINGS identiški visur.
 
 Sidebar apačioje: vartotojo el. paštas, rolės žymė mažosiomis didžiosiomis
 raidėmis, „Back to site", „Sign out".
