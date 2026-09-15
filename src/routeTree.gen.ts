@@ -15,6 +15,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as AdminSetPasswordRouteImport } from './routes/admin/set-password'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin/analytics'
 import { Route as AuthenticatedAdminClientsRouteImport } from './routes/_authenticated/admin/clients'
@@ -51,6 +52,11 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
 const AdminSetPasswordRoute = AdminSetPasswordRouteImport.update({
   id: '/admin/set-password',
   path: '/admin/set-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/admin/set-password': typeof AdminSetPasswordRoute
+  '/api/chat': typeof ApiChatRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/clients': typeof AuthenticatedAdminClientsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/set-password': typeof AdminSetPasswordRoute
+  '/api/chat': typeof ApiChatRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/clients': typeof AuthenticatedAdminClientsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/admin/set-password': typeof AdminSetPasswordRoute
+  '/api/chat': typeof ApiChatRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/clients': typeof AuthenticatedAdminClientsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin/login'
     | '/admin/set-password'
+    | '/api/chat'
     | '/admin/analytics'
     | '/admin/clients'
     | '/admin/settings'
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin/login'
     | '/admin/set-password'
+    | '/api/chat'
     | '/admin/analytics'
     | '/admin/clients'
     | '/admin/settings'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/admin/login'
     | '/admin/set-password'
+    | '/api/chat'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/clients'
     | '/_authenticated/admin/settings'
@@ -197,6 +209,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminSetPasswordRoute: typeof AdminSetPasswordRoute
+  ApiChatRoute: typeof ApiChatRoute
   ApiPublicPvRoute: typeof ApiPublicPvRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -244,6 +257,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/set-password'
       fullPath: '/admin/set-password'
       preLoaderRoute: typeof AdminSetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/': {
@@ -344,6 +364,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminSetPasswordRoute: AdminSetPasswordRoute,
+  ApiChatRoute: ApiChatRoute,
   ApiPublicPvRoute: ApiPublicPvRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
