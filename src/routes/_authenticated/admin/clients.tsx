@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
   Github,
   Globe,
+  Camera,
   ImageDown,
   Loader2,
   Search,
