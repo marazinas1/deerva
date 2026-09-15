@@ -50,6 +50,7 @@ import {
   type ClientContactRow,
   type ClientRow,
 } from "@/lib/admin.functions";
+import { formatBytes, optimiseImage } from "@/lib/image-optimise";
 
 export const Route = createFileRoute("/_authenticated/admin/clients")({
   component: ProjectsPage,
