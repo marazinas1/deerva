@@ -34,10 +34,10 @@ type Item = {
 
 const GROUPS: { label: string; items: Item[] }[] = [
   {
-    label: "Daily",
+    label: "Workspace",
     items: [
       {
-        title: "Overview",
+        title: "Dashboard",
         url: "/admin",
         icon: LayoutDashboard,
         managerOnly: false,
