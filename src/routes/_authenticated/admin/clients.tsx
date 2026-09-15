@@ -327,7 +327,12 @@ function ProjectsPage() {
       url: string;
       mode: "auto" | "screenshot";
     }) => fetchClientImage({ data: { id, url, mode } }),
-    onSuccess: (result) => {
+    onSuccess: async (result, variables) => {
+      try {
+        await normaliseFetched(variables.id, result.source);
+      } catch {
+        // The image is already saved; only the extra compression failed.
+      }
       toast.success(
         result.source === "og" ? "Image taken from the site" : "Screenshot saved",
       );
