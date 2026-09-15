@@ -14,46 +14,123 @@ export type Database = {
   }
   public: {
     Tables: {
+      client_contacts: {
+        Row: {
+          client_id: string
+          created_at: string
+          email: string | null
+          id: string
+          is_primary: boolean
+          name: string
+          phone: string | null
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean
+          name: string
+          phone?: string | null
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean
+          name?: string
+          phone?: string | null
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_contacts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
+          billing_cycle: string | null
           contact_email: string | null
           contact_name: string | null
           contact_phone: string | null
+          country: string | null
           created_at: string
           created_by: string | null
+          github_url: string | null
           id: string
+          live_url: string | null
+          lovable_project_url: string | null
+          monthly_fee: number | null
+          monthly_fee_currency: string | null
           name: string
           notes: string | null
+          onboarding_fee: number | null
+          onboarding_fee_currency: string | null
+          sector: string | null
           slug: string
           status: string
+          thumbnail_path: string | null
           updated_at: string
           website_url: string | null
         }
         Insert: {
+          billing_cycle?: string | null
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
+          country?: string | null
           created_at?: string
           created_by?: string | null
+          github_url?: string | null
           id?: string
+          live_url?: string | null
+          lovable_project_url?: string | null
+          monthly_fee?: number | null
+          monthly_fee_currency?: string | null
           name: string
           notes?: string | null
+          onboarding_fee?: number | null
+          onboarding_fee_currency?: string | null
+          sector?: string | null
           slug: string
           status?: string
+          thumbnail_path?: string | null
           updated_at?: string
           website_url?: string | null
         }
         Update: {
+          billing_cycle?: string | null
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
+          country?: string | null
           created_at?: string
           created_by?: string | null
+          github_url?: string | null
           id?: string
+          live_url?: string | null
+          lovable_project_url?: string | null
+          monthly_fee?: number | null
+          monthly_fee_currency?: string | null
           name?: string
           notes?: string | null
+          onboarding_fee?: number | null
+          onboarding_fee_currency?: string | null
+          sector?: string | null
           slug?: string
           status?: string
+          thumbnail_path?: string | null
           updated_at?: string
           website_url?: string | null
         }
