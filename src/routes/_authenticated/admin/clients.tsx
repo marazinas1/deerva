@@ -161,9 +161,45 @@ async function toOptimisedWebp(file: File): Promise<Blob> {
   return blob;
 }
 
+const DAY = 86_400_000;
+
+/** Days until the date; negative when it has already passed. */
+function daysUntil(date: string | null): number | null {
+  if (!date) return null;
+  const target = new Date(`${date}T00:00:00Z`).getTime();
+  const today = new Date();
+  const start = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  return Math.round((target - start) / DAY);
+}
+
+function paymentLabel(date: string | null): { text: string; overdue: boolean } | null {
+  const days = daysUntil(date);
+  if (days == null) return null;
+  if (days < 0) return { text: `Overdue by ${Math.abs(days)} d`, overdue: true };
+  if (days === 0) return { text: "Due today", overdue: true };
+  return { text: `Due in ${days} d`, overdue: false };
+}
+
+const SOURCE_LABEL: Record<string, string> = {
+  og: "Image from the site",
+  screenshot: "Screenshot",
+  upload: "Uploaded",
+};
+
+type Sort = "newest" | "oldest" | "fee_desc" | "payment";
+
+const SORTS: { key: Sort; label: string }[] = [
+  { key: "newest", label: "Newest" },
+  { key: "oldest", label: "Oldest" },
+  { key: "fee_desc", label: "Highest fee" },
+  { key: "payment", label: "Nearest payment" },
+];
+
 function ProjectsPage() {
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<"all" | Status>("all");
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<Sort>("newest");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [current, setCurrent] = useState<ClientRow | null>(null);
