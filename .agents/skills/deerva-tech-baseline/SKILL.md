@@ -10,7 +10,7 @@ Tas pats stack'as kiekviename projekte. Vienodumas ir yra esmė: kartą parašyt
 ## Stack
 
 - **TanStack Start v1** su React 19 ir SSR. Ne paprastas Vite SPA — SSR būtinas dėl SEO.
-- **Vite 7**, deployinama į edge worker runtime.
+- **Vite 8**, deployinama į edge worker runtime. (Lumidenta dar ant Vite 7 — atnaujinti prie kito jos liečiamo darbo.)
 - **Tailwind v4**, CSS-first. Tokenai `src/styles.css` po `@theme` / `@theme inline`. Jokio `tailwind.config.js`.
 - **shadcn/ui** komponentai, pritaikomi per variantus, niekada nekopijuojami į vienkartines versijas.
 - **Lovable Cloud** duomenų bazei, auth, storage ir secrets.
@@ -19,7 +19,7 @@ Tas pats stack'as kiekviename projekte. Vienodumas ir yra esmė: kartą parašyt
 
 - Vidinė logika: `createServerFn` iš `@tanstack/react-start`. Failai `*.functions.ts`, serverio helperiai `*.server.ts`.
 - Išoriniai kvietėjai (webhooks, cron): file routes po `src/routes/api/public/*`, su parašo ar secret patikrinimu handler'io viduje.
-- **Jokių edge functions.** Senuose projektuose tai buvo netinkamas sluoksnis ir sukėlė migracijas.
+- **Naujuose projektuose jokių edge functions** — server functions ir `api/public/*` maršrutai jas pakeičia. OCDG ir StageHomy šiuo metu dar priklauso nuo veikiančių edge functions gyvai; jų pašalinimas yra atskiras, planuojamas migracijos darbas, ne automatinis standarto pritaikymas bet kuriam kitam darbui tuose projektuose.
 - Secrets skaitomi handler'io viduje, niekada module scope. Niekada naršyklės kode.
 
 ## Duomenų bazė
