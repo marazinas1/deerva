@@ -205,6 +205,11 @@ function ProjectsPage() {
   const [current, setCurrent] = useState<ClientRow | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [imageInfo, setImageInfo] = useState<{
+    bytes: number;
+    width: number;
+    height: number;
+  } | null>(null);
 
   const { data: me } = useQuery({ queryKey: ["admin", "me"], queryFn: () => getAdminMe() });
   const { data: clients, isLoading } = useQuery({
