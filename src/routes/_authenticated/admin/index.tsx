@@ -101,7 +101,7 @@ function Dashboard() {
           <Button asChild>
             <Link to="/admin/clients">
               <Plus className="h-4 w-4" />
-              Add a client
+              Add a project
             </Link>
           </Button>
           <Button asChild variant="outline">
