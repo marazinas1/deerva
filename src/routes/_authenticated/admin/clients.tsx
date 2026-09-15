@@ -214,7 +214,36 @@ function ProjectsPage() {
 
   const canManage = me?.isManager ?? false;
   const rows = clients ?? [];
-  const visible = filter === "all" ? rows : rows.filter((row) => row.status === filter);
+
+  const visible = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    const matched = rows.filter((row) => {
+      if (filter !== "all" && row.status !== filter) return false;
+      if (!term) return true;
+      const haystack = [
+        row.name,
+        row.country ?? "",
+        row.sector ?? "",
+        ...row.contacts.flatMap((c) => [c.name, c.email ?? ""]),
+      ]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(term);
+    });
+
+    const sorted = [...matched];
+    sorted.sort((a, b) => {
+      if (sort === "oldest") return a.created_at.localeCompare(b.created_at);
+      if (sort === "fee_desc") return (b.monthly_fee ?? 0) - (a.monthly_fee ?? 0);
+      if (sort === "payment") {
+        if (!a.next_payment_on) return 1;
+        if (!b.next_payment_on) return -1;
+        return a.next_payment_on.localeCompare(b.next_payment_on);
+      }
+      return b.created_at.localeCompare(a.created_at);
+    });
+    return sorted;
+  }, [rows, filter, search, sort]);
 
   const recurring = rows.reduce<Record<string, number>>((totals, row) => {
     if (row.monthly_fee == null) return totals;
@@ -223,6 +252,19 @@ function ProjectsPage() {
     totals[key] = (totals[key] ?? 0) + row.monthly_fee * factor;
     return totals;
   }, {});
+
+  const onboardingTotals = rows.reduce<Record<string, number>>((totals, row) => {
+    if (row.onboarding_fee == null) return totals;
+    const key = row.onboarding_fee_currency ?? "EUR";
+    totals[key] = (totals[key] ?? 0) + row.onboarding_fee;
+    return totals;
+  }, {});
+
+  const liveCount = rows.filter((row) => row.status === "live").length;
+  const dueCount = rows.filter((row) => {
+    const days = daysUntil(row.next_payment_on);
+    return days != null && days <= 7;
+  }).length;
 
   function refresh() {
     void queryClient.invalidateQueries({ queryKey: ["admin", "clients"] });
