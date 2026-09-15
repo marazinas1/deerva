@@ -67,7 +67,7 @@ export const CURRENCIES = ["EUR", "USD"] as const;
 export const BILLING_CYCLES = ["monthly", "semiannual", "annual"] as const;
 
 const CLIENT_COLUMNS =
-  "id, name, slug, sector, status, country, live_url, lovable_project_url, github_url, thumbnail_path, onboarding_fee, onboarding_fee_currency, monthly_fee, monthly_fee_currency, billing_cycle, notes, created_at, updated_at";
+  "id, name, slug, sector, status, country, live_url, lovable_project_url, github_url, thumbnail_path, thumbnail_source, thumbnail_captured_at, favicon_url, onboarding_fee, onboarding_fee_currency, monthly_fee, monthly_fee_currency, billing_cycle, next_payment_on, last_paid_on, notes, created_at, updated_at";
 
 const CONTACT_COLUMNS = "id, client_id, name, role, email, phone, is_primary";
 
