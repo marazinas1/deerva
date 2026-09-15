@@ -904,6 +904,11 @@ function ProjectsPage() {
                     </div>
                   )}
                 </div>
+                <p className="text-xs text-muted">
+                  {imageInfo
+                    ? `Optimised: WebP, ${imageInfo.width}×${imageInfo.height}, ${formatBytes(imageInfo.bytes)}`
+                    : "Every image is resized, converted to WebP and stripped of camera data."}
+                </p>
               </section>
 
               <ContactsEditor
