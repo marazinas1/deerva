@@ -469,13 +469,17 @@ function ProjectsPage() {
                 onClick={() => openEdit(client)}
                 className="block w-full text-left"
               >
-                <div className="aspect-[16/10] w-full overflow-hidden bg-muted/10">
+                <div className="aspect-[1.91/1] w-full overflow-hidden bg-muted/10">
                   {client.thumbnail_url ? (
                     <img
                       src={client.thumbnail_url}
                       alt={`${client.name} website`}
                       loading="lazy"
-                      className="h-full w-full object-cover object-top"
+                      className={`h-full w-full ${
+                        client.thumbnail_source === "screenshot"
+                          ? "object-cover object-top"
+                          : "object-contain"
+                      }`}
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-4xl font-semibold text-muted/50">
@@ -817,7 +821,11 @@ function ProjectsPage() {
                       variant="outline"
                       disabled={!form.live_url || capture.isPending || !canManage}
                       onClick={() =>
-                        capture.mutate({ id: form.id as string, url: form.live_url })
+                        capture.mutate({
+                          id: form.id as string,
+                          url: form.live_url,
+                          mode: "auto",
+                        })
                       }
                     >
                       {capture.isPending ? (
@@ -825,16 +833,40 @@ function ProjectsPage() {
                       ) : (
                         <ImageDown className="h-3.5 w-3.5" />
                       )}
-                      Get image from site
+                      From the site
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={!form.live_url || capture.isPending || !canManage}
+                      onClick={() =>
+                        capture.mutate({
+                          id: form.id as string,
+                          url: form.live_url,
+                          mode: "screenshot",
+                        })
+                      }
+                    >
+                      {capture.isPending ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Camera className="h-3.5 w-3.5" />
+                      )}
+                      Take screenshot
                     </Button>
                   </div>
                 </div>
-                <div className="aspect-[16/10] w-full max-w-sm overflow-hidden rounded-md border border-border bg-muted/10">
+                <div className="aspect-[1.91/1] w-full max-w-sm overflow-hidden rounded-md border border-border bg-muted/10">
                   {liveClient?.thumbnail_url ? (
                     <img
                       src={liveClient.thumbnail_url}
                       alt=""
-                      className="h-full w-full object-cover object-top"
+                      className={`h-full w-full ${
+                        liveClient.thumbnail_source === "screenshot"
+                          ? "object-cover object-top"
+                          : "object-contain"
+                      }`}
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center text-xs text-muted">
