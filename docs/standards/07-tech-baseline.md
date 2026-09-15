@@ -5,7 +5,7 @@ The same stack in every project. Sameness is the point: a fix written once appli
 ## Stack
 
 - **TanStack Start v1** with React 19 and SSR. Not a plain Vite SPA — SSR is required for SEO.
-- **Vite 7**, deployed to an edge worker runtime.
+- **Vite 8**, deployed to an edge worker runtime. (Lumidenta is still on Vite 7 — update it during the next project touch.)
 - **Tailwind v4**, CSS-first. Tokens in `src/styles.css` under `@theme` / `@theme inline`. No `tailwind.config.js`.
 - **shadcn/ui** components, customised through variants, never forked into one-off copies.
 - **Lovable Cloud** for database, auth, storage and secrets.
@@ -14,7 +14,7 @@ The same stack in every project. Sameness is the point: a fix written once appli
 
 - App-internal logic: `createServerFn` from `@tanstack/react-start`. Files named `*.functions.ts`, server-only helpers `*.server.ts`.
 - External callers (webhooks, cron): file routes under `src/routes/api/public/*`, with signature or secret verification inside the handler.
-- **No edge functions.** They were the wrong layer in the older projects and caused the migrations.
+- **No edge functions in new projects.** Server functions and `api/public/*` routes replace them. OCDG and StageHomy still depend on live edge functions right now; removing them is a separate, planned migration task, not an automatic application of this standard to any other work in those projects.
 - Secrets are read inside handlers, never at module scope. Never in browser code.
 
 ## Database
