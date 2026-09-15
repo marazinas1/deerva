@@ -288,6 +288,7 @@ function ProjectsPage() {
           monthly_fee: values.monthly_fee === "" ? null : Number(values.monthly_fee),
           monthly_fee_currency: values.monthly_fee_currency,
           billing_cycle: values.billing_cycle,
+          next_payment_on: values.next_payment_on === "" ? null : values.next_payment_on,
           notes: values.notes,
         },
       });
