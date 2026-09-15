@@ -92,6 +92,12 @@ const clientInput = z.object({
   monthly_fee: z.number().nonnegative().nullable().optional(),
   monthly_fee_currency: z.enum(CURRENCIES).nullable().optional(),
   billing_cycle: z.enum(BILLING_CYCLES).nullable().optional(),
+  next_payment_on: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .nullable()
+    .optional()
+    .or(z.literal("")),
   notes: z.string().max(5000).nullable().optional(),
 });
 
