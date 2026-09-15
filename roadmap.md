@@ -1,14 +1,14 @@
 # Roadmap
 
-## In progress — applying Deerva standards to deerva.com
+## Done — Deerva standards applied to deerva.com
 
 - [x] `site_settings` table (business identity) with RLS + GRANT
-- [ ] Settings server functions + admin Settings page (Business tab)
-- [ ] Admin menu regrouped: DAILY / MANAGE / SETTINGS
-- [ ] Overview page: Needs attention / Numbers / Quick actions
-- [ ] SEO baseline: full `/` head, Organization JSON-LD, sitemap.xml, robots.txt,
+- [x] Settings server functions + admin Settings page (Business tab)
+- [x] Admin menu regrouped: DAILY / MANAGE / SETTINGS
+- [x] Overview page: Needs attention / Numbers / Quick actions
+- [x] SEO baseline: full `/` head, Organization JSON-LD, sitemap.xml, robots.txt,
       noindex on non-canonical hosts
-- [ ] Project documents: AGENTS.md (real project description), FRONTEND.md, PLAN.md
+- [x] Project documents: AGENTS.md (real project description), FRONTEND.md, PLAN.md
 
 ## Deliberately deferred
 
