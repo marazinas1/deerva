@@ -435,7 +435,17 @@ function ProjectsPage() {
                 </div>
                 <div className="space-y-1 p-4">
                   <div className="flex items-center justify-between gap-2">
-                    <h2 className="truncate font-medium text-foreground">{client.name}</h2>
+                    <h2 className="flex min-w-0 items-center gap-2 font-medium text-foreground">
+                      {client.favicon_url ? (
+                        <img
+                          src={client.favicon_url}
+                          alt=""
+                          className="h-4 w-4 shrink-0 rounded-sm"
+                          loading="lazy"
+                        />
+                      ) : null}
+                      <span className="truncate">{client.name}</span>
+                    </h2>
                     <Badge className={`capitalize ${STATUS_TONE[client.status] ?? ""}`} variant="secondary">
                       {client.status}
                     </Badge>
