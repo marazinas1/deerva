@@ -140,6 +140,51 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          address_city: string
+          address_country: string
+          address_street: string
+          business_name: string
+          contact_email: string
+          contact_phone: string
+          created_at: string
+          id: boolean
+          primary_domain: string
+          social_links: Json
+          tagline: string
+          updated_at: string
+        }
+        Insert: {
+          address_city?: string
+          address_country?: string
+          address_street?: string
+          business_name?: string
+          contact_email?: string
+          contact_phone?: string
+          created_at?: string
+          id?: boolean
+          primary_domain?: string
+          social_links?: Json
+          tagline?: string
+          updated_at?: string
+        }
+        Update: {
+          address_city?: string
+          address_country?: string
+          address_street?: string
+          business_name?: string
+          contact_email?: string
+          contact_phone?: string
+          created_at?: string
+          id?: boolean
+          primary_domain?: string
+          social_links?: Json
+          tagline?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

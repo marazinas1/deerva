@@ -1,5 +1,13 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ArrowLeft, BarChart3, Building2, LayoutDashboard, LogOut, UserCog } from "lucide-react";
+import {
+  ArrowLeft,
+  BarChart3,
+  Building2,
+  LayoutDashboard,
+  LogOut,
+  Settings,
+  UserCog,
+} from "lucide-react";
 
 import BrandLogo from "@/components/admin/BrandLogo";
 import {
@@ -26,21 +34,14 @@ type Item = {
 
 const GROUPS: { label: string; items: Item[] }[] = [
   {
-    label: "Workspace",
+    label: "Daily",
     items: [
       {
-        title: "Dashboard",
+        title: "Overview",
         url: "/admin",
         icon: LayoutDashboard,
         managerOnly: false,
         match: (p) => p === "/admin",
-      },
-      {
-        title: "Clients",
-        url: "/admin/clients",
-        icon: Building2,
-        managerOnly: false,
-        match: (p) => p.startsWith("/admin/clients"),
       },
       {
         title: "Analytics",
@@ -49,12 +50,36 @@ const GROUPS: { label: string; items: Item[] }[] = [
         managerOnly: false,
         match: (p) => p.startsWith("/admin/analytics"),
       },
+    ],
+  },
+  {
+    label: "Manage",
+    items: [
+      {
+        title: "Clients",
+        url: "/admin/clients",
+        icon: Building2,
+        managerOnly: false,
+        match: (p) => p.startsWith("/admin/clients"),
+      },
+    ],
+  },
+  {
+    label: "Settings",
+    items: [
       {
         title: "Users",
         url: "/admin/users",
         icon: UserCog,
         managerOnly: true,
         match: (p) => p.startsWith("/admin/users"),
+      },
+      {
+        title: "Settings",
+        url: "/admin/settings",
+        icon: Settings,
+        managerOnly: false,
+        match: (p) => p.startsWith("/admin/settings"),
       },
     ],
   },
