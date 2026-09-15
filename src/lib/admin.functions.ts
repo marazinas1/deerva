@@ -293,6 +293,34 @@ export const deleteClientContact = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+type ThumbUpdate = {
+  thumbnail_path: string | null;
+  thumbnail_source: string | null;
+  thumbnail_captured_at: string | null;
+  favicon_url?: string | null;
+};
+
+/** Writes the new image reference and deletes the object it replaced. */
+async function applyThumbnail(
+  supabase: { from: (t: "clients") => any },
+  id: string,
+  update: ThumbUpdate,
+) {
+  const { data: existing } = await supabase
+    .from("clients")
+    .select("thumbnail_path")
+    .eq("id", id)
+    .maybeSingle();
+
+  const { error } = await supabase.from("clients").update(update).eq("id", id);
+  if (error) throw new Error(error.message);
+
+  const previous = (existing as { thumbnail_path: string | null } | null)?.thumbnail_path;
+  if (previous && previous !== update.thumbnail_path) {
+    await (supabase as unknown as StorageClient).storage.from(THUMB_BUCKET).remove([previous]);
+  }
+}
+
 /** Stores an already-uploaded thumbnail path and removes the previous image. */
 export const setClientThumbnail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -300,29 +328,51 @@ export const setClientThumbnail = createServerFn({ method: "POST" })
     z.object({ id: z.string().uuid(), path: z.string().max(300).nullable() }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { data: existing } = await context.supabase
-      .from("clients")
-      .select("thumbnail_path")
-      .eq("id", data.id)
-      .maybeSingle();
-
-    const { error } = await context.supabase
-      .from("clients")
-      .update({ thumbnail_path: data.path })
-      .eq("id", data.id);
-    if (error) throw new Error(error.message);
-
-    const previous = (existing as { thumbnail_path: string | null } | null)?.thumbnail_path;
-    if (previous && previous !== data.path) {
-      await (context.supabase as unknown as StorageClient).storage
-        .from(THUMB_BUCKET)
-        .remove([previous]);
-    }
+    await assertManager(context.supabase, context.userId);
+    await applyThumbnail(context.supabase as never, data.id, {
+      thumbnail_path: data.path,
+      thumbnail_source: data.path ? "upload" : null,
+      thumbnail_captured_at: data.path ? new Date().toISOString() : null,
+    });
     return { ok: true as const };
   });
 
-/** One-off screenshot of a live site. Only ever runs when the button is pressed. */
-export const captureClientThumbnail = createServerFn({ method: "POST" })
+function absoluteUrl(candidate: string, base: string): string | null {
+  try {
+    return new URL(candidate, base).toString();
+  } catch {
+    return null;
+  }
+}
+
+/** Pulls og:image / twitter:image and the site icon out of a page's head. */
+function readHeadImages(html: string, base: string) {
+  const head = html.slice(0, 200_000);
+
+  const meta =
+    /<meta[^>]+(?:property|name)=["'](?:og:image:secure_url|og:image|twitter:image(?::src)?)["'][^>]*>/i.exec(
+      head,
+    );
+  const metaContent = meta ? /content=["']([^"']+)["']/i.exec(meta[0])?.[1] : undefined;
+
+  const icon = /<link[^>]+rel=["'][^"']*icon[^"']*["'][^>]*>/i.exec(head);
+  const iconHref = icon ? /href=["']([^"']+)["']/i.exec(icon[0])?.[1] : undefined;
+
+  return {
+    image: metaContent ? absoluteUrl(metaContent, base) : null,
+    favicon: iconHref
+      ? absoluteUrl(iconHref, base)
+      : absoluteUrl("/favicon.ico", base),
+  };
+}
+
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+/**
+ * One-off image fetch for a project. Prefers the site's own sharing image and
+ * falls back to a screenshot. Only ever runs when the button is pressed.
+ */
+export const fetchClientImage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z.object({ id: z.string().uuid(), url: z.string().url() }).parse(input),
@@ -330,52 +380,115 @@ export const captureClientThumbnail = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertManager(context.supabase, context.userId);
 
-    const shot = `https://s0.wp.com/mshots/v1/${encodeURIComponent(data.url)}?w=1200&h=750`;
-
+    let source: "og" | "screenshot" = "og";
+    let contentType = "image/jpeg";
     let bytes: ArrayBuffer | null = null;
-    for (let attempt = 0; attempt < 4; attempt += 1) {
-      const response = await fetch(shot, { headers: { Accept: "image/*" } });
-      if (response.ok) {
-        const buffer = await response.arrayBuffer();
-        // The service returns a small placeholder while the shot is still rendering.
-        if (buffer.byteLength > 20000) {
-          bytes = buffer;
-          break;
+    let favicon: string | null = null;
+
+    try {
+      const page = await fetch(data.url, {
+        headers: { Accept: "text/html", "User-Agent": "DeervaBot/1.0" },
+      });
+      if (page.ok) {
+        const html = await page.text();
+        const found = readHeadImages(html, page.url || data.url);
+        favicon = found.favicon;
+        if (found.image) {
+          const image = await fetch(found.image, { headers: { Accept: "image/*" } });
+          const type = image.headers.get("content-type") ?? "";
+          if (image.ok && type.startsWith("image/")) {
+            const buffer = await image.arrayBuffer();
+            if (buffer.byteLength > 5000 && buffer.byteLength <= MAX_IMAGE_BYTES) {
+              bytes = buffer;
+              contentType = type.split(";")[0] as string;
+            }
+          }
         }
       }
-      await new Promise((resolve) => setTimeout(resolve, 4000));
+    } catch {
+      // The site may block us; fall through to the screenshot.
     }
 
     if (!bytes) {
-      throw new Error("The screenshot is still being generated. Try again in a moment.");
+      source = "screenshot";
+      const shot = `https://s0.wp.com/mshots/v1/${encodeURIComponent(data.url)}?w=1200&h=750`;
+      for (let attempt = 0; attempt < 4; attempt += 1) {
+        const response = await fetch(shot, { headers: { Accept: "image/*" } });
+        if (response.ok) {
+          const buffer = await response.arrayBuffer();
+          // The service returns a small placeholder while the shot is still rendering.
+          if (buffer.byteLength > 20000) {
+            bytes = buffer;
+            contentType = "image/jpeg";
+            break;
+          }
+        }
+        await new Promise((resolve) => setTimeout(resolve, 4000));
+      }
     }
 
-    const path = `${data.id}/${Date.now()}.jpg`;
+    if (!bytes) {
+      throw new Error("No image found yet. Try again in a moment.");
+    }
+
+    const extension = contentType.includes("png")
+      ? "png"
+      : contentType.includes("webp")
+        ? "webp"
+        : "jpg";
+    const path = `${data.id}/${Date.now()}.${extension}`;
     const { error: uploadError } = await (context.supabase as unknown as StorageClient).storage
       .from(THUMB_BUCKET)
-      .upload(path, bytes, { contentType: "image/jpeg", upsert: true });
+      .upload(path, bytes, { contentType, upsert: true });
     if (uploadError) throw new Error(uploadError.message);
 
-    const { data: existing } = await context.supabase
+    await applyThumbnail(context.supabase as never, data.id, {
+      thumbnail_path: path,
+      thumbnail_source: source,
+      thumbnail_captured_at: new Date().toISOString(),
+      favicon_url: favicon,
+    });
+
+    return { ok: true as const, path, source };
+  });
+
+/** Records a received payment and moves the next payment date forward. */
+export const markClientPaid = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertManager(context.supabase, context.userId);
+
+    const { data: row, error: readError } = await context.supabase
       .from("clients")
-      .select("thumbnail_path")
+      .select("billing_cycle, next_payment_on")
       .eq("id", data.id)
       .maybeSingle();
+    if (readError) throw new Error(readError.message);
+    if (!row) throw new Error("Project not found");
+
+    const today = new Date();
+    const months =
+      row.billing_cycle === "annual" ? 12 : row.billing_cycle === "semiannual" ? 6 : 1;
+
+    const base = row.next_payment_on ? new Date(`${row.next_payment_on}T00:00:00Z`) : today;
+    const next = new Date(base);
+    next.setUTCMonth(next.getUTCMonth() + months);
+    // Never leave the next date in the past after a late payment.
+    while (next.getTime() < today.getTime()) {
+      next.setUTCMonth(next.getUTCMonth() + months);
+    }
 
     const { error } = await context.supabase
       .from("clients")
-      .update({ thumbnail_path: path })
+      .update({
+        last_paid_on: today.toISOString().slice(0, 10),
+        next_payment_on: next.toISOString().slice(0, 10),
+      })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
 
-    const previous = (existing as { thumbnail_path: string | null } | null)?.thumbnail_path;
-    if (previous && previous !== path) {
-      await (context.supabase as unknown as StorageClient).storage
-        .from(THUMB_BUCKET)
-        .remove([previous]);
-    }
-
-    return { ok: true as const, path };
+    return { ok: true as const, next_payment_on: next.toISOString().slice(0, 10) };
   });
 
 
