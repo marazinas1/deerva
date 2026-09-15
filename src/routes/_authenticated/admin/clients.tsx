@@ -91,6 +91,7 @@ const EMPTY_FORM: FormState = {
   monthly_fee: "",
   monthly_fee_currency: "EUR",
   billing_cycle: "monthly",
+  next_payment_on: "",
   notes: "",
 };
 
