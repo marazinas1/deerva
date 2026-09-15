@@ -15,18 +15,37 @@ export type AdminMe = {
   isDeveloper: boolean;
 };
 
+export type ClientContactRow = {
+  id: string;
+  client_id: string;
+  name: string;
+  role: string | null;
+  email: string | null;
+  phone: string | null;
+  is_primary: boolean;
+};
+
 export type ClientRow = {
   id: string;
   name: string;
   slug: string;
+  sector: string | null;
   status: string;
-  contact_name: string | null;
-  contact_email: string | null;
-  contact_phone: string | null;
-  website_url: string | null;
+  country: string | null;
+  live_url: string | null;
+  lovable_project_url: string | null;
+  github_url: string | null;
+  thumbnail_path: string | null;
+  thumbnail_url: string | null;
+  onboarding_fee: number | null;
+  onboarding_fee_currency: string | null;
+  monthly_fee: number | null;
+  monthly_fee_currency: string | null;
+  billing_cycle: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
+  contacts: ClientContactRow[];
 };
 
 export type AdminUserRow = {
@@ -38,6 +57,16 @@ export type AdminUserRow = {
   created_at: string;
 };
 
+export const CLIENT_STATUSES = ["prospect", "building", "review", "live", "paused"] as const;
+export const CURRENCIES = ["EUR", "USD"] as const;
+export const BILLING_CYCLES = ["monthly", "semiannual", "annual"] as const;
+
+const CLIENT_COLUMNS =
+  "id, name, slug, sector, status, country, live_url, lovable_project_url, github_url, thumbnail_path, onboarding_fee, onboarding_fee_currency, monthly_fee, monthly_fee_currency, billing_cycle, notes, created_at, updated_at";
+
+const CONTACT_COLUMNS = "id, client_id, name, role, email, phone, is_primary";
+
+const optionalText = z.string().max(300).nullable().optional();
 
 const clientInput = z.object({
   id: z.string().uuid().optional(),
@@ -47,11 +76,17 @@ const clientInput = z.object({
     .min(1)
     .max(100)
     .regex(/^[a-z0-9][a-z0-9-]*$/, "Use lowercase letters, numbers and dashes"),
-  status: z.enum(["active", "prospect", "paused", "archived"]),
-  contact_name: z.string().max(200).nullable().optional(),
-  contact_email: z.string().email().max(200).nullable().or(z.literal("")).optional(),
-  contact_phone: z.string().max(50).nullable().optional(),
-  website_url: z.string().max(300).nullable().optional(),
+  sector: optionalText,
+  status: z.enum(CLIENT_STATUSES),
+  country: optionalText,
+  live_url: optionalText,
+  lovable_project_url: optionalText,
+  github_url: optionalText,
+  onboarding_fee: z.number().nonnegative().nullable().optional(),
+  onboarding_fee_currency: z.enum(CURRENCIES).nullable().optional(),
+  monthly_fee: z.number().nonnegative().nullable().optional(),
+  monthly_fee_currency: z.enum(CURRENCIES).nullable().optional(),
+  billing_cycle: z.enum(BILLING_CYCLES).nullable().optional(),
   notes: z.string().max(5000).nullable().optional(),
 });
 
@@ -59,6 +94,33 @@ function emptyToNull(value: string | null | undefined): string | null {
   if (value == null) return null;
   const trimmed = value.trim();
   return trimmed === "" ? null : trimmed;
+}
+
+const THUMB_BUCKET = "client-thumbnails";
+
+type StorageClient = {
+  storage: {
+    from: (bucket: string) => {
+      createSignedUrl: (path: string, expires: number) => PromiseLike<{ data: { signedUrl: string } | null }>;
+      upload: (path: string, body: Blob | ArrayBuffer, options?: Record<string, unknown>) => PromiseLike<{ error: { message: string } | null }>;
+      remove: (paths: string[]) => PromiseLike<{ error: { message: string } | null }>;
+    };
+  };
+};
+
+async function signThumbnails(
+  supabase: StorageClient,
+  rows: { thumbnail_path: string | null }[],
+): Promise<(string | null)[]> {
+  return Promise.all(
+    rows.map(async (row) => {
+      if (!row.thumbnail_path) return null;
+      const { data } = await supabase.storage
+        .from(THUMB_BUCKET)
+        .createSignedUrl(row.thumbnail_path, 60 * 60);
+      return data?.signedUrl ?? null;
+    }),
+  );
 }
 
 /** Current signed-in staff member with their single role. */
@@ -86,59 +148,224 @@ export const getAdminMe = createServerFn({ method: "GET" })
     };
   });
 
-
 export const listClients = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<ClientRow[]> => {
     const { data, error } = await context.supabase
       .from("clients")
-      .select(
-        "id, name, slug, status, contact_name, contact_email, contact_phone, website_url, notes, created_at, updated_at",
-      )
+      .select(CLIENT_COLUMNS)
       .order("created_at", { ascending: false });
-
     if (error) throw new Error(error.message);
-    return (data ?? []) as ClientRow[];
+
+    const rows = (data ?? []) as Omit<ClientRow, "contacts" | "thumbnail_url">[];
+
+    const { data: contacts, error: contactError } = await context.supabase
+      .from("client_contacts")
+      .select(CONTACT_COLUMNS)
+      .order("is_primary", { ascending: false })
+      .order("created_at", { ascending: true });
+    if (contactError) throw new Error(contactError.message);
+
+    const signed = await signThumbnails(context.supabase as unknown as StorageClient, rows);
+
+    return rows.map((row, index) => ({
+      ...row,
+      thumbnail_url: signed[index] ?? null,
+      contacts: ((contacts ?? []) as ClientContactRow[]).filter((c) => c.client_id === row.id),
+    }));
   });
 
 export const saveClient = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => clientInput.parse(input))
-  .handler(async ({ data, context }): Promise<ClientRow> => {
+  .handler(async ({ data, context }) => {
     const payload = {
       name: data.name.trim(),
       slug: data.slug.trim().toLowerCase(),
+      sector: emptyToNull(data.sector),
       status: data.status,
-      contact_name: emptyToNull(data.contact_name),
-      contact_email: emptyToNull(data.contact_email),
-      contact_phone: emptyToNull(data.contact_phone),
-      website_url: emptyToNull(data.website_url),
+      country: emptyToNull(data.country),
+      live_url: emptyToNull(data.live_url),
+      lovable_project_url: emptyToNull(data.lovable_project_url),
+      github_url: emptyToNull(data.github_url),
+      onboarding_fee: data.onboarding_fee ?? null,
+      onboarding_fee_currency: data.onboarding_fee_currency ?? null,
+      monthly_fee: data.monthly_fee ?? null,
+      monthly_fee_currency: data.monthly_fee_currency ?? null,
+      billing_cycle: data.billing_cycle ?? null,
       notes: emptyToNull(data.notes),
     };
 
-    // RLS restricts writes to developer/owner; no extra client-side trust needed.
+    // RLS restricts writes to developer/owner.
     const query = data.id
       ? context.supabase.from("clients").update(payload).eq("id", data.id)
       : context.supabase.from("clients").insert({ ...payload, created_by: context.userId });
 
-    const { data: row, error } = await query
-      .select(
-        "id, name, slug, status, contact_name, contact_email, contact_phone, website_url, notes, created_at, updated_at",
-      )
-      .single();
-
+    const { data: row, error } = await query.select("id").single();
     if (error) throw new Error(error.message);
-    return row as ClientRow;
+    return { id: (row as { id: string }).id };
   });
 
 export const deleteClient = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
+    const { data: existing } = await context.supabase
+      .from("clients")
+      .select("thumbnail_path")
+      .eq("id", data.id)
+      .maybeSingle();
+
     const { error } = await context.supabase.from("clients").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+
+    const path = (existing as { thumbnail_path: string | null } | null)?.thumbnail_path;
+    if (path) {
+      await (context.supabase as unknown as StorageClient).storage
+        .from(THUMB_BUCKET)
+        .remove([path]);
+    }
+    return { ok: true as const };
+  });
+
+export const saveClientContact = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        id: z.string().uuid().optional(),
+        client_id: z.string().uuid(),
+        name: z.string().min(1).max(200),
+        role: z.string().max(120).nullable().optional(),
+        email: z.string().max(200).nullable().optional(),
+        phone: z.string().max(60).nullable().optional(),
+        is_primary: z.boolean().default(false),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const payload = {
+      client_id: data.client_id,
+      name: data.name.trim(),
+      role: emptyToNull(data.role),
+      email: emptyToNull(data.email),
+      phone: emptyToNull(data.phone),
+      is_primary: data.is_primary,
+    };
+
+    const query = data.id
+      ? context.supabase.from("client_contacts").update(payload).eq("id", data.id)
+      : context.supabase.from("client_contacts").insert(payload);
+
+    const { error } = await query;
+    if (error) throw new Error(error.message);
+
+    if (data.is_primary) {
+      let unset = context.supabase
+        .from("client_contacts")
+        .update({ is_primary: false })
+        .eq("client_id", data.client_id);
+      if (data.id) unset = unset.neq("id", data.id);
+      await unset;
+    }
+
+    return { ok: true as const };
+  });
+
+export const deleteClientContact = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("client_contacts").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true as const };
   });
+
+/** Stores an already-uploaded thumbnail path and removes the previous image. */
+export const setClientThumbnail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ id: z.string().uuid(), path: z.string().max(300).nullable() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: existing } = await context.supabase
+      .from("clients")
+      .select("thumbnail_path")
+      .eq("id", data.id)
+      .maybeSingle();
+
+    const { error } = await context.supabase
+      .from("clients")
+      .update({ thumbnail_path: data.path })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+
+    const previous = (existing as { thumbnail_path: string | null } | null)?.thumbnail_path;
+    if (previous && previous !== data.path) {
+      await (context.supabase as unknown as StorageClient).storage
+        .from(THUMB_BUCKET)
+        .remove([previous]);
+    }
+    return { ok: true as const };
+  });
+
+/** One-off screenshot of a live site. Only ever runs when the button is pressed. */
+export const captureClientThumbnail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ id: z.string().uuid(), url: z.string().url() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertManager(context.supabase, context.userId);
+
+    const shot = `https://s0.wp.com/mshots/v1/${encodeURIComponent(data.url)}?w=1200&h=750`;
+
+    let bytes: ArrayBuffer | null = null;
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      const response = await fetch(shot, { headers: { Accept: "image/*" } });
+      if (response.ok) {
+        const buffer = await response.arrayBuffer();
+        // The service returns a small placeholder while the shot is still rendering.
+        if (buffer.byteLength > 20000) {
+          bytes = buffer;
+          break;
+        }
+      }
+      await new Promise((resolve) => setTimeout(resolve, 4000));
+    }
+
+    if (!bytes) {
+      throw new Error("The screenshot is still being generated. Try again in a moment.");
+    }
+
+    const path = `${data.id}/${Date.now()}.jpg`;
+    const { error: uploadError } = await (context.supabase as unknown as StorageClient).storage
+      .from(THUMB_BUCKET)
+      .upload(path, bytes, { contentType: "image/jpeg", upsert: true });
+    if (uploadError) throw new Error(uploadError.message);
+
+    const { data: existing } = await context.supabase
+      .from("clients")
+      .select("thumbnail_path")
+      .eq("id", data.id)
+      .maybeSingle();
+
+    const { error } = await context.supabase
+      .from("clients")
+      .update({ thumbnail_path: path })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+
+    const previous = (existing as { thumbnail_path: string | null } | null)?.thumbnail_path;
+    if (previous && previous !== path) {
+      await (context.supabase as unknown as StorageClient).storage
+        .from(THUMB_BUCKET)
+        .remove([previous]);
+    }
+
+    return { ok: true as const, path };
+  });
+
 
 async function assertManager(supabase: {
   rpc: (fn: "is_manager", args: { _user_id: string }) => PromiseLike<{ data: unknown; error: unknown }>;
