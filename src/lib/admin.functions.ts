@@ -325,13 +325,20 @@ async function applyThumbnail(
 export const setClientThumbnail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ id: z.string().uuid(), path: z.string().max(300).nullable() }).parse(input),
+    z
+      .object({
+        id: z.string().uuid(),
+        path: z.string().max(300).nullable(),
+        // Keeps the original origin label when an image is only re-optimised.
+        source: z.enum(["upload", "og", "screenshot"]).optional(),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     await assertManager(context.supabase, context.userId);
     await applyThumbnail(context.supabase as never, data.id, {
       thumbnail_path: data.path,
-      thumbnail_source: data.path ? "upload" : null,
+      thumbnail_source: data.path ? (data.source ?? "upload") : null,
       thumbnail_captured_at: data.path ? new Date().toISOString() : null,
     });
     return { ok: true as const };

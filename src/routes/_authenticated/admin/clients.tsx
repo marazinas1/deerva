@@ -50,6 +50,7 @@ import {
   type ClientContactRow,
   type ClientRow,
 } from "@/lib/admin.functions";
+import { formatBytes, optimiseImage } from "@/lib/image-optimise";
 
 export const Route = createFileRoute("/_authenticated/admin/clients")({
   component: ProjectsPage,
@@ -145,21 +146,19 @@ function money(amount: number | null, currency: string | null) {
   }).format(amount);
 }
 
-/** Downscales to ~1200px wide WebP before upload so storage stays small. */
-async function toOptimisedWebp(file: File): Promise<Blob> {
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, 1200 / bitmap.width);
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(bitmap.width * scale);
-  canvas.height = Math.round(bitmap.height * scale);
-  const context = canvas.getContext("2d");
-  if (!context) throw new Error("Could not process the image");
-  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, "image/webp", 0.82),
-  );
-  if (!blob) throw new Error("Could not process the image");
-  return blob;
+/** Uploads an optimised copy and points the project at it. */
+async function storeOptimised(
+  clientId: string,
+  source: Blob,
+): Promise<{ bytes: number; width: number; height: number }> {
+  const { blob, width, height } = await optimiseImage(source);
+  const path = `${clientId}/${Date.now()}.webp`;
+  const { error } = await supabase.storage
+    .from("client-thumbnails")
+    .upload(path, blob, { contentType: "image/webp", upsert: true });
+  if (error) throw new Error(error.message);
+  await setClientThumbnail({ data: { id: clientId, path } });
+  return { bytes: blob.size, width, height };
 }
 
 const DAY = 86_400_000;
@@ -206,6 +205,11 @@ function ProjectsPage() {
   const [current, setCurrent] = useState<ClientRow | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [imageInfo, setImageInfo] = useState<{
+    bytes: number;
+    width: number;
+    height: number;
+  } | null>(null);
 
   const { data: me } = useQuery({ queryKey: ["admin", "me"], queryFn: () => getAdminMe() });
   const { data: clients, isLoading } = useQuery({
@@ -323,7 +327,12 @@ function ProjectsPage() {
       url: string;
       mode: "auto" | "screenshot";
     }) => fetchClientImage({ data: { id, url, mode } }),
-    onSuccess: (result) => {
+    onSuccess: async (result, variables) => {
+      try {
+        await normaliseFetched(variables.id, result.source);
+      } catch {
+        // The image is already saved; only the extra compression failed.
+      }
       toast.success(
         result.source === "og" ? "Image taken from the site" : "Screenshot saved",
       );
@@ -345,14 +354,11 @@ function ProjectsPage() {
     if (!form.id) return;
     setUploading(true);
     try {
-      const blob = await toOptimisedWebp(file);
-      const path = `${form.id}/${Date.now()}.webp`;
-      const { error } = await supabase.storage
-        .from("client-thumbnails")
-        .upload(path, blob, { contentType: "image/webp", upsert: true });
-      if (error) throw new Error(error.message);
-      await setClientThumbnail({ data: { id: form.id, path } });
-      toast.success("Thumbnail updated");
+      const result = await storeOptimised(form.id, file);
+      setImageInfo(result);
+      toast.success(
+        `Thumbnail updated — ${result.width}×${result.height}, ${formatBytes(result.bytes)}`,
+      );
       refresh();
     } catch (error) {
       toast.error((error as Error).message);
@@ -361,15 +367,40 @@ function ProjectsPage() {
     }
   }
 
+  /**
+   * Images pulled from a client's site arrive as the site served them, so they
+   * are re-processed here to the same rule as a manual upload.
+   */
+  async function normaliseFetched(id: string, source: "og" | "screenshot") {
+    const fresh = await queryClient.fetchQuery({
+      queryKey: ["admin", "clients"],
+      queryFn: () => listClients(),
+    });
+    const row = fresh.find((item) => item.id === id);
+    if (!row?.thumbnail_url) return;
+    const response = await fetch(row.thumbnail_url);
+    if (!response.ok) return;
+    const { blob, width, height } = await optimiseImage(await response.blob());
+    const path = `${id}/${Date.now()}.webp`;
+    const { error } = await supabase.storage
+      .from("client-thumbnails")
+      .upload(path, blob, { contentType: "image/webp", upsert: true });
+    if (error) throw new Error(error.message);
+    await setClientThumbnail({ data: { id, path, source } });
+    setImageInfo({ bytes: blob.size, width, height });
+  }
+
   function openNew() {
     setForm(EMPTY_FORM);
     setCurrent(null);
+    setImageInfo(null);
     setOpen(true);
   }
 
   function openEdit(client: ClientRow) {
     setForm(toForm(client));
     setCurrent(client);
+    setImageInfo(null);
     setOpen(true);
   }
 
@@ -875,6 +906,11 @@ function ProjectsPage() {
                     </div>
                   )}
                 </div>
+                <p className="text-xs text-muted">
+                  {imageInfo
+                    ? `Optimised: WebP, ${imageInfo.width}×${imageInfo.height}, ${formatBytes(imageInfo.bytes)}`
+                    : "Every image is resized, converted to WebP and stripped of camera data."}
+                </p>
               </section>
 
               <ContactsEditor
