@@ -22,11 +22,29 @@ export default defineConfig({
   },
   vite: {
     resolve: {
-      alias: {
-        "entities/lib/decode.js": path.resolve(dirname, "node_modules/entities/lib/decode.js"),
-        "entities/lib/encode.js": path.resolve(dirname, "node_modules/entities/lib/encode.js"),
-        entities: path.resolve(dirname, "node_modules/entities"),
-      },
+      // Array form: exact-match regexes only, so subpath imports such as
+      // `entities/decode` (parse5 v8, entities v6) keep resolving normally.
+      alias: [
+        {
+          find: /^entities\/lib\/decode\.js$/,
+          replacement: path.resolve(dirname, "node_modules/entities/lib/decode.js"),
+        },
+        {
+          find: /^entities\/lib\/encode\.js$/,
+          replacement: path.resolve(dirname, "node_modules/entities/lib/encode.js"),
+        },
+        {
+          find: /^entities\/decode$/,
+          replacement: path.resolve(
+            dirname,
+            "node_modules/parse5/node_modules/entities/dist/esm/decode.js",
+          ),
+        },
+        {
+          find: /^entities$/,
+          replacement: path.resolve(dirname, "node_modules/entities"),
+        },
+      ],
     },
   },
 });
