@@ -393,12 +393,14 @@ function ProjectsPage() {
   function openNew() {
     setForm(EMPTY_FORM);
     setCurrent(null);
+    setImageInfo(null);
     setOpen(true);
   }
 
   function openEdit(client: ClientRow) {
     setForm(toForm(client));
     setCurrent(client);
+    setImageInfo(null);
     setOpen(true);
   }
 
