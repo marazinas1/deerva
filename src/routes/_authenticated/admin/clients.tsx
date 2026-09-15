@@ -344,20 +344,40 @@ function ProjectsPage() {
     if (!form.id) return;
     setUploading(true);
     try {
-      const blob = await toOptimisedWebp(file);
-      const path = `${form.id}/${Date.now()}.webp`;
-      const { error } = await supabase.storage
-        .from("client-thumbnails")
-        .upload(path, blob, { contentType: "image/webp", upsert: true });
-      if (error) throw new Error(error.message);
-      await setClientThumbnail({ data: { id: form.id, path } });
-      toast.success("Thumbnail updated");
+      const result = await storeOptimised(form.id, file);
+      setImageInfo(result);
+      toast.success(
+        `Thumbnail updated — ${result.width}×${result.height}, ${formatBytes(result.bytes)}`,
+      );
       refresh();
     } catch (error) {
       toast.error((error as Error).message);
     } finally {
       setUploading(false);
     }
+  }
+
+  /**
+   * Images pulled from a client's site arrive as the site served them, so they
+   * are re-processed here to the same rule as a manual upload.
+   */
+  async function normaliseFetched(id: string, source: "og" | "screenshot") {
+    const fresh = await queryClient.fetchQuery({
+      queryKey: ["admin", "clients"],
+      queryFn: () => listClients(),
+    });
+    const row = fresh.find((item) => item.id === id);
+    if (!row?.thumbnail_url) return;
+    const response = await fetch(row.thumbnail_url);
+    if (!response.ok) return;
+    const { blob, width, height } = await optimiseImage(await response.blob());
+    const path = `${id}/${Date.now()}.webp`;
+    const { error } = await supabase.storage
+      .from("client-thumbnails")
+      .upload(path, blob, { contentType: "image/webp", upsert: true });
+    if (error) throw new Error(error.message);
+    await setClientThumbnail({ data: { id, path, source } });
+    setImageInfo({ bytes: blob.size, width, height });
   }
 
   function openNew() {
