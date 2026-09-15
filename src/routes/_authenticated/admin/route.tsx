@@ -3,6 +3,7 @@ import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-rout
 import { Home } from "lucide-react";
 
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import AssistantBubble from "@/components/admin/AssistantBubble";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
@@ -91,6 +92,8 @@ function AdminLayout() {
             <main className="flex-1 px-4 py-6 md:px-6 md:py-8">
               <Outlet />
             </main>
+
+            <AssistantBubble />
           </div>
         </div>
       </SidebarProvider>
