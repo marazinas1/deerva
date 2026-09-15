@@ -56,7 +56,7 @@ const GROUPS: { label: string; items: Item[] }[] = [
     label: "Manage",
     items: [
       {
-        title: "Clients",
+        title: "Projects",
         url: "/admin/clients",
         icon: Building2,
         managerOnly: false,
