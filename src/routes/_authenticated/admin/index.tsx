@@ -87,10 +87,11 @@ function Dashboard() {
               {clients?.length ?? 0}
             </span>
             <span className="mt-2 block text-[11px] uppercase tracking-[0.14em] text-stone">
-              Clients
+              Projects
             </span>
-            <span className="mt-1 block text-xs text-stone/80">{active} active</span>
+            <span className="mt-1 block text-xs text-stone/80">{live} live</span>
           </Link>
+
         </div>
       </section>
 
