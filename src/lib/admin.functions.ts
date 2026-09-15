@@ -15,18 +15,37 @@ export type AdminMe = {
   isDeveloper: boolean;
 };
 
+export type ClientContactRow = {
+  id: string;
+  client_id: string;
+  name: string;
+  role: string | null;
+  email: string | null;
+  phone: string | null;
+  is_primary: boolean;
+};
+
 export type ClientRow = {
   id: string;
   name: string;
   slug: string;
+  sector: string | null;
   status: string;
-  contact_name: string | null;
-  contact_email: string | null;
-  contact_phone: string | null;
-  website_url: string | null;
+  country: string | null;
+  live_url: string | null;
+  lovable_project_url: string | null;
+  github_url: string | null;
+  thumbnail_path: string | null;
+  thumbnail_url: string | null;
+  onboarding_fee: number | null;
+  onboarding_fee_currency: string | null;
+  monthly_fee: number | null;
+  monthly_fee_currency: string | null;
+  billing_cycle: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
+  contacts: ClientContactRow[];
 };
 
 export type AdminUserRow = {
@@ -38,6 +57,16 @@ export type AdminUserRow = {
   created_at: string;
 };
 
+export const CLIENT_STATUSES = ["prospect", "building", "review", "live", "paused"] as const;
+export const CURRENCIES = ["EUR", "USD"] as const;
+export const BILLING_CYCLES = ["monthly", "semiannual", "annual"] as const;
+
+const CLIENT_COLUMNS =
+  "id, name, slug, sector, status, country, live_url, lovable_project_url, github_url, thumbnail_path, onboarding_fee, onboarding_fee_currency, monthly_fee, monthly_fee_currency, billing_cycle, notes, created_at, updated_at";
+
+const CONTACT_COLUMNS = "id, client_id, name, role, email, phone, is_primary";
+
+const optionalText = z.string().max(300).nullable().optional();
 
 const clientInput = z.object({
   id: z.string().uuid().optional(),
@@ -47,11 +76,17 @@ const clientInput = z.object({
     .min(1)
     .max(100)
     .regex(/^[a-z0-9][a-z0-9-]*$/, "Use lowercase letters, numbers and dashes"),
-  status: z.enum(["active", "prospect", "paused", "archived"]),
-  contact_name: z.string().max(200).nullable().optional(),
-  contact_email: z.string().email().max(200).nullable().or(z.literal("")).optional(),
-  contact_phone: z.string().max(50).nullable().optional(),
-  website_url: z.string().max(300).nullable().optional(),
+  sector: optionalText,
+  status: z.enum(CLIENT_STATUSES),
+  country: optionalText,
+  live_url: optionalText,
+  lovable_project_url: optionalText,
+  github_url: optionalText,
+  onboarding_fee: z.number().nonnegative().nullable().optional(),
+  onboarding_fee_currency: z.enum(CURRENCIES).nullable().optional(),
+  monthly_fee: z.number().nonnegative().nullable().optional(),
+  monthly_fee_currency: z.enum(CURRENCIES).nullable().optional(),
+  billing_cycle: z.enum(BILLING_CYCLES).nullable().optional(),
   notes: z.string().max(5000).nullable().optional(),
 });
 
@@ -61,84 +96,6 @@ function emptyToNull(value: string | null | undefined): string | null {
   return trimmed === "" ? null : trimmed;
 }
 
-/** Current signed-in staff member with their single role. */
-export const getAdminMe = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<AdminMe> => {
-    const { supabase, userId } = context;
-
-    const [{ data: profile }, { data: roleRow, error: roleError }] = await Promise.all([
-      supabase.from("profiles").select("full_name, email").eq("id", userId).maybeSingle(),
-      supabase.from("user_roles").select("role").eq("user_id", userId).maybeSingle(),
-    ]);
-
-    if (roleError) throw new Error(roleError.message);
-
-    const role = (roleRow?.role ?? null) as AppRole | null;
-
-    return {
-      userId,
-      email: profile?.email ?? (context.claims["email"] as string | undefined) ?? null,
-      fullName: profile?.full_name ?? null,
-      role,
-      isManager: role === "developer" || role === "owner",
-      isDeveloper: role === "developer",
-    };
-  });
-
-
-export const listClients = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<ClientRow[]> => {
-    const { data, error } = await context.supabase
-      .from("clients")
-      .select(
-        "id, name, slug, status, contact_name, contact_email, contact_phone, website_url, notes, created_at, updated_at",
-      )
-      .order("created_at", { ascending: false });
-
-    if (error) throw new Error(error.message);
-    return (data ?? []) as ClientRow[];
-  });
-
-export const saveClient = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => clientInput.parse(input))
-  .handler(async ({ data, context }): Promise<ClientRow> => {
-    const payload = {
-      name: data.name.trim(),
-      slug: data.slug.trim().toLowerCase(),
-      status: data.status,
-      contact_name: emptyToNull(data.contact_name),
-      contact_email: emptyToNull(data.contact_email),
-      contact_phone: emptyToNull(data.contact_phone),
-      website_url: emptyToNull(data.website_url),
-      notes: emptyToNull(data.notes),
-    };
-
-    // RLS restricts writes to developer/owner; no extra client-side trust needed.
-    const query = data.id
-      ? context.supabase.from("clients").update(payload).eq("id", data.id)
-      : context.supabase.from("clients").insert({ ...payload, created_by: context.userId });
-
-    const { data: row, error } = await query
-      .select(
-        "id, name, slug, status, contact_name, contact_email, contact_phone, website_url, notes, created_at, updated_at",
-      )
-      .single();
-
-    if (error) throw new Error(error.message);
-    return row as ClientRow;
-  });
-
-export const deleteClient = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("clients").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
-    return { ok: true as const };
-  });
 
 async function assertManager(supabase: {
   rpc: (fn: "is_manager", args: { _user_id: string }) => PromiseLike<{ data: unknown; error: unknown }>;
