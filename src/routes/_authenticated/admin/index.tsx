@@ -23,7 +23,7 @@ function Dashboard() {
   });
   const { data: analytics } = useAnalytics(7);
 
-  const active = (clients ?? []).filter((client) => client.status === "active").length;
+  const live = (clients ?? []).filter((client) => client.status === "live").length;
 
   // Anything the owner should act on, in plain words.
   const attention: { text: string; to: "/admin/settings" | "/admin/clients" }[] = [];
@@ -31,8 +31,9 @@ function Dashboard() {
     attention.push({ text: "Business details are still empty", to: "/admin/settings" });
   }
   if (clients && clients.length === 0) {
-    attention.push({ text: "No clients added yet", to: "/admin/clients" });
+    attention.push({ text: "No projects added yet", to: "/admin/clients" });
   }
+
 
   return (
     <div className="mx-auto max-w-4xl space-y-14">
