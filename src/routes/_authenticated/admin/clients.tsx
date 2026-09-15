@@ -379,6 +379,32 @@ function ProjectsPage() {
         {canManage ? <Button onClick={openNew}>Add project</Button> : null}
       </div>
 
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { label: "Live projects", value: String(liveCount) },
+          {
+            label: "Monthly recurring",
+            value:
+              Object.entries(recurring)
+                .map(([currency, amount]) => money(Math.round(amount), currency))
+                .join(" · ") || "—",
+          },
+          {
+            label: "Onboarding fees",
+            value:
+              Object.entries(onboardingTotals)
+                .map(([currency, amount]) => money(Math.round(amount), currency))
+                .join(" · ") || "—",
+          },
+          { label: "Payments due", value: String(dueCount) },
+        ].map((kpi) => (
+          <div key={kpi.label} className="rounded-lg border border-border bg-card p-4">
+            <p className="text-xs text-muted">{kpi.label}</p>
+            <p className="mt-1 text-lg font-medium text-foreground">{kpi.value}</p>
+          </div>
+        ))}
+      </div>
+
       <div className="mt-6 flex flex-wrap items-center gap-2">
         {(["all", ...CLIENT_STATUSES] as const).map((value) => (
           <Button
@@ -391,14 +417,31 @@ function ProjectsPage() {
             {value}
           </Button>
         ))}
-        {Object.keys(recurring).length > 0 ? (
-          <span className="ml-auto text-sm text-muted">
-            Monthly recurring:{" "}
-            {Object.entries(recurring)
-              .map(([currency, amount]) => money(Math.round(amount), currency))
-              .join(" · ")}
-          </span>
-        ) : null}
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <div className="relative w-full sm:w-72">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+          <Input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search name, country or contact"
+            className="pl-9"
+            aria-label="Search projects"
+          />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {SORTS.map((option) => (
+            <Button
+              key={option.key}
+              size="sm"
+              variant={sort === option.key ? "secondary" : "ghost"}
+              onClick={() => setSort(option.key)}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </div>
       </div>
 
       {isLoading ? (
