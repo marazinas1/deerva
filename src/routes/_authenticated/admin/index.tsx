@@ -8,10 +8,10 @@ import { getAdminMe, listClients } from "@/lib/admin.functions";
 import { getSiteSettings } from "@/lib/settings.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
-  component: Overview,
+  component: Dashboard,
 });
 
-function Overview() {
+function Dashboard() {
   const { data: me } = useQuery({ queryKey: ["admin", "me"], queryFn: () => getAdminMe() });
   const { data: clients } = useQuery({
     queryKey: ["admin", "clients"],
@@ -37,7 +37,7 @@ function Overview() {
   return (
     <div className="mx-auto max-w-4xl space-y-14">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Overview</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Dashboard</h1>
         <p className="mt-1 text-sm text-stone">
           Welcome{me?.fullName ? `, ${me.fullName.split(" ")[0]}` : ""}.
         </p>
