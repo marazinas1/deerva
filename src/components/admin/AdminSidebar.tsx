@@ -7,6 +7,7 @@ import {
   LogOut,
   Settings,
   UserCog,
+  Wallet,
 } from "lucide-react";
 
 import BrandLogo from "@/components/admin/BrandLogo";
@@ -61,6 +62,13 @@ const GROUPS: { label: string; items: Item[] }[] = [
         icon: Building2,
         managerOnly: false,
         match: (p) => p.startsWith("/admin/clients"),
+      },
+      {
+        title: "Finance",
+        url: "/admin/finance",
+        icon: Wallet,
+        managerOnly: true,
+        match: (p) => p.startsWith("/admin/finance"),
       },
     ],
   },
