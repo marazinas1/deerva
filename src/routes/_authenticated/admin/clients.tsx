@@ -14,6 +14,16 @@ import {
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import {
+  useAddContactChannel,
+  useContactEmails,
+  useContactPhones,
+  useDeleteContactChannel,
+  usePayments,
+  useSetPrimaryChannel,
+} from "@/hooks/admin/useFinance";
+import { eurExact, shortDate } from "@/lib/finance";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -1029,7 +1039,7 @@ function ContactsEditor({
       ) : (
         <ul className="divide-y divide-border rounded-md border border-border">
           {contacts.map((contact) => (
-            <li key={contact.id} className="flex items-center gap-3 px-3 py-2 text-sm">
+            <li key={contact.id} className="flex items-start gap-3 px-3 py-2 text-sm">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="truncate font-medium text-foreground">{contact.name}</span>
@@ -1042,6 +1052,7 @@ function ContactsEditor({
                 <p className="truncate text-xs text-muted">
                   {[contact.role, contact.email, contact.phone].filter(Boolean).join(" · ") || "—"}
                 </p>
+                {canManage ? <ContactChannels contactId={contact.id} /> : null}
               </div>
               {canManage ? (
                 <>
@@ -1115,6 +1126,181 @@ function ContactsEditor({
           </div>
         </div>
       ) : null}
+    </section>
+  );
+}
+
+/** Extra email addresses and phone numbers for one person. */
+function ContactChannels({ contactId }: { contactId: string }) {
+  const emails = useContactEmails();
+  const phones = useContactPhones();
+  const add = useAddContactChannel();
+  const setPrimary = useSetPrimaryChannel();
+  const remove = useDeleteContactChannel();
+
+  const [emailDraft, setEmailDraft] = useState("");
+  const [phoneDraft, setPhoneDraft] = useState("");
+
+  const mine = {
+    email: (emails.data ?? []).filter((row) => row.contact_id === contactId),
+    phone: (phones.data ?? []).filter((row) => row.contact_id === contactId),
+  };
+
+  const rows: { kind: "email" | "phone"; id: string; value: string; isPrimary: boolean }[] = [
+    ...mine.email.map((row) => ({
+      kind: "email" as const,
+      id: row.id,
+      value: row.email,
+      isPrimary: row.is_primary,
+    })),
+    ...mine.phone.map((row) => ({
+      kind: "phone" as const,
+      id: row.id,
+      value: row.phone,
+      isPrimary: row.is_primary,
+    })),
+  ];
+
+  const fail = (error: Error) => toast.error(error.message);
+
+  return (
+    <div className="mt-2 space-y-2 border-l border-border pl-3">
+      {rows.length === 0 ? (
+        <p className="text-xs text-muted">No extra emails or numbers.</p>
+      ) : (
+        <ul className="space-y-1">
+          {rows.map((row) => (
+            <li key={row.id} className="flex items-center gap-2 text-xs">
+              <span className="truncate text-foreground">{row.value}</span>
+              {row.isPrimary ? (
+                <Badge variant="secondary" className="text-[10px] uppercase">
+                  Primary
+                </Badge>
+              ) : (
+                <button
+                  type="button"
+                  className="text-muted underline-offset-2 hover:underline"
+                  onClick={() =>
+                    setPrimary.mutate(
+                      { kind: row.kind, contactId, id: row.id },
+                      { onError: fail },
+                    )
+                  }
+                >
+                  Make primary
+                </button>
+              )}
+              <button
+                type="button"
+                className="ml-auto text-destructive"
+                onClick={() => {
+                  if (confirm(`Remove ${row.value}?`)) {
+                    remove.mutate({ kind: row.kind, id: row.id }, { onError: fail });
+                  }
+                }}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="grid gap-2 sm:grid-cols-2">
+        <div className="flex gap-2">
+          <Input
+            className="h-8 text-xs"
+            placeholder="Another email"
+            value={emailDraft}
+            onChange={(event) => setEmailDraft(event.target.value)}
+          />
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={!emailDraft.trim() || add.isPending}
+            onClick={() =>
+              add.mutate(
+                {
+                  kind: "email",
+                  contactId,
+                  value: emailDraft.trim(),
+                  isPrimary: mine.email.length === 0,
+                },
+                { onSuccess: () => setEmailDraft(""), onError: fail },
+              )
+            }
+          >
+            Add
+          </Button>
+        </div>
+        <div className="flex gap-2">
+          <Input
+            className="h-8 text-xs"
+            placeholder="Another phone"
+            value={phoneDraft}
+            onChange={(event) => setPhoneDraft(event.target.value)}
+          />
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={!phoneDraft.trim() || add.isPending}
+            onClick={() =>
+              add.mutate(
+                {
+                  kind: "phone",
+                  contactId,
+                  value: phoneDraft.trim(),
+                  isPrimary: mine.phone.length === 0,
+                },
+                { onSuccess: () => setPhoneDraft(""), onError: fail },
+              )
+            }
+          >
+            Add
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** What this project has actually paid, newest first. */
+function ClientPaymentHistory({ clientId }: { clientId: string }) {
+  const payments = usePayments();
+  const rows = (payments.data ?? []).filter((row) => row.client_id === clientId);
+  const total = rows.reduce((sum, row) => sum + Number(row.net_eur ?? 0), 0);
+
+  return (
+    <section className="space-y-3">
+      <h3 className="text-sm font-medium text-foreground">Payment history</h3>
+      {payments.isPending ? (
+        <p className="text-xs text-muted">Loading…</p>
+      ) : rows.length === 0 ? (
+        <p className="text-xs text-muted">
+          Nothing recorded yet. Payments are added in the Finance section.
+        </p>
+      ) : (
+        <>
+          <ul className="divide-y divide-border rounded-md border border-border">
+            {rows.map((row) => (
+              <li key={row.id} className="flex items-center gap-3 px-3 py-2 text-xs">
+                <span className="tabular-nums text-muted">{shortDate(row.paid_on)}</span>
+                <span className="min-w-0 flex-1 truncate text-foreground">
+                  {(row.services ?? []).join(" / ") || row.description || "Payment"}
+                </span>
+                <span className="tabular-nums text-foreground">
+                  {eurExact(Number(row.net_eur ?? 0))}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-xs text-muted">
+            {rows.length} payment{rows.length === 1 ? "" : "s"} · {eurExact(total)} total
+          </p>
+        </>
+      )}
     </section>
   );
 }
