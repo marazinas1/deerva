@@ -139,6 +139,82 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_emails: {
+        Row: {
+          contact_id: string
+          created_at: string
+          email: string
+          id: string
+          is_primary: boolean
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          email: string
+          id?: string
+          is_primary?: boolean
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          email?: string
+          id?: string
+          is_primary?: boolean
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_emails_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "client_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_phones: {
+        Row: {
+          contact_id: string
+          created_at: string
+          id: string
+          is_primary: boolean
+          label: string | null
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          label?: string | null
+          phone: string
+          updated_at?: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          label?: string | null
+          phone?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_phones_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "client_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       page_views: {
         Row: {
           country_code: string
@@ -192,6 +268,117 @@ export type Database = {
           utm_source?: string
         }
         Relationships: []
+      }
+      payment_methods: {
+        Row: {
+          account_holder: string | null
+          account_number: string | null
+          bank_name: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          kind: string
+          name: string
+          notes: string | null
+          swift: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_holder?: string | null
+          account_number?: string | null
+          bank_name?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          name: string
+          notes?: string | null
+          swift?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_holder?: string | null
+          account_number?: string | null
+          bank_name?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          name?: string
+          notes?: string | null
+          swift?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          client_id: string
+          contact_id: string | null
+          created_at: string
+          description: string | null
+          fx_rate: number | null
+          gross_amount: number | null
+          gross_currency: string
+          id: string
+          invoice_no: string | null
+          net_eur: number
+          paid_on: string
+          payment_method: string | null
+          payment_type: string | null
+          services: string[]
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          contact_id?: string | null
+          created_at?: string
+          description?: string | null
+          fx_rate?: number | null
+          gross_amount?: number | null
+          gross_currency?: string
+          id?: string
+          invoice_no?: string | null
+          net_eur?: number
+          paid_on: string
+          payment_method?: string | null
+          payment_type?: string | null
+          services?: string[]
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          contact_id?: string | null
+          created_at?: string
+          description?: string | null
+          fx_rate?: number | null
+          gross_amount?: number | null
+          gross_currency?: string
+          id?: string
+          invoice_no?: string | null
+          net_eur?: number
+          paid_on?: string
+          payment_method?: string | null
+          payment_type?: string | null
+          services?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "client_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
