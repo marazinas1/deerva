@@ -44,7 +44,6 @@ import {
   type PaymentMethodInput,
 } from "@/hooks/admin/useFinance";
 import {
-  CLIENT_STATUS_LABEL,
   clientStatus,
   downloadCsv,
   eur,
@@ -750,5 +749,3 @@ function MethodForm({
     </div>
   );
 }
-
-export { CLIENT_STATUS_LABEL };

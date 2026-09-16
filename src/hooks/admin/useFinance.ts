@@ -220,7 +220,7 @@ function useFinanceInvalidate() {
 export function useSavePayment() {
   const invalidate = useFinanceInvalidate();
   return useMutation({
-    mutationFn: async ({ id, values }: { id?: string; values: PaymentInput }) => {
+    mutationFn: async ({ id, values }: { id?: string | undefined; values: PaymentInput }) => {
       const { error } = id
         ? await supabase.from("payments").update(values).eq("id", id)
         : await supabase.from("payments").insert(values);
@@ -244,7 +244,7 @@ export function useDeletePayment() {
 export function useSavePaymentMethod() {
   const invalidate = useFinanceInvalidate();
   return useMutation({
-    mutationFn: async ({ id, values }: { id?: string; values: PaymentMethodInput }) => {
+    mutationFn: async ({ id, values }: { id?: string | undefined; values: PaymentMethodInput }) => {
       const { error } = id
         ? await supabase.from("payment_methods").update(values).eq("id", id)
         : await supabase.from("payment_methods").insert(values);
