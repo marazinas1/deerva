@@ -919,6 +919,8 @@ function ProjectsPage() {
                 canManage={canManage}
                 onChanged={refresh}
               />
+
+              {canManage ? <ClientPaymentHistory clientId={form.id} /> : null}
             </div>
           ) : (
             <p className="border-t border-border pt-4 text-xs text-muted">
