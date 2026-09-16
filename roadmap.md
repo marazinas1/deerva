@@ -10,6 +10,14 @@
       noindex on non-canonical hosts
 - [x] Project documents: AGENTS.md (real project description), FRONTEND.md, PLAN.md
 
+## Done — Finance section
+
+- [x] Tables: contact_emails, contact_phones, payments, payment_methods (manager-only)
+- [x] Backfill primary email/phone rows from existing client_contacts values
+- [x] `src/lib/finance.ts`, `hooks/admin/useFinance.ts` (RLS is the gate, no extra server fns)
+- [x] `/admin/finance` — one Manage sidebar item, tabs: Overview / Payments / Payment methods
+- [x] Projects page: contacts with extra emails/phones + payment history per project
+
 ## Deliberately deferred
 
 - Enquiries — the public page has no form.
