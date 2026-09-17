@@ -60,7 +60,9 @@ Services vocabulary: Platform Build, Maintenance, Feature Addition, Consulting.
 
 ## Screens
 
-Finance gets its own menu group with three tabs:
+Finance is ONE item in the existing Manage group, next to Projects — the
+sidebar keeps exactly three groups: Workspace, Manage, Settings. The item is
+visible only to managers. Inside, the Finance page has three tabs:
 
 - **Overview** — total income, this year, number of payments, active clients,
   average payment, income-by-year chart, year and service filters.
