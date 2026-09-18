@@ -1360,19 +1360,30 @@ function SetupProgress({
 }
 
 /** What this project has actually paid, newest first. */
-function ClientPaymentHistory({ clientId }: { clientId: string }) {
+function ClientPaymentHistory({
+  clientId,
+  onAddPayment,
+}: {
+  clientId: string;
+  onAddPayment: () => void;
+}) {
   const payments = usePayments();
   const rows = (payments.data ?? []).filter((row) => row.client_id === clientId);
   const total = rows.reduce((sum, row) => sum + Number(row.net_eur ?? 0), 0);
 
   return (
     <section className="space-y-3">
-      <h3 className="text-sm font-medium text-foreground">Payment history</h3>
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-sm font-medium text-foreground">Payment history</h3>
+        <Button size="sm" variant="outline" onClick={onAddPayment}>
+          <Wallet className="h-3.5 w-3.5" /> Add payment
+        </Button>
+      </div>
       {payments.isPending ? (
         <p className="text-xs text-muted">Loading…</p>
       ) : rows.length === 0 ? (
         <p className="text-xs text-muted">
-          Nothing recorded yet. Payments are added in the Finance section.
+          Nothing recorded yet — add the first one with the button above.
         </p>
       ) : (
         <>
