@@ -24,7 +24,7 @@ function AdminTabsTrigger({ className, ...props }: ComponentProps<typeof TabsTri
   return (
     <TabsTrigger
       className={cn(
-        "min-h-10 shrink-0 whitespace-nowrap rounded-none border-0 border-b-2 border-transparent bg-transparent px-1 py-3 text-sm font-normal shadow-none transition-colors hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-medium data-[state=active]:text-foreground data-[state=active]:shadow-none",
+        "min-h-10 shrink-0 whitespace-nowrap rounded-none border-0 border-b-[3px] border-transparent bg-transparent px-1 py-3 text-sm font-normal shadow-none transition-colors hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-medium data-[state=active]:text-foreground data-[state=active]:shadow-none",
         className,
       )}
       {...props}

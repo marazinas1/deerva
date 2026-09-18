@@ -43,7 +43,7 @@ Use one shared AdminTabs treatment everywhere:
 
 - the tab list is a transparent horizontal row with a single bottom `border-border` boundary and stable height;
 - each trigger has the same padding, no filled rectangle and no local radius;
-- active state uses `text-foreground`, medium weight and a clear bottom `primary` border; it never fills the trigger surface;
+- active state uses `text-foreground`, medium weight and a clearly visible bottom `primary` underline: a thicker 3 px line, unmistakably stronger than the `border-border` boundary under the whole row (Halliday-style);
 - inactive state is readable `text-muted-foreground`, not low-contrast decoration;
 - tabs are normal case by default, never pills and never forced uppercase. A named strong variant may use bold uppercase only when the project's brand direction explicitly requires it;
 - on mobile, keep one horizontally scrollable row with non-wrapping labels. Every tab remains reachable and text never clips.

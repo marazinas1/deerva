@@ -30,7 +30,7 @@ Kiekvienas puslapis prasideda unframed header: kairėje h1 + vienas sakinys, de�
 
 ## Tabs
 
-Vienas shared AdminTabs visur: skaidri horizontali eilė su viena apatine `border-border` linija. Trigger neturi užpildyto stačiakampio ar radius; active yra `text-foreground`, medium ir su aiškiu apatiniu `primary` border, inactive — `text-muted-foreground`. Default tekstas normalaus registro; tik aiškiai pavadintas stiprus brand variantas gali būti bold uppercase. Mobile visada horizontaliai scrollinama viena eilė, label nekerpami.
+Vienas shared AdminTabs visur: skaidri horizontali eilė su viena apatine `border-border` linija. Trigger neturi užpildyto stačiakampio ar radius; active yra `text-foreground`, medium ir su ryškiai matomu apatiniu `primary` pabraukimu — storesne 3 px linija, akivaizdžia nei apatinius juosianti `border-border` linija (Halliday tipo). Inactive — `text-muted-foreground`. Default tekstas normalaus registro; tik aiškiai pavadintas stiprus brand variantas gali būti bold uppercase. Mobile visada horizontaliai scrollinama viena eilė, label nekerpami.
 
 ## Badges
 
