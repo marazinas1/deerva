@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Search } from "lucide-react";
+import { Search, ShieldCheck } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -45,6 +46,11 @@ export const Route = createFileRoute("/_authenticated/admin/users")({
 /** developer -> owner -> editor. Developer is hardcoded and cannot be granted here. */
 const ASSIGNABLE: AppRole[] = ["owner", "editor"];
 const NO_ACCESS = "none";
+
+function roleLabel(role: AppRole | null) {
+  if (!role) return "No access";
+  return role.charAt(0).toUpperCase() + role.slice(1);
+}
 
 function UsersPage() {
   const queryClient = useQueryClient();
@@ -171,16 +177,20 @@ function UsersPage() {
                 return (
                   <TableRow key={user.id}>
                     <TableCell>
-                      <p className="font-medium text-foreground">{user.full_name ?? "—"}</p>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <p className="font-medium text-foreground">{user.full_name ?? "—"}</p>
+                        {isSelf ? <Badge variant="secondary">You</Badge> : null}
+                        <Badge variant="outline" className="gap-1">
+                          {user.isDeveloper ? <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" /> : null}
+                          {roleLabel(user.role)}
+                        </Badge>
+                      </div>
                       <p className="text-xs text-muted-foreground">{user.email}</p>
                     </TableCell>
                     <TableCell>
                       {locked ? (
-                        <p className="text-sm capitalize text-muted-foreground">
-                          {user.role ?? "No access"}
-                          <span className="ml-2 text-xs">
-                            {isSelf ? "(you)" : "· managed by the developer"}
-                          </span>
+                        <p className="text-xs text-muted-foreground">
+                          {user.isDeveloper ? "Protected access" : "Your account"}
                         </p>
                       ) : (
                         <Select
