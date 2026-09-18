@@ -28,11 +28,11 @@
 
 ## In progress — Universal admin brandbook
 
-- [ ] Align content, design-system and admin-structure standards
-- [ ] Add admin UI and admin screen-pattern standards
-- [ ] Publish the matching workspace Skills
-- [ ] Audit Lumidenta, OCDG, StageHomy, Halliday Architects and Dorothe
-- [ ] Prepare the reusable project prompt and Claude export
+- [x] Align content, design-system and admin-structure standards
+- [x] Add admin UI and admin screen-pattern standards
+- [x] Publish the matching workspace Skills
+- [x] Audit Lumidenta, OCDG, StageHomy, Halliday Architects and Dorothe
+- [x] Prepare the reusable project prompt and Claude export
 
 ## Deliberately deferred
 
