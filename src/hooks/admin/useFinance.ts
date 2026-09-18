@@ -111,10 +111,18 @@ export type FinancePaymentMethod = {
   name: string;
   kind: string;
   is_active: boolean;
+  currency: string;
   account_holder: string | null;
+  beneficiary_address: string | null;
   account_number: string | null;
+  iban: string | null;
+  routing_number: string | null;
+  account_type: string | null;
   bank_name: string | null;
+  bank_address: string | null;
   swift: string | null;
+  intermediary_bank: string | null;
+  transfer_instructions: string | null;
   notes: string | null;
 };
 
