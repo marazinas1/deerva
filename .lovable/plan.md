@@ -14,13 +14,14 @@ Pakeisti bendrą Deerva admin vaizdo taisyklę taip, kad projektai išliktų vie
 
 ## Naujos taisyklės
 
-### 1. Viena projekto tipografija visur
+### 1. Projekto pagrindinis sans šriftas visoje darbo sąsajoje
 
-- Kiekvienas projektas turi vieną sąmoningai pasirinktą pagrindinę šriftų šeimą.
-- Ta pati šeima naudojama viešoje svetainėje, admin dalyje ir prisijungimo / slaptažodžio atkūrimo ekranuose.
-- Pakeitus projekto pagrindinį šriftą, pakeitimas turi galioti visoms šioms sritims per bendrą semantinį font tokeną.
-- Admin dalis negauna atskiro privalomo `Urbanist`, tačiau `Urbanist` lieka Deerva numatytasis pasirinkimas naujam projektui.
-- Vieša svetainė gali turėti papildomą display/serif šriftą išskirtinėms antraštėms, bet admin darbo sąsaja naudoja pagrindinį sans šriftą, kad išliktų aiški ir nuosekli.
+- Kiekvienas projektas turi vieną sąmoningai pasirinktą pagrindinį `--font-sans` tokeną.
+- Admin dalis, prisijungimo ir slaptažodžio atkūrimo ekranai visada naudoja `--font-sans` tiek antraštėms, tiek tekstui.
+- `--font-serif` ir `--font-display` admin bei auth komponentuose draudžiami; globalios viešos antraščių taisyklės turi būti apribotos taip, kad nepatektų į admin.
+- Vieša svetainė naudoja tą patį `--font-sans` pagrindiniam tekstui, bet gali turėti papildomą serif/display šriftą išskirtinėms viešoms antraštėms.
+- Pakeitus projekto pagrindinį sans šriftą, pakeitimas automatiškai galioja viešam tekstui, admin ir auth ekranams per tą patį tokeną.
+- Admin dalis negauna hardcoded `Urbanist`; `Urbanist` lieka Deerva numatytasis pasirinkimas naujam projektui, o esami projektai išlaiko savo sans: OCDG – `Inter`, Lumidenta – `Manrope`, Halliday / StageHomy / Deerva – `Urbanist`.
 
 ### 2. Halliday tipo admin tabai
 
@@ -28,6 +29,7 @@ Pakeisti bendrą Deerva admin vaizdo taisyklę taip, kad projektai išliktų vie
 - Aktyvus tabas žymimas aiškiu apatiniu `primary` spalvos pabraukimu ir `text-foreground`; neaktyvūs – `text-muted-foreground`.
 - Jokio bendro pilko tabų fono, balto aktyvaus stačiakampio, atskiro kiekvieno tabo rėmelio, pill formos ar uppercase per prievartą.
 - Tabų tekstas įprasto registro ir projekto pagrindiniu šriftu; stabilus aukštis, vienodas tarpas, matomas focus žiedas ir pointer.
+- Bendras komponentas gali turėti aiškiai pavadintą stipresnį variantą, kai konkretaus prekės ženklo kryptis sąmoningai reikalauja bold uppercase tabų; tai nėra numatytoji būsena.
 - Daug tabų telefone pasiekiami horizontaliu slinkimu, nekerpant teksto.
 - Tą patį komponentą naudoti Settings, Finance ir kitoms lygiavertėms administravimo subnavigacijoms.
 
@@ -39,11 +41,11 @@ Pakeisti bendrą Deerva admin vaizdo taisyklę taip, kad projektai išliktų vie
 
 ## Kas bus atnaujinta Deerva projekte
 
-1. `docs/standards/01-design-system.md` – aiški vienos projekto šriftų šeimos taisyklė viešai svetainei, admin ir auth ekranams.
+1. `docs/standards/01-design-system.md` – aiški pagrindinio `--font-sans` taikymo ir viešo serif/display šrifto atribojimo taisyklė.
 2. `docs/standards/02-admin-ui.md` – Halliday linijinių tabų receptas vietoje dabartinio rėminio modelio; patikslinta tipografijos ir paviršių kryptis.
 3. `docs/standards/admin-template-prompt.md` ir susijęs audito tekstas – kad kituose projektuose nebebūtų generuojami balti tabų stačiakampiai.
 4. Aktyvūs `deerva-design-system` ir `deerva-admin-ui` Skills – tos pačios taisyklės, kad jos būtų automatiškai taikomos naujuose darbuose.
-5. Deerva administravimo bendras `AdminTabs` – pakeistas į naują linijinį modelį, kad pats Deerva projektas liktų etaloninis.
+5. Deerva administravimo bendras `AdminTabs` – pakeistas į naują linijinį modelį, kad pats Deerva projektas liktų etaloninis; išlaikoma dabartinė komponento API, keičiama tik išvaizdos anatomija.
 6. Patikra: Deerva admin desktop, tablet ir phone; tabų focus, horizontalus slinkimas, kontrastas ir jokių teksto nukirpimų.
 
 ## Sąmoninga riba
