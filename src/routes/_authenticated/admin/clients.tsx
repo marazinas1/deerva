@@ -557,6 +557,7 @@ function ProjectsPage() {
                       ? ` · setup ${money(client.onboarding_fee, client.onboarding_fee_currency)}`
                       : ""}
                   </p>
+                  <SetupProgress client={client} />
                   {(() => {
                     const payment = paymentLabel(client.next_payment_on);
                     if (!payment) return null;
