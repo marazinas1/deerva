@@ -52,6 +52,8 @@ export type PaymentFormProps = {
   onCancel: () => void;
   onSubmit: (values: PaymentInput) => void;
   onClientCreated: () => void;
+  /** Preselects the project when the form is opened from a project card. */
+  defaultClientId?: string;
 };
 
 export default function PaymentForm({
@@ -63,8 +65,9 @@ export default function PaymentForm({
   onCancel,
   onSubmit,
   onClientCreated,
+  defaultClientId,
 }: PaymentFormProps) {
-  const [clientId, setClientId] = useState(payment?.client_id ?? "");
+  const [clientId, setClientId] = useState(payment?.client_id ?? defaultClientId ?? "");
   const [contactId, setContactId] = useState(payment?.contact_id ?? "");
   const [paidOn, setPaidOn] = useState(payment?.paid_on ?? today());
   const [kind, setKind] = useState(payment?.kind ?? "other");
