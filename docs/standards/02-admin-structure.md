@@ -64,11 +64,11 @@ One logo and one configured size are used in the public header, sign-in screen a
 
 ## Maintenance mode behaviour
 
-Maintenance is a collapsible block at the bottom of Business & appearance, never a separate tab.
+Maintenance is the last section of Business & appearance, never a separate tab and never a collapsible block. It is small — a switch and one visitor message — so it stays fully visible in its own bordered card at the very bottom of the tab, after the logo and favicon sections. The card carries the title, one explaining sentence, the switch on the right of that row, then the message field with its own `Save`.
 
 An unsigned visitor sees a holding page styled like the real site, with the real phone and email from `site_settings`. They never see the hidden site.
 
-Signed-in staff see the real site with a persistent, non-dismissible banner: “Maintenance mode is on — you are seeing this site because you are signed in. Visitors see the holding page.” It provides “Preview as visitor” and “Turn off”; the latter links directly to the maintenance block inside Business & appearance.
+Signed-in staff see the real site with a persistent, non-dismissible banner: “Maintenance mode is on — you are seeing this site because you are signed in. Visitors see the holding page.” It provides “Preview as visitor” and “Turn off”; the latter links directly to the maintenance section inside Business & appearance.
 
 While authentication is unresolved, default to the holding page. The system reveals less until access is proven, never more.
 

@@ -29,13 +29,17 @@ Every screen begins with one unframed header row:
 
 ## Surface and spacing recipes
 
+The Halliday Architects admin is the reference for admin surfaces: a light `bg-background` page, quiet white `bg-card` sections separated by borders, one calm sans family, generous field spacing and no decorative chrome.
+
 - **Section:** unframed full-width content group, separated by `space-y-4` or `space-y-6`.
-- **Card:** `border border-border bg-card text-card-foreground`, derived `rounded-lg`, no shadow by default, `p-4` compact or `p-6` standard.
+- **Card:** `border border-border bg-card text-card-foreground`, derived radius only (`rounded-sm`/`rounded-lg` from `--radius`), no shadow by default, `p-5` standard or `p-4` compact.
+- **Settings/form page:** one vertical stack of such cards with a consistent `mb-6`/`space-y-6` rhythm. Each card is one topic, holds its own `Save`, and is never nested inside another card.
+- **Inside a card:** one small `text-sm font-medium` title, optional `text-xs text-muted-foreground` sentence, then fields in `grid gap-4 sm:grid-cols-2`; long text, addresses and media span the full row.
 - **Clickable card:** the same anatomy plus pointer, subtle border/background hover and visible focus ring; hover never changes size.
 - **Inset panel:** `bg-muted` with border only when separation is otherwise unclear. Never nest decorative cards inside cards.
 - **Density:** compact rows 40–44 px, controls 36–40 px, standard card gaps 16–24 px. A page chooses compact or standard density deliberately; it does not mix them randomly.
 
-Borders, not shadows, establish admin hierarchy. A semantic soft shadow is reserved for overlays, dropdowns and dialogs.
+Borders, not shadows, establish admin hierarchy. A semantic soft shadow is reserved for overlays, dropdowns and dialogs. Inputs, buttons and cards all take their corner radius from the same `--radius` token, so nothing looks sharper or rounder than its neighbours.
 
 ## Tabs
 

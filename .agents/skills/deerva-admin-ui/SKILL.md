@@ -21,12 +21,17 @@ Kiekvienas puslapis prasideda unframed header: kairėje h1 + vienas sakinys, de�
 
 ## Surface receptai
 
+Halliday Architects admin yra paviršių etalonas: šviesus `bg-background` puslapis, ramios baltos `bg-card` sekcijos su borders, vienas sans šriftas, erdvūs laukai, jokių dekoracijų.
+
 - Section: full-width, unframed, `space-y-4/6`.
-- Card: `border border-border bg-card text-card-foreground rounded-lg`, `p-4` compact arba `p-6` standard, be shadow.
+- Card: `border border-border bg-card text-card-foreground`, radius tik iš `--radius`, `p-5` standard arba `p-4` compact, be shadow.
+- Settings/forma: vertikalus tokių cards stack'as su vienodu `space-y-6`; viena kortelė = viena tema ir savo `Save`.
+- Kortelės viduje: `text-sm font-medium` title, optional `text-xs text-muted-foreground` sakinys, tada `grid gap-4 sm:grid-cols-2`; ilgi laukai per visą eilę.
 - Clickable card: pointer + subtilus border/background hover + focus ring, be scale.
 - Inset: `bg-muted`, border tik jei trūksta atskyrimo.
 - Nenestinti dekoratyvių cards į cards.
 - Rows 40–44 px, controls 36–40 px, gaps 16–24 px.
+- Inputs, buttons ir cards ima tą patį `--radius`; niekas neatrodo aštriau ar apvaliau už kaimyną.
 
 ## Tabs
 
