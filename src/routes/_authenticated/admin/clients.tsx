@@ -10,6 +10,7 @@ import {
   Sparkles,
   Trash2,
   Upload,
+  Wallet,
 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -19,9 +20,14 @@ import {
   useContactEmails,
   useContactPhones,
   useDeleteContactChannel,
+  useFinanceClients,
+  useFinanceContacts,
+  usePaymentMethods,
   usePayments,
+  useSavePayment,
   useSetPrimaryChannel,
 } from "@/hooks/admin/useFinance";
+import PaymentForm from "@/components/admin/finance/PaymentForm";
 import { collected, eurExact, shortDate } from "@/lib/finance";
 
 import { Badge } from "@/components/ui/badge";
@@ -211,6 +217,11 @@ function ProjectsPage() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<Sort>("newest");
   const [open, setOpen] = useState(false);
+  const [payFor, setPayFor] = useState<ClientRow | null>(null);
+  const financeClients = useFinanceClients();
+  const financeContacts = useFinanceContacts();
+  const paymentMethods = usePaymentMethods();
+  const savePayment = useSavePayment();
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [current, setCurrent] = useState<ClientRow | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -509,7 +520,7 @@ function ProjectsPage() {
               <button
                 type="button"
                 onClick={() => openEdit(client)}
-                className="block w-full text-left"
+                className="block w-full cursor-pointer text-left"
               >
                 <div className="aspect-[1.91/1] w-full overflow-hidden bg-muted/10">
                   {client.thumbnail_url ? (
@@ -591,6 +602,11 @@ function ProjectsPage() {
                     <a href={client.github_url} target="_blank" rel="noreferrer">
                       <Github className="h-3.5 w-3.5" /> GitHub
                     </a>
+                  </Button>
+                ) : null}
+                {canManage ? (
+                  <Button size="sm" variant="outline" onClick={() => setPayFor(client)}>
+                    <Wallet className="h-3.5 w-3.5" /> Add payment
                   </Button>
                 ) : null}
                 {canManage && client.next_payment_on ? (
@@ -931,13 +947,55 @@ function ProjectsPage() {
                 onChanged={refresh}
               />
 
-              {canManage ? <ClientPaymentHistory clientId={form.id} /> : null}
+              {canManage ? (
+                <ClientPaymentHistory
+                  clientId={form.id}
+                  onAddPayment={() => {
+                    const row = current;
+                    setOpen(false);
+                    setPayFor(row);
+                  }}
+                />
+              ) : null}
             </div>
           ) : (
             <p className="border-t border-border pt-4 text-xs text-muted">
               Save the project first — the thumbnail and contact people can be added right after.
             </p>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={payFor !== null} onOpenChange={(next) => (next ? null : setPayFor(null))}>
+        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{payFor ? `Payment · ${payFor.name}` : "Payment"}</DialogTitle>
+          </DialogHeader>
+          {payFor ? (
+            <PaymentForm
+              key={payFor.id}
+              payment={null}
+              defaultClientId={payFor.id}
+              clients={(financeClients.data ?? []) as never}
+              contacts={(financeContacts.data ?? []) as never}
+              methods={paymentMethods.data ?? []}
+              saving={savePayment.isPending}
+              onCancel={() => setPayFor(null)}
+              onClientCreated={() => void financeClients.refetch()}
+              onSubmit={(values) =>
+                savePayment.mutate(
+                  { values },
+                  {
+                    onSuccess: () => {
+                      toast.success("Payment recorded");
+                      setPayFor(null);
+                    },
+                    onError: (error) => toast.error(error.message),
+                  },
+                )
+              }
+            />
+          ) : null}
         </DialogContent>
       </Dialog>
     </div>
@@ -1302,19 +1360,30 @@ function SetupProgress({
 }
 
 /** What this project has actually paid, newest first. */
-function ClientPaymentHistory({ clientId }: { clientId: string }) {
+function ClientPaymentHistory({
+  clientId,
+  onAddPayment,
+}: {
+  clientId: string;
+  onAddPayment: () => void;
+}) {
   const payments = usePayments();
   const rows = (payments.data ?? []).filter((row) => row.client_id === clientId);
   const total = rows.reduce((sum, row) => sum + Number(row.net_eur ?? 0), 0);
 
   return (
     <section className="space-y-3">
-      <h3 className="text-sm font-medium text-foreground">Payment history</h3>
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-sm font-medium text-foreground">Payment history</h3>
+        <Button size="sm" variant="outline" onClick={onAddPayment}>
+          <Wallet className="h-3.5 w-3.5" /> Add payment
+        </Button>
+      </div>
       {payments.isPending ? (
         <p className="text-xs text-muted">Loading…</p>
       ) : rows.length === 0 ? (
         <p className="text-xs text-muted">
-          Nothing recorded yet. Payments are added in the Finance section.
+          Nothing recorded yet — add the first one with the button above.
         </p>
       ) : (
         <>
