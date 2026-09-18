@@ -141,3 +141,5 @@ išeinant iš puslapio.
 - Editor mato tik peržiūros pranešimus vietoj paslėptų mygtukų — tyla atrodo
 kaip klaida.
 - Panelė patogi telefone. Savininkai tikrina užklausas iš telefono.
+- Paspaudžiamos kortelės ir eilutės užvedus pelę rodo pointer žymeklį
+  (žr. dizaino sistemos „Žymeklis" skyrių).
