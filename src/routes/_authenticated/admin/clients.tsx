@@ -456,7 +456,7 @@ function ProjectsPage() {
           { label: "Payments due", value: String(dueCount) },
         ].map((kpi) => (
           <div key={kpi.label} className="rounded-lg border border-border bg-card p-4">
-            <p className="text-xs text-muted">{kpi.label}</p>
+            <p className="text-xs text-muted-foreground">{kpi.label}</p>
             <p className="mt-1 text-lg font-medium text-foreground">{kpi.value}</p>
           </div>
         ))}
@@ -543,7 +543,7 @@ function ProjectsPage() {
                       }`}
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-4xl font-semibold text-muted/50">
+                    <div className="flex h-full w-full items-center justify-center text-4xl font-semibold text-muted-foreground/50">
                       {client.name.charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -565,10 +565,10 @@ function ProjectsPage() {
                       {client.status}
                     </Badge>
                   </div>
-                  <p className="text-xs text-muted">
+                  <p className="text-xs text-muted-foreground">
                     {[client.country, client.sector].filter(Boolean).join(" · ") || "—"}
                   </p>
-                  <p className="text-xs text-muted">
+                  <p className="text-xs text-muted-foreground">
                     {money(client.monthly_fee, client.monthly_fee_currency)
                       ? `${money(client.monthly_fee, client.monthly_fee_currency)} / ${client.billing_cycle ?? "monthly"}`
                       : "No maintenance fee set"}
@@ -628,7 +628,7 @@ function ProjectsPage() {
                   </Button>
                 ) : null}
                 {client.thumbnail_source ? (
-                  <span className="ml-auto text-[11px] text-muted">
+                  <span className="ml-auto text-[11px] text-muted-foreground">
                     {SOURCE_LABEL[client.thumbnail_source] ?? client.thumbnail_source}
                     {client.thumbnail_captured_at
                       ? ` · ${client.thumbnail_captured_at.slice(0, 10)}`
@@ -936,12 +936,12 @@ function ProjectsPage() {
                       }`}
                     />
                   ) : (
-                    <div className="flex h-full items-center justify-center text-xs text-muted">
+                    <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
                       No image yet
                     </div>
                   )}
                 </div>
-                <p className="text-xs text-muted">
+                <p className="text-xs text-muted-foreground">
                   {imageInfo
                     ? `Optimised: WebP, ${imageInfo.width}×${imageInfo.height}, ${formatBytes(imageInfo.bytes)}`
                     : "Every image is resized, converted to WebP and stripped of camera data."}
@@ -967,7 +967,7 @@ function ProjectsPage() {
               ) : null}
             </div>
           ) : (
-            <p className="border-t border-border pt-4 text-xs text-muted">
+            <p className="border-t border-border pt-4 text-xs text-muted-foreground">
               Save the project first — the thumbnail and contact people can be added right after.
             </p>
           )}
@@ -1102,7 +1102,7 @@ function ContactsEditor({
       <h3 className="text-sm font-medium text-foreground">Contact people</h3>
 
       {contacts.length === 0 ? (
-        <p className="text-xs text-muted">Nobody added yet.</p>
+        <p className="text-xs text-muted-foreground">Nobody added yet.</p>
       ) : (
         <ul className="divide-y divide-border rounded-md border border-border">
           {contacts.map((contact) => (
@@ -1116,7 +1116,7 @@ function ContactsEditor({
                     </Badge>
                   ) : null}
                 </div>
-                <p className="truncate text-xs text-muted">
+                <p className="truncate text-xs text-muted-foreground">
                   {[contact.role, contact.email, contact.phone].filter(Boolean).join(" · ") || "—"}
                 </p>
                 {canManage ? <ContactChannels contactId={contact.id} /> : null}
@@ -1233,7 +1233,7 @@ function ContactChannels({ contactId }: { contactId: string }) {
   return (
     <div className="mt-2 space-y-2 border-l border-border pl-3">
       {rows.length === 0 ? (
-        <p className="text-xs text-muted">No extra emails or numbers.</p>
+        <p className="text-xs text-muted-foreground">No extra emails or numbers.</p>
       ) : (
         <ul className="space-y-1">
           {rows.map((row) => (
@@ -1364,7 +1364,7 @@ function SetupProgress({
           style={{ width: `${progress.percent}%` }}
         />
       </div>
-      <p className="text-xs text-muted">
+      <p className="text-xs text-muted-foreground">
         {money(progress.received, currency)} of {money(progress.agreed, currency)} received
         {progress.left > 0 ? ` · ${money(progress.left, currency)} to go` : " · settled"}
       </p>
@@ -1393,9 +1393,9 @@ function ClientPaymentHistory({
         </Button>
       </div>
       {payments.isPending ? (
-        <p className="text-xs text-muted">Loading…</p>
+        <p className="text-xs text-muted-foreground">Loading…</p>
       ) : rows.length === 0 ? (
-        <p className="text-xs text-muted">
+        <p className="text-xs text-muted-foreground">
           Nothing recorded yet — add the first one with the button above.
         </p>
       ) : (
@@ -1403,7 +1403,7 @@ function ClientPaymentHistory({
           <ul className="divide-y divide-border rounded-md border border-border">
             {rows.map((row) => (
               <li key={row.id} className="flex items-center gap-3 px-3 py-2 text-xs">
-                <span className="tabular-nums text-muted">{shortDate(row.paid_on)}</span>
+                <span className="tabular-nums text-muted-foreground">{shortDate(row.paid_on)}</span>
                 <span className="min-w-0 flex-1 truncate text-foreground">
                   {(row.services ?? []).join(" / ") || row.description || "Payment"}
                 </span>
@@ -1413,7 +1413,7 @@ function ClientPaymentHistory({
               </li>
             ))}
           </ul>
-          <p className="text-xs text-muted">
+          <p className="text-xs text-muted-foreground">
             {rows.length} payment{rows.length === 1 ? "" : "s"} · {eurExact(total)} total
           </p>
         </>

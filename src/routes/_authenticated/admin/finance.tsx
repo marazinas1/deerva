@@ -348,13 +348,13 @@ function Overview({
               <div className="flex-1 space-y-1">
                 <div className="h-2 bg-muted">
                   <div
-                    className="h-2 bg-ink"
+                    className="h-2 bg-foreground"
                     style={{ width: `${Math.max(2, (value.income / stats.peak) * 100)}%` }}
                   />
                 </div>
                 <div className="h-2 bg-muted">
                   <div
-                    className="h-2 bg-stone"
+                    className="h-2 bg-muted-foreground"
                     style={{ width: `${Math.max(1, (value.cost / stats.peak) * 100)}%` }}
                   />
                 </div>

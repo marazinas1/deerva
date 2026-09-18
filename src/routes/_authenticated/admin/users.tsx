@@ -118,7 +118,7 @@ function UsersPage() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={2} className="text-sm text-muted">
+                <TableCell colSpan={2} className="text-sm text-muted-foreground">
                   Loading…
                 </TableCell>
               </TableRow>
@@ -130,11 +130,11 @@ function UsersPage() {
                   <TableRow key={user.id}>
                     <TableCell>
                       <p className="font-medium text-foreground">{user.full_name ?? "—"}</p>
-                      <p className="text-xs text-muted">{user.email}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
                     </TableCell>
                     <TableCell>
                       {locked ? (
-                        <p className="text-sm capitalize text-muted">
+                        <p className="text-sm capitalize text-muted-foreground">
                           {user.role ?? "No access"}
                           <span className="ml-2 text-xs">
                             {isSelf ? "(you)" : "· managed by the developer"}

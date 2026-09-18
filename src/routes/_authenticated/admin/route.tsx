@@ -31,7 +31,7 @@ function AdminLayout() {
 
   if (isLoading) {
     return (
-      <div className="admin-theme flex min-h-screen items-center justify-center text-sm text-muted">
+      <div className="admin-theme flex min-h-screen items-center justify-center text-sm text-muted-foreground">
         Loading…
       </div>
     );
@@ -40,7 +40,7 @@ function AdminLayout() {
   if (error || !me) {
     return (
       <div className="admin-theme flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
-        <p className="text-sm text-muted">We could not load your admin account.</p>
+        <p className="text-sm text-muted-foreground">We could not load your admin account.</p>
         <Button variant="outline" onClick={signOut}>
           Sign out
         </Button>
