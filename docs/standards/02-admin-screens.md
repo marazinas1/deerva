@@ -1,6 +1,6 @@
-# 04 — Admin screen patterns
+# 02B — Admin screen patterns
 
-This standard answers **what each reusable admin screen is made of and how it behaves**. It complements structure (`02`) and visual anatomy (`03`).
+This standard answers **what each reusable admin screen is made of and how it behaves**. It complements `02-admin-structure.md` and `02-admin-ui.md`.
 
 ## Collection screen
 

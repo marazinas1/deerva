@@ -1,4 +1,4 @@
-# 03 — Admin UI brandbook
+# 02A — Admin UI brandbook
 
 This standard answers **how the admin looks**. Preserve each project's brand through semantic token values; standardise component anatomy, spacing, density and behaviour.
 

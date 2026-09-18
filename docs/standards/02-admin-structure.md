@@ -1,6 +1,6 @@
 # 02 — Admin structure
 
-The admin panel is the product. The public site is what it produces. This standard answers **what exists and where it lives**. Visual recipes belong in `03-admin-ui.md`; screen workflows belong in `04-admin-screens.md`.
+The admin panel is the product. The public site is what it produces. This standard answers **what exists and where it lives**. Visual recipes belong in `02-admin-ui.md`; screen workflows belong in `02-admin-screens.md`.
 
 ## Menu order — fixed
 
@@ -100,4 +100,4 @@ Owners may request that their current text or media become the pinned default. T
 - Editors see an explicit read-only notice instead of silently missing controls.
 - Clickable cards and rows use a pointer cursor; disabled controls use not-allowed.
 - The panel works on a phone; owners check inquiries there.
-- Visibility and mutation rights follow `05-roles-and-access.md`; hiding a button is never the security boundary.
+- Visibility and mutation rights follow `03-roles-and-access.md`; hiding a button is never the security boundary.
