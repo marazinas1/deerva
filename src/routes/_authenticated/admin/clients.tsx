@@ -217,6 +217,11 @@ function ProjectsPage() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<Sort>("newest");
   const [open, setOpen] = useState(false);
+  const [payFor, setPayFor] = useState<ClientRow | null>(null);
+  const financeClients = useFinanceClients();
+  const financeContacts = useFinanceContacts();
+  const paymentMethods = usePaymentMethods();
+  const savePayment = useSavePayment();
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [current, setCurrent] = useState<ClientRow | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
