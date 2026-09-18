@@ -49,6 +49,7 @@
 - [x] Compact standards summary in each project editor
 - [x] Assistant knowledge includes the final admin standards and reusable prompt
 - [x] Settings page tabs use exact public menu labels without “texts” or “content” suffixes
+- [x] Admin badges standardised for roles, identity, publication and workflow states
 
 ## Deliberately deferred
 

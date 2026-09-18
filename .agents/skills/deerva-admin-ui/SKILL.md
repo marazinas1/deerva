@@ -32,6 +32,18 @@ Kiekvienas puslapis prasideda unframed header: kairėje h1 + vienas sakinys, de�
 
 Vienas shared AdminTabs visur. Matomas `border-border` konteineris; stabilus aukštis; active keičia visą trigger paviršių (`bg-card text-foreground` + border), ne tik underline; inactive lieka įskaitomas. Jokios pills ar arbitrary radius. Mobile: horizontal scroll daug tabų arba 2–4 trumpų tabų grid; tekstas nekerpamas.
 
+## Badges
+
+Badges yra privalomas informacijos sluoksnis listuose, cards ir detail headers. Jie leidžia greitai nuskaityti rolę, tapatybę ir būseną.
+
+- Naudoti rolėms (`Developer`, `Owner`, `Editor`), dabartiniam vartotojui (`You`), publikavimui (`Published`, `Hidden`), workflow/status, `Read only` ir attention būsenoms.
+- Visur naudoti shared Badge komponentą: compact inline-flex label, optional 14–16 px Lucide icon, semantic border, token-derived radius, stabilus aukštis. Badge vizualiai tylesnis už button.
+- Neutral identity/role: `secondary`, `muted` arba outline. Product state: tik `success`, `warning`, `info`, `destructive` su jų foreground poromis.
+- Visada rodyti aiškų tekstą; spalva viena reikšmės neperduoda. Ikona tik kai padeda atpažinti, pvz. `ShieldCheck` saugomai rolei.
+- Badge eina iškart po title/name. Keli badges dedami į wrapping inline row su vienodu mažu gap ir negali išstumti row actions.
+- `You` ir `Developer` gali būti kartu: pirmas žymi tapatybę, antras teisių lygį.
+- Badge yra informacija, ne veiksmas. Nenaudoti kaip button, tab, toggle, filter ar dekoratyvaus tag cloud. Trumpi label, paprastai 1–3 žodžiai; nedubliuoti akivaizdžios informacijos.
+
 ## Forms
 
 Label visada virš control. Optional/recommended žyma prie label. Placeholder blankus ir neatrodo kaip saved value. Help ir error po lauku. Fields: `grid gap-4 sm:grid-cols-2`; ilgi tekstai/adresai/media per visą eilę. Save zona su top border, Save ir dirty/saving/saved būsena; ilgai formai galima sticky, jei neuždengia turinio. Read-only forma paaiškina, kas gali keisti.
