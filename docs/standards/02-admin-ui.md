@@ -48,6 +48,19 @@ Use one shared AdminTabs treatment everywhere:
 - tabs are never pills and never use local arbitrary radii;
 - on mobile, use horizontal scrolling for many labels or an intentional equal-width grid for two to four short labels. Text may wrap, but must never clip.
 
+## Badges
+
+Badges are a required information layer in admin lists, cards and detail headers. They make identity and state scannable without forcing the user to read supporting sentences.
+
+- Use badges for roles (`Developer`, `Owner`, `Editor`), current identity (`You`), publication (`Published`, `Hidden`), workflow/status, permissions (`Read only`) and exceptional attention states.
+- Use the shared Badge component. Default anatomy: compact inline-flex label, optional 14–16 px Lucide icon, one-line text, semantic border and token-derived radius. Keep the height stable and visually quieter than buttons.
+- Neutral identity/role badges use `secondary`, `muted` or outline roles. State badges use `success`, `warning`, `info` or `destructive` with their foreground pair.
+- Every badge must contain a clear text label; colour alone never communicates meaning. Add an icon only when it increases recognition, as with `ShieldCheck` for protected roles.
+- Place badges immediately after the name/title they qualify. Multiple badges use a wrapping inline row with a small consistent gap; they must not push primary row actions off-screen.
+- `You` and `Developer` may appear together because they answer different questions: identity and permission level. The developer badge is visually protected but not louder than destructive actions.
+- Badges are informational, not interactive. Filters, toggles and actions remain proper controls. Never use a badge as a button, tab, decorative category cloud or replacement for explanatory error text.
+- Keep labels concise, normally one to three words. Do not show redundant badges when the same state is already the row's explicit heading or only value.
+
 ## Forms
 
 - Label remains visible above every control. Optional or recommended status is quiet text beside the label.

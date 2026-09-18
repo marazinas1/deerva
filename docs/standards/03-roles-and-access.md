@@ -41,7 +41,7 @@ complexity for a single owner.
 
 ## Users page
 
-Shows, for every account: name, email, role badge, "you" badge on the current user, created date, **last sign-in timestamp**. Developer rows are marked as protected with no controls.
+Shows, for every account: name, email, role badge, `You` badge on the current user, created date, **last sign-in timestamp**. Role and `You` badges sit directly after the identity in one wrapping row. Use the shared outlined/neutral Badge anatomy and a small shield icon where it clarifies protected access. `You` and `Developer` may appear together because they communicate different facts. Developer rows are marked as protected with no controls.
 
 Invite form: email, optional name, role select (owner/editor only), invite button.
 

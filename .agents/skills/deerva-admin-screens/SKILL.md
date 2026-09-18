@@ -19,11 +19,14 @@ Loading / empty / error / read-only
 
 Table — palyginimui; card grid — kai vaizdas esminis; expandable rows — dažnam ilgo įrašo redagavimui. Nedubliuoti navigacijos: puslapio turinys Settings, repeatable records Manage.
 
+Prie title/name rodyti compact badges tik greitam skenavimui svarbiai informacijai: statusui, publication, rolei, ownership ar attention. Row actions lieka atskiri controls; badge niekada neatlieka veiksmo.
+
 ## Expandable editor
 
 Testimonials yra etalonas ir gali būti taikomas Articles, Services, FAQ.
 
 - Collapsed: title/name, published state, order, short summary.
+- Published/hidden ir kitas trumpas būsenas collapsed eilutėje rodyti labelled badges; būseną keičiantis control lieka editoriuje.
 - Inline edit; default vienas atvertas.
 - Ilgam sąrašui „Expand all / Collapse all“.
 - Aiškus „Shown on site“ switch.

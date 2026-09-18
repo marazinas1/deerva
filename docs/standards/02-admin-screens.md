@@ -22,11 +22,14 @@ Choose the collection shape by the work:
 
 Do not offer two navigation paths to the same content. Page-specific content belongs in Settings; repeatable records belong in Manage.
 
+Show compact badges beside the title/name for information users need while scanning: status, publication, role, ownership or an attention state. Keep row actions visually separate; a badge never performs an action.
+
 ## Expandable editor list
 
 Testimonials are the reference pattern; the same anatomy may serve articles, services and FAQ.
 
 - Start collapsed with title/name, published state, order and short excerpt.
+- Render published/hidden and other compact states as labelled badges in the collapsed summary; keep the actual state-changing control inside the editor.
 - Open the form inline. Keep no more than one row open by default.
 - Provide “Expand all” / “Collapse all” for review work.
 - Include a clear “Shown on site” control when publication is optional.
