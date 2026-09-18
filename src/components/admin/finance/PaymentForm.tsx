@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -79,7 +79,6 @@ export default function PaymentForm({
   const [fxRate, setFxRate] = useState(payment?.fx_rate?.toString() ?? "");
   const [method, setMethod] = useState(payment?.payment_method ?? "");
   const [description, setDescription] = useState(payment?.description ?? "");
-  const [netTouched, setNetTouched] = useState(false);
   const [net, setNet] = useState(payment?.net_eur?.toString() ?? "0");
 
   const [clientQuery, setClientQuery] = useState("");
@@ -96,10 +95,50 @@ export default function PaymentForm({
     [gross, currency, fxRate],
   );
 
-  // The live figure keeps updating until the number is overridden by hand.
-  useEffect(() => {
-    if (!netTouched) setNet(String(computed));
-  }, [computed, netTouched]);
+  // The three amount fields stay in sync: gross / rate = net EUR.
+  // Editing any one of them recalculates the other, so the numbers always agree.
+  const fmt = (n: number) => String(Math.round(n * 100) / 100);
+  const fmt6 = (n: number) => String(Math.round(n * 1e6) / 1e6);
+
+  function applyGross(value: string) {
+    setGross(value);
+    const g = toNumber(value);
+    if (currency === "EUR") {
+      setNet(g ? fmt(g) : "0");
+      return;
+    }
+    const rate = toNumber(fxRate);
+    if (g && rate && rate > 0) setNet(fmt(g / rate));
+    else if (g && toNumber(net)) setFxRate(fmt6(g / (toNumber(net) as number)));
+  }
+
+  function applyCurrency(value: string) {
+    setCurrency(value);
+    const g = toNumber(gross);
+    if (value === "EUR") {
+      setFxRate("");
+      setNet(g ? fmt(g) : "0");
+      return;
+    }
+    const rate = toNumber(fxRate);
+    if (g && rate && rate > 0) setNet(fmt(g / rate));
+  }
+
+  function applyFxRate(value: string) {
+    setFxRate(value);
+    const g = toNumber(gross);
+    const rate = toNumber(value);
+    if (g && rate && rate > 0) setNet(fmt(g / rate));
+  }
+
+  function applyNet(value: string) {
+    setNet(value);
+    if (currency === "EUR") return;
+    const g = toNumber(gross);
+    const n = toNumber(value);
+    if (g && n && n > 0) setFxRate(fmt6(g / n));
+  }
+
 
   const visibleClients = useMemo(() => {
     const term = clientQuery.trim().toLowerCase();
@@ -296,12 +335,12 @@ export default function PaymentForm({
             id="gross"
             inputMode="decimal"
             value={gross}
-            onChange={(event) => setGross(event.target.value)}
+            onChange={(event) => applyGross(event.target.value)}
           />
         </div>
         <div className="space-y-2">
           <Label>Currency</Label>
-          <Select value={currency} onValueChange={setCurrency}>
+          <Select value={currency} onValueChange={applyCurrency}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -321,9 +360,10 @@ export default function PaymentForm({
               id="fx"
               inputMode="decimal"
               value={fxRate}
-              onChange={(event) => setFxRate(event.target.value)}
+              onChange={(event) => applyFxRate(event.target.value)}
               placeholder="1.08"
             />
+            <p className="text-xs text-stone">Gross ÷ rate = net EUR</p>
           </div>
         ) : null}
         <div className="space-y-2">
@@ -332,13 +372,15 @@ export default function PaymentForm({
             id="net"
             inputMode="decimal"
             value={net}
-            onChange={(event) => {
-              setNetTouched(true);
-              setNet(event.target.value);
-            }}
+            onChange={(event) => applyNet(event.target.value)}
           />
-          <p className="text-xs text-stone">Calculated: {eurExact(computed)}</p>
+          <p className="text-xs text-stone">
+            {currency === "USD"
+              ? "Type the euros you received — the rate is filled in for you."
+              : `Calculated: ${eurExact(computed)}`}
+          </p>
         </div>
+
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
