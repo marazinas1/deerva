@@ -509,7 +509,7 @@ function ProjectsPage() {
               <button
                 type="button"
                 onClick={() => openEdit(client)}
-                className="block w-full text-left"
+                className="block w-full cursor-pointer text-left"
               >
                 <div className="aspect-[1.91/1] w-full overflow-hidden bg-muted/10">
                   {client.thumbnail_url ? (
