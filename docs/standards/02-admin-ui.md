@@ -2,13 +2,13 @@
 
 This standard answers **how the admin looks**. Preserve each project's brand through semantic token values; standardise component anatomy, spacing, density and behaviour.
 
-StageHomy is the reference for thin borders, quiet surfaces and confident density. Its admin source contains hardcoded colours, so copy the aesthetic only. Rebuild every recipe below from semantic tokens. Halliday Architects is the closest Settings-structure reference. Lumidenta proves the same system can remain warm and green without changing its component rules.
+StageHomy is the reference for thin borders, quiet surfaces and confident density. Its admin source contains hardcoded colours, so copy the aesthetic only. Rebuild every recipe below from semantic tokens. Halliday Architects is the reference for light horizontal tab navigation and Settings structure. Lumidenta proves the same system can remain warm and green without changing its component rules.
 
 ## Token discipline
 
 Reusable admin components use only the core semantic roles: `background`, `foreground`, `card`, `primary`, `secondary`, `muted`, `accent`, `destructive`, `border` and their standard foreground/input/ring/status partners.
 
-Never use project aliases (`ink`, `stone`, `paper`, `sand`, `charcoal`, `slate`), raw colour utilities, hex values or a separate admin palette. `--radius` and the font family remain brand values; every component consumes them instead of declaring a local radius or font.
+Never use project aliases (`ink`, `stone`, `paper`, `sand`, `charcoal`, `slate`), raw colour utilities, hex values or a separate admin palette. `--radius` and `--font-sans` remain brand values; every component consumes them instead of declaring a local radius or font. The entire admin, including every heading, uses `--font-sans`; public `--font-serif` or `--font-display` rules must not leak into it.
 
 ## Shell
 
@@ -41,12 +41,12 @@ Borders, not shadows, establish admin hierarchy. A semantic soft shadow is reser
 
 Use one shared AdminTabs treatment everywhere:
 
-- the tab list has a visible `border-border` boundary and stable height;
-- each trigger has the same padding and derived radius;
-- active state changes the whole trigger surface (`bg-card`, `text-foreground`, visible border), never only an underline;
+- the tab list is a transparent horizontal row with a single bottom `border-border` boundary and stable height;
+- each trigger has the same padding, no filled rectangle and no local radius;
+- active state uses `text-foreground`, medium weight and a clear bottom `primary` border; it never fills the trigger surface;
 - inactive state is readable `text-muted-foreground`, not low-contrast decoration;
-- tabs are never pills and never use local arbitrary radii;
-- on mobile, use horizontal scrolling for many labels or an intentional equal-width grid for two to four short labels. Text may wrap, but must never clip.
+- tabs are normal case by default, never pills and never forced uppercase. A named strong variant may use bold uppercase only when the project's brand direction explicitly requires it;
+- on mobile, keep one horizontally scrollable row with non-wrapping labels. Every tab remains reachable and text never clips.
 
 ## Badges
 

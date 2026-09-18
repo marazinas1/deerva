@@ -12,7 +12,7 @@ function AdminTabsList({ className, ...props }: ComponentProps<typeof TabsList>)
   return (
     <TabsList
       className={cn(
-        "grid h-auto w-full gap-1 overflow-x-auto rounded-lg border border-border bg-muted p-1 text-muted-foreground sm:inline-grid sm:w-auto",
+        "flex h-auto w-full justify-start gap-6 overflow-x-auto rounded-none border-0 border-b border-border bg-transparent p-0 text-muted-foreground",
         className,
       )}
       {...props}
@@ -24,7 +24,7 @@ function AdminTabsTrigger({ className, ...props }: ComponentProps<typeof TabsTri
   return (
     <TabsTrigger
       className={cn(
-        "min-h-9 whitespace-normal rounded-md border border-transparent px-3 text-xs shadow-none data-[state=active]:border-border data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-none sm:text-sm",
+        "min-h-10 shrink-0 whitespace-nowrap rounded-none border-0 border-b-2 border-transparent bg-transparent px-1 py-3 text-sm font-normal shadow-none transition-colors hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-medium data-[state=active]:text-foreground data-[state=active]:shadow-none",
         className,
       )}
       {...props}

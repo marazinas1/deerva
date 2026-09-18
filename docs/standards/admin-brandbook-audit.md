@@ -15,7 +15,7 @@ Keep:
 Normalize:
 
 - use only core semantic tokens instead of `ink / stone / paper / sand / line` aliases in admin recipes;
-- replace underline-only `SectionTabs` with the shared bordered AdminTabs;
+- preserve the light horizontal underline anatomy through the shared semantic-token AdminTabs;
 - make Contact the final tab and keep photographs within their corresponding page tabs;
 - use the fixed icon vocabulary (`Building2`, `Newspaper`, etc.).
 
@@ -32,7 +32,7 @@ Normalize:
 - the audited admin contains 523 raw black/white/hex colour occurrences across admin pages and components; replace them with semantic tokens rather than copying this implementation;
 - combine Business and Appearance into one first tab;
 - make Contact the final Settings tab;
-- replace underline tabs with the shared bordered AdminTabs;
+- replace hardcoded underline tabs with the shared semantic-token AdminTabs while preserving their light horizontal anatomy;
 - remove local inline radius values and raw buttons in favour of shared components;
 - add Testimonials to Manage if the public site uses them.
 
@@ -51,7 +51,8 @@ Normalize:
 - combine Business and Appearance;
 - move Maintenance from its own tab into a collapsible block at the bottom of Business & appearance;
 - make Contact the final page tab;
-- replace local bordered chips, project colour aliases and `rounded-[4px]` with shared AdminTabs and semantic core tokens;
+- replace local bordered chips and filled tab rectangles with shared underline AdminTabs; replace project colour aliases and `rounded-[4px]` with semantic core tokens;
+- scope the global Playfair Display `h1`–`h6` rule to public content so admin and auth use the existing Inter `--font-sans` instead;
 - split the 1,800+ line Settings implementation into page-tab and reusable media/form components.
 
 ## Dorothe — closest shared-component implementation
@@ -59,7 +60,7 @@ Normalize:
 Keep:
 
 - three sidebar groups, permission-aware rows and optional Calendar;
-- semantic-token components, dedicated settings parts and bordered segmented tabs;
+- semantic-token components and dedicated settings parts;
 - Manage collection for listings, articles and testimonials.
 
 Normalize:
@@ -88,7 +89,7 @@ Normalize:
 - combine Practice and Appearance;
 - move Technical works from a separate tab into Business & appearance;
 - make Contact the final Settings tab;
-- replace pill Settings tabs with the shared bordered AdminTabs;
+- replace pill Settings tabs with the shared horizontal underline AdminTabs;
 - add Expand all / Collapse all for long expandable collections.
 
 ## Rollout order

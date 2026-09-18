@@ -30,8 +30,10 @@ Vardai nekinta; reikšmės yra kiekvieno brando dalis. Jokio `text-white`, `bg-b
 
 ## Tipografija
 
-- Viena sąmoningai pasirinkta šeima, kraunama root `<head>` per `<link>`, niekada CSS URL `@import`.
-- Urbanist — default, bet brandas gali turėti kitą šriftą; niekada Inter ar Poppins iš inercijos.
+- Kiekvienas projektas turi vieną sąmoningai pasirinktą pagrindinį `--font-sans`, kraunamą root `<head>` per `<link>`, niekada CSS URL `@import`.
+- Public body, visas admin ir auth ekranai naudoja tą patį `--font-sans`. Admin ir auth antraštėms draudžiami `--font-serif` ir `--font-display`.
+- Viešos svetainės antraštės gali turėti papildomą serif/display šriftą, bet jo selektoriai scope'inami taip, kad nepatektų į admin ar auth. Nedėti jo globaliai ant plikų `h1`–`h6`, jei ekranai dalijasi dokumentu.
+- Urbanist — default, bet brandas gali sąmoningai rinktis kitą sans; nekrauti atskiro admin šrifto.
 - Svoriai 300–800; antraštės 600–700, body 400, labels 500.
 - Body 16–17 px, line-height apie 1.6. Mažos uppercase admin grupių žymos: 11 px, `tracking-[0.14em]`.
 

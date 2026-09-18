@@ -5,13 +5,13 @@ description: Naudok kuriant ar audituojant Deerva admin vizualą — shell, card
 
 # 02A — Admin UI brandbook
 
-Šis skill atsako **kaip admin atrodo**. Komponentų anatomija bendra, o spalvos, šriftas ir radius ateina iš kiekvieno projekto semantinių tokenų. StageHomy estetika sektina, bet jo hardcoded admin kodas niekada nekopijuojamas.
+Šis skill atsako **kaip admin atrodo**. Komponentų anatomija bendra, o spalvos, pagrindinis sans šriftas ir radius ateina iš kiekvieno projekto semantinių tokenų. StageHomy estetika sektina, Halliday yra tabų etalonas, bet jų hardcoded admin kodas niekada nekopijuojamas.
 
 ## Tokenai
 
 Admin naudoja tik core roles: `background`, `foreground`, `card`, `primary`, `secondary`, `muted`, `accent`, `destructive`, `border` ir standartines foreground/input/ring/status poras. Draudžiami projektiniai aliases (`ink`, `stone`, `paper`, `sand`, `charcoal`, `slate`), raw/hex spalvos ir atskira admin paletė.
 
-`--radius` ir šriftas lieka brand'o reikšmės; jokio vietinio arbitrary radius ar pill tabų.
+`--radius` ir `--font-sans` lieka brand'o reikšmės; jokio vietinio arbitrary radius, atskiro admin šrifto ar pill tabų. Visas admin, įskaitant antraštes, naudoja `--font-sans`; public serif/display taisyklės į admin nepatenka.
 
 ## Shell ir page header
 
@@ -30,7 +30,7 @@ Kiekvienas puslapis prasideda unframed header: kairėje h1 + vienas sakinys, de�
 
 ## Tabs
 
-Vienas shared AdminTabs visur. Matomas `border-border` konteineris; stabilus aukštis; active keičia visą trigger paviršių (`bg-card text-foreground` + border), ne tik underline; inactive lieka įskaitomas. Jokios pills ar arbitrary radius. Mobile: horizontal scroll daug tabų arba 2–4 trumpų tabų grid; tekstas nekerpamas.
+Vienas shared AdminTabs visur: skaidri horizontali eilė su viena apatine `border-border` linija. Trigger neturi užpildyto stačiakampio ar radius; active yra `text-foreground`, medium ir su aiškiu apatiniu `primary` border, inactive — `text-muted-foreground`. Default tekstas normalaus registro; tik aiškiai pavadintas stiprus brand variantas gali būti bold uppercase. Mobile visada horizontaliai scrollinama viena eilė, label nekerpami.
 
 ## Badges
 
