@@ -8,7 +8,7 @@ Every string, number and image on a Deerva site belongs to exactly one of three 
 
 | If it… | Lives in | Example |
 |---|---|---|
-| appears on **several pages** and must be edited once | `site_settings` | logo, favicon, address, phone, email, licence numbers, social links |
+| appears on **several pages** and must be edited once | `site_settings` | logo, favicon, address, map coordinates, phone, email, licence numbers, social links, maintenance state |
 | appears **once, in one place, on one page** | `page_text` / `page_media` | hero heading, CTA paragraph, a quote card |
 | **repeats** as a list of similar things | its own table | services, listings, projects, articles, testimonials, prices, FAQ |
 
@@ -57,6 +57,12 @@ This makes "reset to default" free: delete the row, the default returns. No undo
 3. **Address, phone and email are read from `site_settings` everywhere** — footer, contact page, map, schema.org. Changing them in admin updates the whole site. Never hardcode them in a component.
 4. **The logo is a `site_settings` value, not an import.** See `02-admin-structure.md`.
 5. **Every table gets `created_at`, `updated_at` (with trigger), RLS and GRANT** in the same migration that creates it.
+
+## Business & appearance is one source of truth
+
+The first Settings tab edits the singleton `site_settings` row. Business identity and appearance are one system, not two independent forms. A saved address, phone, email, map position, social profile, logo, logo size, favicon or maintenance state updates every place that consumes it: public pages, footer, contact details, map, structured data, sign-in screen and admin shell.
+
+Never duplicate these values in `page_text`, a page component or a second settings table. A change of office or brand mark must be made once.
 
 ## Sector mapping
 
