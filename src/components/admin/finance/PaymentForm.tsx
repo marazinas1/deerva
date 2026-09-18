@@ -218,7 +218,23 @@ export default function PaymentForm({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-4">
+        <div className="space-y-2">
+          <Label>Covers</Label>
+          <Select value={kind} onValueChange={setKind}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {FINANCE_PAYMENT_KINDS.map((item) => (
+                <SelectItem key={item} value={item}>
+                  {PAYMENT_KIND_LABEL[item]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-stone">Counts towards the project's agreed sum.</p>
+        </div>
         <div className="space-y-2">
           <Label htmlFor="paid_on">Paid on</Label>
           <Input
