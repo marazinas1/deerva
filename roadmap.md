@@ -33,11 +33,13 @@
 - [x] Publish the matching workspace Skills
 - [x] Audit Lumidenta, OCDG, StageHomy, Halliday Architects and Dorothe
 - [x] Prepare the reusable project prompt and Claude export
+- [x] Scope admin/auth typography to each project's primary sans token
+- [x] Standardize Halliday-style horizontal underline AdminTabs
 
 ## Done — Deerva admin reference implementation
 
 - [x] Replace legacy admin colour aliases with semantic roles
-- [x] Standardize shell, full-width headers and bordered tabs
+- [x] Standardize shell, full-width headers and horizontal underline tabs
 - [x] Align Dashboard, Projects, Finance, Analytics, Users and Settings
 - [x] Verify TypeScript, responsive overflow and signed-out auth layouts
 

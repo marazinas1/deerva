@@ -30,8 +30,10 @@ The public site and admin share this same semantic token contract. Do not create
 
 ## Typography
 
-- One family per project, loaded with a `<link>` in the root route head — never `@import` a URL in CSS (Tailwind v4 breaks on it).
-- Urbanist is the house default. Deviate only when the brand demands it, and then pick deliberately — never Inter or Poppins by inertia.
+- Every project has one deliberately chosen primary `--font-sans`, loaded with a `<link>` in the root route head — never `@import` a URL in CSS (Tailwind v4 breaks on it).
+- Public body copy, the entire admin and every auth screen use that same `--font-sans`. Admin and auth headings must never consume `--font-serif` or `--font-display`.
+- A public site may add a serif/display face for expressive public headings, but its selectors must be scoped so they cannot leak into admin or auth. Never apply a display family globally to bare `h1`–`h6` selectors when those screens share the document.
+- Urbanist is the house default. Deviate only when the brand demands it, then keep that project's chosen sans consistent across public body, admin and auth — never add a second admin-only font.
 - Weights: 300 / 400 / 500 / 600 / 700 / 800. Headings 600–700, body 400, labels 500.
 - Body text 16–17px, line-height 1.6. Headings tight tracking.
 - Small caps labels: 11px, `uppercase`, `tracking-[0.14em]`, muted colour. Used for section eyebrows and admin group labels.
