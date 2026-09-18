@@ -56,9 +56,13 @@ vienam savininkui.
 
 ## Users puslapis
 
-Rodo kiekvienai paskyrai: vardą, el. paštą, rolės žymę, „you" žymę
+Rodo kiekvienai paskyrai: vardą, el. paštą, role badge, `You` badge
 dabartiniam vartotojui, sukūrimo datą, **paskutinio prisijungimo laiką**.
-Developer eilutės pažymėtos kaip apsaugotos, be valdiklių.
+Role ir `You` badges dedami iškart po identity vienoje wrapping eilėje,
+naudojant shared neutral/outline Badge anatomiją ir mažą `ShieldCheck`, kai
+reikia parodyti apsaugotą prieigą. `You` ir `Developer` gali būti kartu:
+pirmas žymi tapatybę, antras — teisių lygį. Developer eilutės pažymėtos kaip
+apsaugotos, be valdiklių.
 
 Kvietimo forma: el. paštas, neprivalomas vardas, rolės pasirinkimas
 (tik owner/editor), kvietimo mygtukas.
