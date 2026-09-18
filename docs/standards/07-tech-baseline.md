@@ -25,6 +25,18 @@ The same stack in every project. Sameness is the point: a fix written once appli
 - Time-dependent validation uses triggers, not `CHECK` constraints.
 - Migrations are structure only.
 
+## Migration location — check every time
+
+Migrations must land in `supabase/migrations/`, nowhere else. After any new migration, check the latest commit with `git show --stat` — if it introduces new files under `drizzle/`, `prisma/` or similar directories, or new dependencies (`drizzle-kit`, `drizzle-orm`, `prisma`) in `package.json`, that is a sign the SQL may have gone to the wrong place.
+
+Such a deviation is sometimes explained as "the platform changed the mechanism for all projects" — do not accept that claim without evidence. Check it against the official Lovable documentation (docs.lovable.dev/integrations/supabase). If the documentation says migrations must land in `supabase/migrations/` and they did not, demand the exact error message, not a general explanation.
+
+Recovery steps, verified working:
+
+1. The SQL content is usually correct; the problem is only its location — do not change the content itself.
+2. Move the same SQL into a new file under `supabase/migrations/` with a matching date, and mark it as already applied in the migration history so it is not attempted a second time.
+3. Leave the new tool's dependencies (e.g. `drizzle/`, `drizzle.config.ts`) untouched ONLY if the error message confirms that without them further changes will not work — they then become a dependency, not a free choice to delete.
+
 ## Routing
 
 - Public pages: top-level route files, SSR on, no auth gate.
