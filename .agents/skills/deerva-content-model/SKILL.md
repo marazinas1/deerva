@@ -1,78 +1,60 @@
 ---
 name: deerva-content-model
-description: Naudok, kai sprendi, kur gyvena tekstas, paveikslėlis ar duomenys Deerva projekte — site_settings, page_text/page_media ar atskira lentelė; kai kuri slot'ų pavadinimus, default/reset mechaniką arba planuoji sektoriaus lenteles. Netinka vizualiniam dizainui ar rolėms.
+description: Naudok sprendžiant, kur gyvena svetainės tekstas, paveikslėlis ar kartojami duomenys, kaip veikia site_settings, slotai, defaults ir reset. Netinka vizualiniam dizainui ar rolėms.
 ---
 
 # 00 — Turinio modelis
 
-Sprendžiama prieš pirmą komponentą. Būtent ši klaida po pusmečio paverčia CMS skausmu.
-
-## Trijų kategorijų taisyklė
-
-Kiekvienas tekstas, skaičius ir paveikslėlis priklauso lygiai vienai vietai.
+Sprendžiama prieš pirmą komponentą. Kiekvienas tekstas, skaičius ir paveikslėlis priklauso lygiai vienai vietai.
 
 | Jei tai… | Gyvena | Pavyzdys |
 |---|---|---|
-| matoma **keliuose puslapiuose**, redaguojama vieną kartą | `site_settings` | logo, favicon, adresas, telefonas, el. paštas, licencijos, socialiniai tinklai |
-| matoma **vieną kartą, vienoje vietoje, viename puslapyje** | `page_text` / `page_media` | hero antraštė, CTA pastraipa, citatos kortelė |
-| **kartojasi** kaip panašių dalykų sąrašas | atskira lentelė | paslaugos, skelbimai, projektai, straipsniai, atsiliepimai, kainos, DUK |
+| matoma keliuose puslapiuose ir redaguojama vieną kartą | `site_settings` | logo, favicon, adresas, žemėlapio taškas, telefonas, el. paštas, licencijos, socialiniai tinklai, maintenance būsena |
+| matoma vieną kartą, vienoje vietoje, viename puslapyje | `page_text` / `page_media` | hero antraštė, CTA pastraipa, citatos kortelė |
+| kartojasi kaip panašių dalykų sąrašas | atskira lentelė | paslaugos, skelbimai, projektai, straipsniai, atsiliepimai, kainos, DUK |
 
-**Testas:** *jei klientas kada nors norėtų antro — reikia lentelės.* Paslauga nėra teksto slot'as — jie pridės septintą. Hero antraštė nėra lentelė — jos visada tik viena.
+**Testas:** jei klientas kada nors norėtų antro — reikia lentelės.
 
-## Lentelės, kurias turi kiekvienas projektas
+## Bazinės lentelės
 
-```
-site_settings          viena eilutė; verslo tapatybė + išvaizda
+```text
+site_settings          viena eilutė; Business & appearance
 page_text              (page, slot, value)
 page_media             (page, slot, bucket, path, alt)      kliento pasirinkimas
 page_media_defaults    (page, slot, bucket, path, alt)      developerio numatytasis
-user_roles             developer / owner / editor
-leads                  kontaktų formos užklausos
-page_views             analitika
+user_roles             rolės arba Team-tier teisių modelis
+leads                   užklausos
+page_views              analitika
 ```
 
-Visa kita — sektoriaus specifika.
+Visa kita priklauso nuo sektoriaus.
 
-## Slot'ų vardai
+## Business & appearance — vienas šaltinis
 
-`page:slot`, mažosiomis raidėmis, be taškų, aprašo **poziciją**, niekada dabartinį tekstą.
+Pirmas Settings tabas valdo vienintelę `site_settings` eilutę. Iš jos visur skaitomi įmonės pavadinimas, adresas, žemėlapio koordinatės/nuoroda, telefonas, el. paštas, socialiniai tinklai, logo, logo dydis, favicon ir maintenance būsena.
 
-```
-home:hero_heading        teisingai — išgyvena teksto perrašymą
-home:dantu_prieziura     blogai — miršta vos pakeitus tekstą
-```
+Išsaugojus pakeitimą, jis automatiškai atsispindi viešuose puslapiuose, footer, Contact, žemėlapyje, schema.org, prisijungimo lange ir admin sidebar. Šių reikšmių nedubliuoti `page_text`, puslapio komponente ar kitoje settings lentelėje.
 
-## Numatytosios reikšmės ir atstatymas
+## Slotai, defaults ir reset
 
-Eilė:
+Slotas: `page:slot`, mažosiomis raidėmis, be taškų, aprašo poziciją, ne dabartinį tekstą.
 
-```
-image:  kliento page_media  →  developerio page_media_defaults  →  null (komponentas slepia slot'ą)
-text:   page_text reikšmė   →  fallback eilutė komponente
+```text
+home:hero_heading       teisinga
+home:dantu_prieziura    klaidinga
 ```
 
-Taip „reset to default" veikia nemokamai: ištrini eilutę — grįžta numatytoji. Jokio undo log, jokio versijavimo.
+```text
+image: kliento page_media → developerio page_media_defaults → null
+text:  page_text → fallback tekstas komponente
+```
 
-**Kiekviena matoma eilutė komponente gauna `copy()` iškvietimą su dabartiniu tekstu kaip fallback.** Svetainė pilnai renderinasi dar prieš atsirandant pirmai duomenų bazės eilutei, o klientas redaguoja veikiantį tekstą, ne tuščius laukus.
+Reset pašalina kliento override ir atidengia default; jis nekopijuoja failo. Kiekviena matoma eilutė turi `copy()` fallback, todėl svetainė veikia ir be duomenų bazės įrašo.
 
 ## Griežtos taisyklės
 
-1. **Jokių kliento duomenų migracijose.** Migracijos aprašo struktūrą. Tikri vardai, kainos, darbo laikas ir nuotraukos suvedami per admin. Vienintelė išimtis — demo eilutės, kai pirmas ekranas negali būti tuščias paleidimo metu.
-2. **Paveikslėliai visada eina per optimizavimo pipeline** — resize, WebP, EXIF pašalinimas. Ištrynus ar pakeitus nuotrauką senas failas dingsta iš storage. Našlaičiai failai jau kandžiojo kitus projektus.
-3. **Adresas, telefonas ir el. paštas visur skaitomi iš `site_settings`** — footer, kontaktai, žemėlapis, schema.org. Niekada hardcoded komponente.
-4. **Logotipas yra `site_settings` reikšmė, ne import.**
-5. **Kiekviena lentelė gauna `created_at`, `updated_at` (su trigeriu), RLS ir GRANT** toje pačioje migracijoje, kuri ją sukuria.
-
-## Sektorių žemėlapis
-
-Keičiasi tik „kartojamų dalykų" lentelė. Visa kita lieka identiška.
-
-| Sektorius | Kartojama esybė |
-|---|---|
-| Odontologija / klinika | `services`, `working_hours`, `appointments` |
-| Architektai | `projects` su etapais ir galerijomis |
-| NT brokeris | `listings` su statusu, media, užklausomis |
-| Vystytojas / statybos | `developments` su butais ir statybos statusu |
-| Vizualizacijų studija | `portfolio_items` |
-
-Pradedant naują projektą pirmiausia parašoma viena eilutė: *„kartojama esybė yra X"*. Visa kita seka iš standartų.
+1. Migracijos aprašo struktūrą, ne realius klientų duomenis; išimtis tik būtinos pirmo ekrano demo eilutės.
+2. Vaizdai visada optimizuojami: resize, WebP, EXIF pašalinimas; pakeitus ar ištrynus valomas senas objektas.
+3. Logo yra `site_settings` reikšmė, ne importas.
+4. Kiekviena lentelė gauna `created_at`, `updated_at` su trigeriu, GRANT, RLS ir policies toje pačioje migracijoje.
+5. Pradedant projektą įvardyti kartojamą esybę; ji nulemia Manage grupę ir sektoriaus lenteles.

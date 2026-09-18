@@ -1,89 +1,71 @@
 ---
 name: deerva-design-system
-description: Naudok bet kokiam Deerva projekto UI darbui — spalvų tokenams, tipografijai, mygtukų hierarchijai, sekcijų išdėstymui, animacijoms ir vizualiniams draudimams. Netinka duomenų modeliui, rolėms ar SEO nustatymams.
+description: Naudok bet kokiam Deerva projekto UI darbui — semantiniams tokenams, tipografijai, mygtukams, būsenoms, cursor, viešos svetainės pločiams ir motion. Admin komponentų anatomijai papildomai naudok deerva-admin-ui.
 ---
 
 # 01 — Dizaino sistema
 
-StageHomy yra etalonas erdvei, ritmui ir judesiui — sekcijų tarpams, hover efektams, bendram santūrumui. Jo paties komponentų kodo tiesiogiai nekopiijuoti: Header.tsx, Footer.tsx, HeroSection.tsx ir kt. turi kietai įrašytų spalvų, kurias šis standartas draudžia. Perimama estetika, ne kodas. Lumidenta — etalonas, kaip ją pritaikyti šiltam paslaugų verslui. Abu „santūrūs, užtikrinti, dosnūs erdvei" — tai ir yra Deerva stilius.
+StageHomy yra erdvės, ritmo ir santūrumo etalonas; Lumidenta — šilto paslaugų brando pritaikymo etalonas. Perimama estetika, ne komponentų kodas ar hardcoded spalvos.
 
-## Tokenai
+## Vienas semantinių tokenų kontraktas
 
-Visos spalvų, šešėlių ir šriftų reikšmės yra **semantiniai CSS tokenai** faile `src/styles.css`. Niekada hardcoded spalvos komponente — jokio `text-white`, `bg-black`, `bg-[#1a1a1a]`.
+Vieša svetainė ir admin dalinasi tuo pačiu rinkiniu `src/styles.css`:
 
 ```css
-:root {
-  --background / --foreground
-  --card / --card-foreground
-  --primary / --primary-foreground
-  --secondary / --secondary-foreground
-  --muted / --muted-foreground
-  --accent / --accent-foreground
-  --destructive / --destructive-foreground
-  --border / --input / --ring
-}
-@theme inline { --color-background: var(--background); ... }
+--background / --foreground
+--card / --card-foreground
+--primary / --primary-foreground
+--secondary / --secondary-foreground
+--muted / --muted-foreground
+--accent / --accent-foreground
+--destructive / --destructive-foreground
+--border / --input / --ring
+--success / --success-foreground
+--warning / --warning-foreground
+--info / --info-foreground
+--shadow-sm / --shadow-md
 ```
 
-Kiekviename projekte keičiasi **reikšmės**. **Vardai** — niekada. Būtent dėl to remix'as tampa vieno failo perdažymu.
+Vardai nekinta; reikšmės yra kiekvieno brando dalis. Jokio `text-white`, `bg-black`, `bg-[#…]`, `emerald-*` ar `amber-*` komponentuose. Admin nenaudoja projektinių sinonimų `ink`, `stone`, `paper`, `sand`, `charcoal`, `slate`; jie leidžiami tik specifiniame viešos svetainės apvalkale.
 
 ## Tipografija
 
-- Viena šeima projektui, kraunama per `<link>` root route head — niekada `@import` URL CSS faile (Tailwind v4 lūžta).
-- Urbanist yra numatytoji. Nukrypstama tik jei to reikalauja prekės ženklas, ir tada sąmoningai — niekada Inter ar Poppins iš inercijos.
-- Svoriai: 300 / 400 / 500 / 600 / 700 / 800. Antraštės 600–700, tekstas 400, žymos 500.
-- Tekstas 16–17px, line-height 1.6. Antraštės su sutrauktu tracking.
-- Mažų didžiųjų raidžių žymos: 11px, `uppercase`, `tracking-[0.14em]`, muted spalva. Sekcijų „eyebrow" ir admin grupių pavadinimai.
+- Viena sąmoningai pasirinkta šeima, kraunama root `<head>` per `<link>`, niekada CSS URL `@import`.
+- Urbanist — default, bet brandas gali turėti kitą šriftą; niekada Inter ar Poppins iš inercijos.
+- Svoriai 300–800; antraštės 600–700, body 400, labels 500.
+- Body 16–17 px, line-height apie 1.6. Mažos uppercase admin grupių žymos: 11 px, `tracking-[0.14em]`.
 
-## Mygtukai — hierarchija fiksuota
+## Mygtukai
 
-| Variantas | Kam | Taisyklė |
-|---|---|---|
-| `primary` | vienas veiksmas, vedantis vartotoją pirmyn | **daugiausia vienas viename ekrano regione** |
-| `secondary` / `outline` | realios alternatyvos | bet kiek |
-| `ghost` | mažo svorio navigacija, toolbar veiksmai | be rėmelio iki hover |
-| `destructive` | tik trynimas | visada su patvirtinimu |
-| `link` | tekste | pabraukimas, accent ant hover |
+| Variantas | Paskirtis |
+|---|---|
+| primary | vienas veiksmas, vedantis pirmyn; daugiausia vienas ekrano regione |
+| secondary / outline | realios alternatyvos |
+| ghost | toolbar ir mažo svorio veiksmai |
+| destructive | tik trynimas, visada po patvirtinimo |
+| link | inline tekste |
 
-Elgesys visur vienodas:
+Hover ~150 ms, be dydžio šuolio. Focus-visible žiedas visada matomas. Disabled: 50 % opacity ir `not-allowed`. Loading spinneris pakeičia tekstą nekeisdamas mygtuko pločio.
 
-- hover: subtilus, ~150ms, opacity arba vienas atspalvis — niekada dydžio šuolis
-- focus-visible: realiai matomas žiedas, visada (klaviatūros vartotojai nėra pasirinktinis dalykas)
-- disabled: 50% opacity, be pointer events
-- loading: spinneris pakeičia tekstą, plotis nesikeičia
+## Laukai ir būsenos
 
-## Žymeklis (cursor)
+Label visada matomas. Placeholder yra blanki formato užuomina, niekada neatrodo kaip įvesta reikšmė. Help ir error tekstas aprašo veiksmą žodžiais. Statusai naudoja tik `success`, `warning`, `info`, `destructive`; spalva nėra vienintelis signalas.
 
-- Kiekvienas interaktyvus elementas — mygtukai, nuorodos, paspaudžiamos
-  kortelės, lentelės eilutės, kurios ką nors atidaro, ikonų mygtukai —
-  užvedus pelę rodo `cursor: pointer`.
-- Išjungti (disabled) elementai rodo `cursor: not-allowed`.
-- Neinteraktyvus tekstas niekada nerodo pointer žymeklio.
+## Cursor
 
-## Išdėstymas
+Visi mygtukai, nuorodos, ikonų veiksmai, paspaudžiamos kortelės ir atidaromos lentelių eilutės rodo `cursor: pointer`. Disabled rodo `not-allowed`. Neinteraktyvus turinys pointer nerodo.
 
-- Puslapio konteineris: `max-w-7xl` su `px-4 md:px-6 lg:px-8`. Teksto blokai iki ~65 simbolių.
-- Sekcijų vertikalus ritmas: `py-16 md:py-24`. Hero gali būti didesnis; mažesnio nebūna.
-- Full-bleed sekcijos leidžiamos ir skatinamos — turinys viduje vis tiek laikosi konteinerio.
-- Radius: viena skalė, vienas `--radius`. Nemaišyti aštrių ir pill formų tame pačiame vaizde.
-- Šešėliai: StageHomy skalė (labai švelnūs, maža opacity). Niekada kietas drop shadow.
+## Viešos svetainės layout
 
-## Judesys
+- Vidinis konteineris: `max-w-7xl` su `px-4 md:px-6 lg:px-8`.
+- Sekcijos: `py-16 md:py-24`; full-bleed fonas leidžiamas, turinys lieka konteineryje.
+- Teksto blokas iki ~65 simbolių eilutėje.
+- Admin pločio taisykles aprašo deerva-admin-structure ir deerva-admin-ui.
 
-Santūrumas yra stilius. Leidžiama:
+## Radius, shadows, motion
 
-- `fade-up` (opacity + ~30px translateY, 0.6–0.8s ease-out) sekcijai įeinant į ekraną, vieną kartą
-- paveikslėlio scale ant hover, iki 1.03, 400–600ms
-- 150ms spalvos/opacity perėjimai interaktyviems elementams
+`--radius` yra brando reikšmė; komponentai naudoja tik išvestą skalę, be `rounded-[4px]` ar dekoratyvių pill tabų. Lumidenta gali būti minkštesnė už OCDG nekeičiant komponento anatomijos.
 
-Neleidžiama: parallax, atšokimai, automatiniai karuselės, bet kas, kas juda kol vartotojas skaito.
+Paviršius dažniausiai skiria border. `--shadow-sm/md` labai švelnūs, daugiausia overlays ir dialogs.
 
-`prefers-reduced-motion: reduce` viską išjungia. Visada.
-
-## Draudžiama pagal nutylėjimą
-
-Numatytieji sisteminiai šriftai · purple/indigo gradientai ant balto · stock nuotraukos kaip užpildas · ikonų sriuba · apvalintos kortelės su sunkiais šešėliais ant gradientų · trys konkuruojantys primary mygtukai · vienodi hero/nav/footer šablonai.
-
-## Variacija tarp klientų
-
-Ta pati struktūra, kitas apvalkalas. Konceptas = paletė + šriftų pora + hero kompozicija + sekcijų ritmas. Dešimt konceptų rotacijoje reiškia, kad du to paties sektoriaus klientai neatpažins vienas kito svetainės — ir niekas nebuvo perstatyta iš nulio.
+Leidžiama: vienkartinis fade-up, image hover scale iki 1.03, 150 ms spalvų/opacity perėjimai. Draudžiama: parallax, bouncing, autoplay ir judėjimas skaitant. `prefers-reduced-motion` viską išjungia.
