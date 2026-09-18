@@ -564,7 +564,12 @@ function PaymentsTab({
                     <td className="whitespace-nowrap px-4 py-3 tabular-nums text-stone">
                       {shortDate(row.paid_on)}
                     </td>
-                    <td className="px-4 py-3 text-ink">{clientName(row.client_id)}</td>
+                    <td className="px-4 py-3 text-ink">
+                      {clientName(row.client_id)}
+                      <span className="ml-2 text-xs text-stone">
+                        {PAYMENT_KIND_LABEL[row.kind] ?? row.kind}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 text-stone">
                       {(row.services ?? []).join(" / ") || "—"}
                     </td>
