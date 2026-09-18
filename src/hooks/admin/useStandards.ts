@@ -9,6 +9,25 @@ import {
   saveStandardDraft,
 } from "@/lib/standards.functions";
 
+type DraftInput = {
+  id?: string;
+  target_kind: "standard" | "skill" | "document";
+  target_slug: string;
+  title: string;
+  reason: string;
+  content: string;
+  base_revision: string;
+  status: "draft" | "ready" | "implemented" | "archived";
+};
+
+type AssignmentInput = {
+  client_id: string;
+  standard_slug: string;
+  applied_revision: string;
+  status: "compliant" | "review_needed" | "exception" | "not_applicable";
+  notes: string;
+};
+
 export function useStandardsLibrary() {
   return useQuery({ queryKey: ["admin", "standards", "library"], queryFn: () => getStandardsLibrary() });
 }
@@ -24,7 +43,7 @@ export function useProjectStandardAssignments() {
 export function useSaveStandardDraft() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: Parameters<typeof saveStandardDraft>[0]["data"]) => saveStandardDraft({ data }),
+    mutationFn: (data: DraftInput) => saveStandardDraft({ data }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "standards", "drafts"] }),
   });
 }
@@ -40,7 +59,7 @@ export function useDeleteStandardDraft() {
 export function useSaveProjectStandardAssignment() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: Parameters<typeof saveProjectStandardAssignment>[0]["data"]) => saveProjectStandardAssignment({ data }),
+    mutationFn: (data: AssignmentInput) => saveProjectStandardAssignment({ data }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "standards", "coverage"] }),
   });
 }
