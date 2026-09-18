@@ -248,12 +248,6 @@ function AnalyticsPage() {
             <div className="h-72 w-full text-foreground">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData} margin={{ left: -20, right: 8, top: 8 }}>
-                  <defs>
-                    <linearGradient id="views" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="currentColor" stopOpacity={0.25} />
-                      <stop offset="100%" stopColor="currentColor" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
                   <XAxis
                     dataKey="label"
@@ -274,7 +268,8 @@ function AnalyticsPage() {
                     dataKey="views"
                     name="Page views"
                     stroke="currentColor"
-                    fill="url(#views)"
+                    fill="currentColor"
+                    fillOpacity={0.08}
                     strokeWidth={2}
                   />
                   <Area

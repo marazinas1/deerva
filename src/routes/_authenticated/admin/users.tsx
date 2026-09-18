@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { Search } from "lucide-react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,8 @@ function UsersPage() {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState<"owner" | "editor">("editor");
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
 
   const { data: me } = useQuery({ queryKey: ["admin", "me"], queryFn: () => getAdminMe() });
   const { data: users, isLoading } = useQuery({
@@ -60,6 +63,17 @@ function UsersPage() {
 
   const canManage = me?.isManager ?? false;
   const isDeveloper = me?.isDeveloper ?? false;
+  const visibleUsers = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return (users ?? []).filter((user) => {
+      if (roleFilter !== "all" && (user.role ?? NO_ACCESS) !== roleFilter) return false;
+      if (!term) return true;
+      return [user.full_name ?? "", user.email ?? "", user.role ?? ""]
+        .join(" ")
+        .toLowerCase()
+        .includes(term);
+    });
+  }, [users, search, roleFilter]);
 
   const invite = useMutation({
     mutationFn: () =>
@@ -107,7 +121,35 @@ function UsersPage() {
         action={<Button onClick={() => setOpen(true)}>Invite user</Button>}
       />
 
-      <div className="mt-8 rounded-lg border border-border">
+      <div className="mt-8 flex flex-wrap items-center gap-3 border-y border-border py-3">
+        <div className="relative w-full sm:w-72">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search people"
+            className="pl-9"
+            aria-label="Search users"
+          />
+        </div>
+        <Select value={roleFilter} onValueChange={setRoleFilter}>
+          <SelectTrigger className="w-40" aria-label="Filter by role">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All roles</SelectItem>
+            <SelectItem value="developer">Developer</SelectItem>
+            <SelectItem value="owner">Owner</SelectItem>
+            <SelectItem value="editor">Editor</SelectItem>
+            <SelectItem value={NO_ACCESS}>No access</SelectItem>
+          </SelectContent>
+        </Select>
+        <span className="text-sm text-muted-foreground">
+          {visibleUsers.length} of {(users ?? []).length}
+        </span>
+      </div>
+
+      <div className="mt-6 overflow-x-auto rounded-lg border border-border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -123,7 +165,7 @@ function UsersPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              (users ?? []).map((user) => {
+              visibleUsers.map((user) => {
                 const isSelf = user.id === me?.userId;
                 const locked = isSelf || (user.isDeveloper && !isDeveloper);
                 return (

@@ -231,7 +231,7 @@ function Overview({
     const byYear = new Map<number, { income: number; cost: number }>();
     const bucket = (year: number) => {
       if (!byYear.has(year)) byYear.set(year, { income: 0, cost: 0 });
-      return byYear.get(year)!;
+      return byYear.get(year) ?? { income: 0, cost: 0 };
     };
     for (const row of payments) {
       bucket(new Date(row.paid_on).getFullYear()).income += Number(row.net_eur ?? 0);
@@ -578,10 +578,10 @@ function PaymentsTab({
                       {eurExact(Number(row.net_eur ?? 0))}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <Button variant="ghost" size="icon" onClick={() => setEditing(row)}>
+                      <Button variant="ghost" size="icon" aria-label={`Edit payment from ${clientName(row.client_id)}`} title="Edit payment" onClick={() => setEditing(row)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => setRemoving(row)}>
+                      <Button variant="ghost" size="icon" aria-label={`Delete payment from ${clientName(row.client_id)}`} title="Delete payment" onClick={() => setRemoving(row)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </td>
@@ -761,6 +761,7 @@ function MethodsTab({
               <Button
                 variant="ghost"
                 size="icon"
+                aria-label={`Copy ${method.name} invoice bank details`}
                 title="Copy invoice bank details"
                 onClick={() => {
                   const block = methodInvoiceBlock(method);
@@ -776,10 +777,10 @@ function MethodsTab({
               >
                 <Copy className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => setEditing(method)}>
+              <Button variant="ghost" size="icon" aria-label={`Edit ${method.name}`} title="Edit payment method" onClick={() => setEditing(method)}>
                 <Pencil className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => setRemoving(method)}>
+              <Button variant="ghost" size="icon" aria-label={`Delete ${method.name}`} title="Delete payment method" onClick={() => setRemoving(method)}>
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
@@ -1160,10 +1161,10 @@ function ExpensesTab({
                 {eurExact(Number(row.net_eur ?? 0))}
               </span>
               <div className="flex gap-1">
-                <Button variant="ghost" size="icon" onClick={() => startEdit(row)}>
+                <Button variant="ghost" size="icon" aria-label={`Edit expense from ${shortDate(row.spent_on)}`} title="Edit expense" onClick={() => startEdit(row)}>
                   <Pencil className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => setConfirmId(row.id)}>
+                <Button variant="ghost" size="icon" aria-label={`Delete expense from ${shortDate(row.spent_on)}`} title="Delete expense" onClick={() => setConfirmId(row.id)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -1446,10 +1447,10 @@ function ClientsTab({
                     ) : null}
                   </div>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => startEdit(account)}>
+                    <Button variant="ghost" size="icon" aria-label={`Edit ${account.name}`} title="Edit client" onClick={() => startEdit(account)}>
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => setConfirmId(account.id)}>
+                    <Button variant="ghost" size="icon" aria-label={`Delete ${account.name}`} title="Delete client" onClick={() => setConfirmId(account.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
