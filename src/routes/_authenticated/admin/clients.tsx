@@ -10,6 +10,7 @@ import {
   Sparkles,
   Trash2,
   Upload,
+  Wallet,
 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -19,9 +20,14 @@ import {
   useContactEmails,
   useContactPhones,
   useDeleteContactChannel,
+  useFinanceClients,
+  useFinanceContacts,
+  usePaymentMethods,
   usePayments,
+  useSavePayment,
   useSetPrimaryChannel,
 } from "@/hooks/admin/useFinance";
+import PaymentForm from "@/components/admin/finance/PaymentForm";
 import { collected, eurExact, shortDate } from "@/lib/finance";
 
 import { Badge } from "@/components/ui/badge";
