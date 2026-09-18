@@ -48,7 +48,7 @@ Nedubliuoti tų pačių puslapių nuorodų atskiroje sidebar Content grupėje: k
 
 Vienas `site_settings` šaltinis valdo duomenis visoje svetainėje, footer, Contact, map, schema.org, login ir admin. Logo visur tas pats ir to paties nustatyto dydžio; favicon kildinamas iš to paties ženklo.
 
-Maintenance yra suskleidžiamas blokas pirmo tabo apačioje, ne atskiras tabas. Neprisijungęs lankytojas mato brand'inį holding page su realiu telefonu ir el. paštu. Prisijungęs personalas mato svetainę su nuolatine juosta ir „Preview as visitor“ / „Turn off“. Kol auth tikrinama, rodyti mažiau: holding page.
+Maintenance yra paskutinė Business & appearance sekcija — ne atskiras tabas ir ne suskleidžiamas blokas. Jis mažas (switch + viena žinutė), todėl visada matomas savo bordered kortelėje tabo apačioje, po logo ir favicon: title, vienas paaiškinantis sakinys, switch dešinėje toje pačioje eilutėje, žemiau message laukas su savo `Save`. Neprisijungęs lankytojas mato brand'inį holding page su realiu telefonu ir el. paštu. Prisijungęs personalas mato svetainę su nuolatine juosta ir „Preview as visitor“ / „Turn off“. Kol auth tikrinama, rodyti mažiau: holding page.
 
 ## Admin plotis
 
