@@ -30,10 +30,38 @@ Jame bus:
 - accordion standartas: ilgos Settings grupės, testimonials ir sudėtingi įrašai iš pradžių rodo santrauką, vienu veiksmu išsiskleidžia; „Expand all / Collapse all“ ilgiems sąrašams;
 - formų anatomija: label, optional/recommended žyma, blankus placeholder, help/error tekstas, laukų grid, sticky arba aiški save zona;
 - lentelių, filtrų, paieškos, toolbar, empty/loading/error/read-only būsenos;
-- ikonų standartas: viena biblioteka, pastovūs dydžiai, ikonų mygtukams tooltip;
+- fiksuotas Lucide ikonų žodynas, kad ta pati paskirtis visuose projektuose turėtų tą pačią ikoną;
 - interakcijos: pointer viskam, ką galima spausti; `not-allowed` disabled elementams; matomas focus; be dydžio šuolių;
 - responsive taisyklės telefonui, planšetei ir desktop; jokio horizontalaus viso puslapio lūžimo;
 - prekės ženklo išimtis: komponentų struktūra nekinta, bet jų spalvos ir šriftas visada ateina iš konkretaus projekto semantinių tokenų. Lumidenta žalia spalva lieka teisėta, ne hardcoded išimtis.
+
+### Semantinių tokenų disciplina admine
+
+- admin komponentai remiasi tik universaliomis semantinėmis rolėmis: `background`, `foreground`, `card`, `primary`, `secondary`, `muted`, `accent`, `destructive`, `border` ir jų standartinėmis `*-foreground`, `input`, `ring` poromis;
+- projektiniai spalvų sinonimai, pavyzdžiui `ink`, `stone`, `charcoal`, `slate`, `paper` ar `sand`, admin komponentuose draudžiami — jie gali likti tik viešos svetainės apvalkale;
+- jokio `bg-white`, `text-black`, paletinių `emerald-*` / `amber-*` ar hex reikšmių admin komponente;
+- `--radius` reikšmė lieka konkretaus brand'o dalis, bet visi admin komponentai naudoja tik iš jos išvestą bendrą radius skalę — jokių vietinių `rounded-[4px]` ar `rounded-full` tabų;
+- admin ir vieša svetainė dalinasi tuo pačiu semantinių tokenų rinkiniu; atskira hardcoded admin paletė nekuriama.
+
+### Fiksuotas ikonų žodynas
+
+| Paskirtis | Lucide ikona |
+|---|---|
+| Dashboard | `LayoutDashboard` |
+| Inquiries | `Inbox` |
+| Calendar | `CalendarDays` |
+| Messages | `MessageSquare` |
+| Analytics | `BarChart3` |
+| Projects / developments | `Building2` |
+| Services | `BriefcaseBusiness` |
+| Articles | `Newspaper` |
+| Testimonials | `Quote` |
+| Users | `UserCog` |
+| Settings | `Settings` |
+| Back to site | `ArrowLeft` |
+| Sign out | `LogOut` |
+
+Kitos sektoriaus esybės gauna vieną prasmiškai tikslų įrašą žodyne prieš jas kuriant; ta pati paskirtis vėliau negauna kitos ikonos. Sidebar ikonos naudoja vieną dydį, veiksmų ikonos — kitą dokumentuotą dydį, o ne individualius pasirinkimus.
 
 ## 2. Fiksuota admin informacijos architektūra
 
@@ -98,11 +126,12 @@ Papildomos taisyklės:
 
 ## 5. Workspace Skills
 
-Standartus atspindės trys tarpusavyje aiškiai atskirti aktyvūs Skills:
+Standartus atspindės keturi tarpusavyje aiškiai atskirti aktyvūs Skills:
 
-1. **Deerva design system** — tokenai, tipografija, spalvų paveldėjimas, mygtukai, būsenos, cursor, radius, shadows, layout ir motion.
-2. **Deerva admin structure** — sidebar grupės, meniu tvarka, Dashboard, Settings modelis, content/defaults, maintenance, rolėmis valdomas elgesys.
-3. **Deerva admin UI brandbook** — konkretūs cards, tabs, accordions, forms, tables, toolbars, responsive ir accessibility komponentų receptai.
+1. **Deerva design system** — bendri tokenai, tipografija, spalvų paveldėjimas, mygtukai, būsenos, cursor, radius, shadows, viešos svetainės layout ir motion. Papildoma taisyklė: vieša svetainė ir admin dalinasi vienu semantinių tokenų rinkiniu.
+2. **Deerva admin structure** — atsako „kas egzistuoja ir kur“: sidebar grupės, meniu tvarka, Dashboard, Settings modelis, content/defaults, maintenance ir rolėmis valdomas matomumas. Nulis vizualinių receptų.
+3. **Deerva admin UI** — atsako „kaip tai atrodo“: shell, cards, tabs, forms, tables, toolbars, ikonų žodynas, tankis, responsive ir accessibility. Nulis hex reikšmių ir projektinių tokenų.
+4. **Deerva admin screens** — atsako „iš ko sudarytas ekranas ir kaip jis elgiasi“: suskleidžiami sąrašai, vienu metu atvertas įrašas, „Expand all / Collapse all“, redagavimas vietoje ar dialoge, publikavimo jungikliai, rikiavimas, media slotai, default prašymai, toast ir neišsaugotų pakeitimų apsauga.
 
 Bus pašalintas dubliavimas tarp Skills, bet paliktos trumpos tarpusavio nuorodos. Aktyvūs Skills bus atnaujinti per oficialų draft → apply procesą, ne tiesiogiai redaguojant workspace failus.
 
@@ -126,11 +155,21 @@ Kiekvienoje lentelėje:
 
 Auditas remsis realiu penkių projektų kodu ir 13 pateiktų ekrano kopijų. Jis aiškiai skirs „gerą modelį, kurį perimame“ nuo hardcoded kodo ar spalvų, kurių nekopijuojame.
 
+Privalomos audito išvados:
+
+- **Halliday Architects** žymimas kaip artimiausias Settings struktūros etalonas: `Business & appearance` jau sujungtas, o maintenance jau yra to paties puslapio blokas;
+- **StageHomy** žymimas „estetika sektina, kodas nekopijuojamas“: plonos linijos, plokštumos ir tankis perrašomi semantiniais tokenais nuo nulio, neperkeliant gausaus hardcoded spalvų kodo;
+- **Lumidenta** audite atskirai pažymimas dubliuotas kelias į puslapių turinį: tekstai lieka Settings tabuose, tikros esybės keliamos į Manage;
+- **OCDG** ir **Dorothe** atskiras Maintenance tabas pažymimas perkėlimui į `Business & appearance` bloką;
+- spalvų, radius ir tipografijos skirtumai, kylantys iš taisyklingų brand'o tokenų, nelaikomi neatitikimais.
+
+Pirmas realus pritaikymo etapas po šio brandbook darbo bus **Halliday Architects**: jo Settings struktūra jau arčiausiai standarto, todėl čia mažiausia rizika vienu metu supainioti struktūros ir vizualo pakeitimus. Tik patikrinus receptus realiame desktop ir mobile ekrane, rekomenduojama seka yra StageHomy → OCDG → Dorothe → Lumidenta. Šis pritaikymas yra kitas etapas ir į dabartinį dokumentacijos bei Skills darbą neįtrauktas.
+
 ## 7. Naudojimas kituose projektuose
 
 Paruošti vieną trumpą universalų promptą, kurį galima įklijuoti bet kuriame projekte. Jis nurodys:
 
-- pritaikyti visus tris Deerva admin Skills;
+- pritaikyti visus keturis Deerva admin Skills;
 - pirmiausia audituoti esamą projektą ir išsaugoti jo brand’o tokenus;
 - nekeisti verslo logikos ar duomenų be poreikio;
 - pateikti neatitikimų planą prieš didelį esamos panelės perstatymą;
@@ -143,6 +182,8 @@ Atnaujintas bendras Skills tekstinis eksportas bus paruoštas taip, kad jį būt
 - Patikrinti, kad docs ir Skills nekonfliktuoja dėl Settings pirmo/paskutinio tabo, maintenance vietos, admin pločio ir spalvų.
 - Patikrinti, kad nebeliko seno atskiro Appearance ar Maintenance tabo kaip privalomo modelio.
 - Patikrinti, kad „clickable = pointer“ ir pilno admin pločio taisyklė yra vienoje autoritetingoje vietoje bei cituojama kitur.
+- Patikrinti, kad ikonų žodynas vardais sutampa visuose admin Skills ir audito rekomendacijose.
+- Patikrinti, kad admin receptuose nėra projektinių spalvų sinonimų, hardcoded spalvų ar lokalių radius reikšmių.
 - Patikrinti Markdown struktūrą ir kodo blokų uždarymą.
 - Palyginti aktyvių Skills turinį su `docs/standards/` ir sugeneruotu Claude eksportu.
 
