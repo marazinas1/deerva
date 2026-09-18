@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Download, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Copy, Download, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import PaymentForm from "@/components/admin/finance/PaymentForm";
@@ -682,12 +682,41 @@ const emptyMethod: PaymentMethodInput = {
   name: "",
   kind: "bank_transfer",
   is_active: true,
+  currency: "EUR",
   account_holder: null,
+  beneficiary_address: null,
   account_number: null,
+  iban: null,
+  routing_number: null,
+  account_type: null,
   bank_name: null,
+  bank_address: null,
   swift: null,
+  intermediary_bank: null,
+  transfer_instructions: null,
   notes: null,
 };
+
+/** Invoice-ready bank block, formatted to the usual cross-border wire layout. */
+function methodInvoiceBlock(method: FinancePaymentMethod): string {
+  const lines: string[] = [];
+  const push = (label: string, value: string | null) => {
+    if (value && value.trim()) lines.push(`${label}: ${value.trim()}`);
+  };
+  push("Beneficiary", method.account_holder);
+  push("Beneficiary address", method.beneficiary_address);
+  push("Currency", method.currency);
+  push("Account type", method.account_type);
+  push("IBAN", method.iban);
+  push("Account number", method.account_number);
+  push("Routing number (ACH/wire)", method.routing_number);
+  push("SWIFT/BIC", method.swift);
+  push("Bank", method.bank_name);
+  push("Bank address", method.bank_address);
+  push("Intermediary bank", method.intermediary_bank);
+  push("Reference", method.transfer_instructions);
+  return lines.join("\n");
+}
 
 function MethodsTab({
   loading,
@@ -724,13 +753,34 @@ function MethodsTab({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-ink">{method.name}</span>
+                  <Badge variant="outline">{method.currency}</Badge>
                   {!method.is_active ? <Badge variant="secondary">Inactive</Badge> : null}
                 </div>
                 <p className="truncate text-xs text-stone">
                   {PAYMENT_METHOD_KIND_LABEL[method.kind] ?? method.kind}
+                  {method.iban ? ` · ${method.iban}` : ""}
                   {method.account_number ? ` · ${method.account_number}` : ""}
+                  {method.routing_number ? ` · ABA ${method.routing_number}` : ""}
                 </p>
               </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                title="Copy invoice bank details"
+                onClick={() => {
+                  const block = methodInvoiceBlock(method);
+                  if (!block) {
+                    toast.error("Fill in the bank details first.");
+                    return;
+                  }
+                  void navigator.clipboard
+                    .writeText(block)
+                    .then(() => toast.success("Bank details copied"))
+                    .catch(() => toast.error("Could not copy"));
+                }}
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
               <Button variant="ghost" size="icon" onClick={() => setEditing(method)}>
                 <Pencil className="h-4 w-4" />
               </Button>
@@ -838,44 +888,90 @@ function MethodForm({
           placeholder="Revolut Business EUR"
         />
       </div>
-      <div className="space-y-2">
-        <Label>Kind</Label>
-        <Select value={values.kind} onValueChange={(value) => set("kind", value)}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {FINANCE_PAYMENT_METHOD_KINDS.map((kind) => (
-              <SelectItem key={kind} value={kind}>
-                {PAYMENT_METHOD_KIND_LABEL[kind]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label>Kind</Label>
+          <Select value={values.kind} onValueChange={(value) => set("kind", value)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {FINANCE_PAYMENT_METHOD_KINDS.map((kind) => (
+                <SelectItem key={kind} value={kind}>
+                  {PAYMENT_METHOD_KIND_LABEL[kind]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label>Currency</Label>
+          <Select value={values.currency} onValueChange={(value) => set("currency", value)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {FINANCE_CURRENCIES.map((currency) => (
+                <SelectItem key={currency} value={currency}>
+                  {currency}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="holder">Account holder</Label>
+          <Label htmlFor="holder">Beneficiary (account holder)</Label>
           <Input
             id="holder"
             value={values.account_holder ?? ""}
             onChange={(event) => set("account_holder", event.target.value || null)}
+            placeholder="Marius Rutkus"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="account">Account number / IBAN</Label>
+          <Label htmlFor="beneficiary-address">Beneficiary address</Label>
+          <Input
+            id="beneficiary-address"
+            value={values.beneficiary_address ?? ""}
+            onChange={(event) => set("beneficiary_address", event.target.value || null)}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="iban">IBAN</Label>
+          <Input
+            id="iban"
+            value={values.iban ?? ""}
+            onChange={(event) => set("iban", event.target.value || null)}
+            placeholder="LT12 3456 7890 1234 5678"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="account">Account number</Label>
           <Input
             id="account"
             value={values.account_number ?? ""}
             onChange={(event) => set("account_number", event.target.value || null)}
+            placeholder="8310505106"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="bank">Bank</Label>
+          <Label htmlFor="routing">Routing number (ACH / wire)</Label>
           <Input
-            id="bank"
-            value={values.bank_name ?? ""}
-            onChange={(event) => set("bank_name", event.target.value || null)}
+            id="routing"
+            value={values.routing_number ?? ""}
+            onChange={(event) => set("routing_number", event.target.value || null)}
+            placeholder="026073150"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="account-type">Account type</Label>
+          <Input
+            id="account-type"
+            value={values.account_type ?? ""}
+            onChange={(event) => set("account_type", event.target.value || null)}
+            placeholder="Checking"
           />
         </div>
         <div className="space-y-2">
@@ -884,6 +980,44 @@ function MethodForm({
             id="swift"
             value={values.swift ?? ""}
             onChange={(event) => set("swift", event.target.value || null)}
+            placeholder="CMFGUS33"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="bank">Bank</Label>
+          <Input
+            id="bank"
+            value={values.bank_name ?? ""}
+            onChange={(event) => set("bank_name", event.target.value || null)}
+            placeholder="Community Federal Savings Bank"
+          />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="bank-address">Bank address</Label>
+        <Input
+          id="bank-address"
+          value={values.bank_address ?? ""}
+          onChange={(event) => set("bank_address", event.target.value || null)}
+          placeholder="89-16 Jamaica Ave, Woodhaven, NY, 11421, United States"
+        />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="intermediary">Intermediary bank</Label>
+          <Input
+            id="intermediary"
+            value={values.intermediary_bank ?? ""}
+            onChange={(event) => set("intermediary_bank", event.target.value || null)}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="instructions">Reference / instructions</Label>
+          <Input
+            id="instructions"
+            value={values.transfer_instructions ?? ""}
+            onChange={(event) => set("transfer_instructions", event.target.value || null)}
+            placeholder="Invoice number"
           />
         </div>
       </div>

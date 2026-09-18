@@ -8,6 +8,13 @@
       "when": 1789716486295,
       "tag": "0000_finance_accounts_expenses",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789720929070,
+      "tag": "0001_payment_methods_wise_bank_details",
+      "breakpoints": true
     }
   ]
 }
