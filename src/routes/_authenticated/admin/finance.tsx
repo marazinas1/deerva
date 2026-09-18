@@ -31,27 +31,46 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  useAssignProjectAccount,
+  useClientAccounts,
+  useDeleteClientAccount,
+  useDeleteExpense,
   useDeletePayment,
   useDeletePaymentMethod,
+  useExpenses,
   useFinanceClients,
   useFinanceContacts,
   usePaymentMethods,
   usePayments,
+  useSaveClientAccount,
+  useSaveExpense,
   useSavePayment,
   useSavePaymentMethod,
+  type ClientAccount,
+  type Expense,
+  type ExpenseInput,
+  type FinanceClient,
+  type FinanceContact,
   type FinancePayment,
   type FinancePaymentMethod,
   type PaymentMethodInput,
 } from "@/hooks/admin/useFinance";
 import {
   clientStatus,
+  collected,
+  computeNetEur,
   downloadCsv,
   eur,
   eurExact,
+  EXPENSE_CATEGORIES,
+  EXPENSE_CATEGORY_LABEL,
+  FINANCE_CURRENCIES,
   FINANCE_PAYMENT_METHOD_KINDS,
   FINANCE_SERVICES,
+  money,
   PAYMENT_METHOD_KIND_LABEL,
   shortDate,
+  toNumber,
 } from "@/lib/finance";
 import { getAdminMe } from "@/lib/admin.functions";
 
