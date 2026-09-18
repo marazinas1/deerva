@@ -907,3 +907,549 @@ function MethodForm({
     </div>
   );
 }
+
+/* ---------------------------------------------------------------- Expenses */
+
+const emptyExpense = (): ExpenseInput => ({
+  client_id: null,
+  spent_on: new Date().toISOString().slice(0, 10),
+  category: "lovable_credits",
+  vendor: null,
+  gross_amount: null,
+  gross_currency: "EUR",
+  fx_rate: null,
+  net_eur: 0,
+  description: null,
+});
+
+function ExpensesTab({
+  loading,
+  expenses,
+  clients,
+}: {
+  loading: boolean;
+  expenses: Expense[];
+  clients: FinanceClient[];
+}) {
+  const save = useSaveExpense();
+  const remove = useDeleteExpense();
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Expense | null>(null);
+  const [form, setForm] = useState<ExpenseInput>(emptyExpense());
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+
+  const clientName = (id: string | null) =>
+    id ? (clients.find((c) => c.id === id)?.name ?? "—") : "General";
+
+  const total = expenses.reduce((sum, row) => sum + Number(row.net_eur ?? 0), 0);
+
+  const startNew = () => {
+    setEditing(null);
+    setForm(emptyExpense());
+    setOpen(true);
+  };
+
+  const startEdit = (row: Expense) => {
+    setEditing(row);
+    setForm({
+      client_id: row.client_id,
+      spent_on: row.spent_on,
+      category: row.category,
+      vendor: row.vendor,
+      gross_amount: row.gross_amount,
+      gross_currency: row.gross_currency,
+      fx_rate: row.fx_rate,
+      net_eur: row.net_eur,
+      description: row.description,
+    });
+    setOpen(true);
+  };
+
+  const net = computeNetEur({
+    gross: form.gross_amount,
+    currency: form.gross_currency,
+    fxRate: form.fx_rate,
+  });
+
+  const submit = () => {
+    save.mutate(
+      { id: editing?.id, values: { ...form, net_eur: net } },
+      {
+        onSuccess: () => {
+          toast.success(editing ? "Expense updated." : "Expense added.");
+          setOpen(false);
+        },
+        onError: (error) => toast.error(error.message),
+      },
+    );
+  };
+
+  return (
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <Figure label="Total spent" value={eur(total)} />
+        <Button onClick={startNew}>
+          <Plus className="mr-2 h-4 w-4" /> New expense
+        </Button>
+      </div>
+
+      {loading ? (
+        <p className="text-sm text-stone">Loading expenses…</p>
+      ) : expenses.length === 0 ? (
+        <p className="text-sm text-stone">
+          No costs recorded yet. Add what you pay for Lovable credits, hosting or domains.
+        </p>
+      ) : (
+        <div className="divide-y divide-line border-y border-line">
+          {expenses.map((row) => (
+            <div key={row.id} className="flex flex-wrap items-center gap-4 py-4">
+              <span className="w-24 text-sm tabular-nums text-stone">{shortDate(row.spent_on)}</span>
+              <span className="min-w-40 flex-1 text-sm text-ink">
+                {EXPENSE_CATEGORY_LABEL[row.category] ?? row.category}
+                {row.vendor ? <span className="text-stone"> · {row.vendor}</span> : null}
+              </span>
+              <span className="text-sm text-stone">{clientName(row.client_id)}</span>
+              <span className="w-28 text-right text-sm tabular-nums text-ink">
+                {eurExact(Number(row.net_eur ?? 0))}
+              </span>
+              <div className="flex gap-1">
+                <Button variant="ghost" size="icon" onClick={() => startEdit(row)}>
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => setConfirmId(row.id)}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editing ? "Edit expense" : "New expense"}</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="spent_on">Spent on</Label>
+                <Input
+                  id="spent_on"
+                  type="date"
+                  value={form.spent_on}
+                  onChange={(event) => setForm({ ...form, spent_on: event.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Category</Label>
+                <Select
+                  value={form.category}
+                  onValueChange={(value) => setForm({ ...form, category: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {EXPENSE_CATEGORIES.map((item) => (
+                      <SelectItem key={item} value={item}>
+                        {EXPENSE_CATEGORY_LABEL[item]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="vendor">Paid to</Label>
+                <Input
+                  id="vendor"
+                  value={form.vendor ?? ""}
+                  placeholder="Lovable, Cloudflare…"
+                  onChange={(event) => setForm({ ...form, vendor: event.target.value || null })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Project</Label>
+                <Select
+                  value={form.client_id ?? "none"}
+                  onValueChange={(value) =>
+                    setForm({ ...form, client_id: value === "none" ? null : value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">General (no project)</SelectItem>
+                    {clients.map((client) => (
+                      <SelectItem key={client.id} value={client.id}>
+                        {client.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="space-y-2">
+                <Label htmlFor="gross">Amount</Label>
+                <Input
+                  id="gross"
+                  value={form.gross_amount ?? ""}
+                  onChange={(event) =>
+                    setForm({ ...form, gross_amount: toNumber(event.target.value) })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Currency</Label>
+                <Select
+                  value={form.gross_currency}
+                  onValueChange={(value) => setForm({ ...form, gross_currency: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FINANCE_CURRENCIES.map((currency) => (
+                      <SelectItem key={currency} value={currency}>
+                        {currency}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {form.gross_currency === "USD" ? (
+                <div className="space-y-2">
+                  <Label htmlFor="fx">USD per EUR</Label>
+                  <Input
+                    id="fx"
+                    value={form.fx_rate ?? ""}
+                    onChange={(event) => setForm({ ...form, fx_rate: toNumber(event.target.value) })}
+                  />
+                </div>
+              ) : null}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="expense-note">Note</Label>
+              <Textarea
+                id="expense-note"
+                value={form.description ?? ""}
+                onChange={(event) => setForm({ ...form, description: event.target.value || null })}
+              />
+            </div>
+
+            <p className="text-sm text-stone">
+              Counts as <span className="text-ink">{eurExact(net)}</span> in the accounts.
+            </p>
+
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={submit} disabled={save.isPending}>
+                {save.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Save
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={confirmId !== null} onOpenChange={(value) => !value && setConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this expense?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The cost disappears from every total. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep it</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (confirmId) {
+                  remove.mutate(confirmId, {
+                    onSuccess: () => toast.success("Expense deleted."),
+                    onError: (error) => toast.error(error.message),
+                  });
+                }
+                setConfirmId(null);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
+
+/* ----------------------------------------------------------------- Clients */
+
+function ClientsTab({
+  loading,
+  accounts,
+  clients,
+  contacts,
+  payments,
+}: {
+  loading: boolean;
+  accounts: ClientAccount[];
+  clients: FinanceClient[];
+  contacts: FinanceContact[];
+  payments: FinancePayment[];
+}) {
+  const save = useSaveClientAccount();
+  const remove = useDeleteClientAccount();
+  const assign = useAssignProjectAccount();
+
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<ClientAccount | null>(null);
+  const [name, setName] = useState("");
+  const [country, setCountry] = useState("");
+  const [notes, setNotes] = useState("");
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+
+  const startNew = () => {
+    setEditing(null);
+    setName("");
+    setCountry("");
+    setNotes("");
+    setOpen(true);
+  };
+
+  const startEdit = (account: ClientAccount) => {
+    setEditing(account);
+    setName(account.name);
+    setCountry(account.country ?? "");
+    setNotes(account.notes ?? "");
+    setOpen(true);
+  };
+
+  const submit = () => {
+    if (!name.trim()) {
+      toast.error("A client needs a name.");
+      return;
+    }
+    save.mutate(
+      {
+        id: editing?.id,
+        values: {
+          name: name.trim(),
+          country: country.trim() || null,
+          status: editing?.status ?? "active",
+          notes: notes.trim() || null,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success(editing ? "Client updated." : "Client added.");
+          setOpen(false);
+        },
+        onError: (error) => toast.error(error.message),
+      },
+    );
+  };
+
+  if (loading) return <p className="text-sm text-stone">Loading clients…</p>;
+
+  return (
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <p className="text-sm text-stone">
+          A client is the person or company that pays. One client can hold several projects.
+        </p>
+        <Button onClick={startNew}>
+          <Plus className="mr-2 h-4 w-4" /> New client
+        </Button>
+      </div>
+
+      {accounts.length === 0 ? (
+        <p className="text-sm text-stone">
+          No clients yet. Add one, then attach its projects below.
+        </p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {accounts.map((account) => {
+            const ownProjects = clients.filter((client) => client.account_id === account.id);
+            const projectIds = new Set(ownProjects.map((client) => client.id));
+            const received = payments
+              .filter((row) => projectIds.has(row.client_id))
+              .reduce((sum, row) => sum + Number(row.net_eur ?? 0), 0);
+            const people = contacts.filter(
+              (contact) =>
+                contact.account_id === account.id || projectIds.has(contact.client_id),
+            );
+
+            return (
+              <div key={account.id} className="space-y-4 border border-line bg-paper p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-medium text-ink">{account.name}</h3>
+                    {account.country ? (
+                      <p className="text-xs text-stone">{account.country}</p>
+                    ) : null}
+                  </div>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => startEdit(account)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => setConfirmId(account.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <p className="text-sm tabular-nums text-ink">{eur(received)} received</p>
+
+                <div className="space-y-1">
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-stone">People</p>
+                  {people.length === 0 ? (
+                    <p className="text-sm text-stone">Nobody added yet.</p>
+                  ) : (
+                    people.map((person) => (
+                      <p key={person.id} className="text-sm text-ink">
+                        {person.name}
+                        {person.is_primary ? (
+                          <Badge variant="secondary" className="ml-2">
+                            primary
+                          </Badge>
+                        ) : null}
+                      </p>
+                    ))
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-stone">Projects</p>
+                  {ownProjects.length === 0 ? (
+                    <p className="text-sm text-stone">No project attached.</p>
+                  ) : (
+                    ownProjects.map((project) => (
+                      <p key={project.id} className="text-sm text-ink">
+                        {project.name}
+                      </p>
+                    ))
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <section className="space-y-3">
+        <h2 className="text-[11px] uppercase tracking-[0.14em] text-stone">Projects by client</h2>
+        <div className="divide-y divide-line border-y border-line">
+          {clients.map((client) => (
+            <div key={client.id} className="flex flex-wrap items-center gap-4 py-3">
+              <span className="min-w-40 flex-1 text-sm text-ink">{client.name}</span>
+              <Select
+                value={client.account_id ?? "none"}
+                onValueChange={(value) =>
+                  assign.mutate(
+                    { clientId: client.id, accountId: value === "none" ? null : value },
+                    {
+                      onSuccess: () => toast.success("Project moved."),
+                      onError: (error) => toast.error(error.message),
+                    },
+                  )
+                }
+              >
+                <SelectTrigger className="w-56">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No client</SelectItem>
+                  {accounts.map((account) => (
+                    <SelectItem key={account.id} value={account.id}>
+                      {account.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editing ? "Edit client" : "New client"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="account-name">Name</Label>
+              <Input
+                id="account-name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="account-country">Country</Label>
+              <Input
+                id="account-country"
+                value={country}
+                onChange={(event) => setCountry(event.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="account-notes">Notes</Label>
+              <Textarea
+                id="account-notes"
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={submit} disabled={save.isPending}>
+                {save.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Save
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={confirmId !== null} onOpenChange={(value) => !value && setConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this client?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Projects and payments stay; they simply lose their client. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep it</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (confirmId) {
+                  remove.mutate(confirmId, {
+                    onSuccess: () => toast.success("Client deleted."),
+                    onError: (error) => toast.error(error.message),
+                  });
+                }
+                setConfirmId(null);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
