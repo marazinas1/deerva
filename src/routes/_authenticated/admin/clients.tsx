@@ -947,13 +947,55 @@ function ProjectsPage() {
                 onChanged={refresh}
               />
 
-              {canManage ? <ClientPaymentHistory clientId={form.id} /> : null}
+              {canManage ? (
+                <ClientPaymentHistory
+                  clientId={form.id}
+                  onAddPayment={() => {
+                    const row = current;
+                    setOpen(false);
+                    setPayFor(row);
+                  }}
+                />
+              ) : null}
             </div>
           ) : (
             <p className="border-t border-border pt-4 text-xs text-muted">
               Save the project first — the thumbnail and contact people can be added right after.
             </p>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={payFor !== null} onOpenChange={(next) => (next ? null : setPayFor(null))}>
+        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{payFor ? `Payment · ${payFor.name}` : "Payment"}</DialogTitle>
+          </DialogHeader>
+          {payFor ? (
+            <PaymentForm
+              key={payFor.id}
+              payment={null}
+              defaultClientId={payFor.id}
+              clients={(financeClients.data ?? []) as never}
+              contacts={(financeContacts.data ?? []) as never}
+              methods={paymentMethods.data ?? []}
+              saving={savePayment.isPending}
+              onCancel={() => setPayFor(null)}
+              onClientCreated={() => void financeClients.refetch()}
+              onSubmit={(values) =>
+                savePayment.mutate(
+                  { values },
+                  {
+                    onSuccess: () => {
+                      toast.success("Payment recorded");
+                      setPayFor(null);
+                    },
+                    onError: (error) => toast.error(error.message),
+                  },
+                )
+              }
+            />
+          ) : null}
         </DialogContent>
       </Dialog>
     </div>
