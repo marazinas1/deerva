@@ -94,7 +94,7 @@ function AdminLogin() {
       <AuthCard eyebrow="Administrator" title="Sign in">
         <form onSubmit={onSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label htmlFor="email" className="block text-xs uppercase tracking-[0.2em] text-stone">
+            <label htmlFor="email" className="block text-xs uppercase tracking-[0.2em] text-muted-foreground">
               Email
             </label>
             <input
@@ -104,14 +104,14 @@ function AdminLogin() {
               required
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="w-full rounded-sm border border-input bg-background px-4 py-3 text-ink transition focus:outline-hidden focus:ring-1 focus:ring-ink"
+              className="w-full rounded-sm border border-input bg-background px-4 py-3 text-foreground transition focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
           </div>
 
           <div className="space-y-2">
             <label
               htmlFor="password"
-              className="block text-xs uppercase tracking-[0.2em] text-stone"
+              className="block text-xs uppercase tracking-[0.2em] text-muted-foreground"
             >
               Password
             </label>
@@ -122,7 +122,7 @@ function AdminLogin() {
               required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="w-full rounded-sm border border-input bg-background px-4 py-3 text-ink transition focus:outline-hidden focus:ring-1 focus:ring-ink"
+              className="w-full rounded-sm border border-input bg-background px-4 py-3 text-foreground transition focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
           </div>
 
@@ -131,7 +131,7 @@ function AdminLogin() {
               {error}
             </p>
           ) : null}
-          {notice ? <p className="text-sm text-stone">{notice}</p> : null}
+          {notice ? <p className="text-sm text-muted-foreground">{notice}</p> : null}
 
           <Button
             type="submit"
@@ -146,13 +146,13 @@ function AdminLogin() {
           type="button"
           variant="link"
           onClick={onForgotPassword}
-          className="mt-4 w-full text-stone underline underline-offset-4 hover:text-ink"
+          className="mt-4 w-full text-muted-foreground underline underline-offset-4 hover:text-foreground"
         >
           Forgot password?
         </Button>
       </AuthCard>
 
-      <p className="mt-8 text-xs uppercase tracking-[0.15em] text-stone">
+      <p className="mt-8 text-xs uppercase tracking-[0.15em] text-muted-foreground">
         Authorized Personnel Only
       </p>
     </AuthSplit>

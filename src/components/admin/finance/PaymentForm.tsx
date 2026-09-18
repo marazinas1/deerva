@@ -254,7 +254,7 @@ export default function PaymentForm({
               ))}
             </SelectContent>
           </Select>
-          <p className="text-xs text-stone">
+          <p className="text-xs text-muted-foreground">
             A payment always belongs to the client. The person is only a note.
           </p>
         </div>
@@ -275,7 +275,7 @@ export default function PaymentForm({
               ))}
             </SelectContent>
           </Select>
-          <p className="text-xs text-stone">Counts towards the project's agreed sum.</p>
+          <p className="text-xs text-muted-foreground">Counts towards the project's agreed sum.</p>
         </div>
         <div className="space-y-2">
           <Label htmlFor="paid_on">Paid on</Label>
@@ -309,7 +309,7 @@ export default function PaymentForm({
             onChange={(event) => setInvoiceNo(event.target.value)}
             placeholder={invoiceNoExample(paidOn)}
           />
-          <p className="text-xs text-stone">Format: {invoiceNoExample(paidOn)}</p>
+          <p className="text-xs text-muted-foreground">Format: {invoiceNoExample(paidOn)}</p>
         </div>
       </div>
 
@@ -317,7 +317,7 @@ export default function PaymentForm({
         <Label>Services</Label>
         <div className="flex flex-wrap gap-4">
           {FINANCE_SERVICES.map((service) => (
-            <label key={service} className="flex items-center gap-2 text-sm text-ink">
+            <label key={service} className="flex items-center gap-2 text-sm text-foreground">
               <Checkbox
                 checked={services.includes(service)}
                 onCheckedChange={() => toggleService(service)}
@@ -363,7 +363,7 @@ export default function PaymentForm({
               onChange={(event) => applyFxRate(event.target.value)}
               placeholder="1.08"
             />
-            <p className="text-xs text-stone">Gross ÷ rate = net EUR</p>
+            <p className="text-xs text-muted-foreground">Gross ÷ rate = net EUR</p>
           </div>
         ) : null}
         <div className="space-y-2">
@@ -374,7 +374,7 @@ export default function PaymentForm({
             value={net}
             onChange={(event) => applyNet(event.target.value)}
           />
-          <p className="text-xs text-stone">
+          <p className="text-xs text-muted-foreground">
             {currency === "USD"
               ? "Type the euros you received — the rate is filled in for you."
               : `Calculated: ${eurExact(computed)}`}
@@ -400,7 +400,7 @@ export default function PaymentForm({
             </SelectContent>
           </Select>
           {activeMethods.length === 0 ? (
-            <p className="text-xs text-stone">
+            <p className="text-xs text-muted-foreground">
               No payment methods yet — add one in the Payment methods tab.
             </p>
           ) : null}

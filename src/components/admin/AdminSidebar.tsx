@@ -116,7 +116,7 @@ export default function AdminSidebar({
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-line">
+      <SidebarHeader className="border-b border-sidebar-border">
         <Link to="/admin" className="flex h-12 items-center px-2">
           <BrandLogo className={collapsed ? "h-6 w-auto" : "h-8 w-auto"} />
         </Link>
@@ -156,12 +156,12 @@ export default function AdminSidebar({
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-line">
+      <SidebarFooter className="border-t border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
             <div className={`px-2 py-1 ${collapsed ? "hidden" : ""}`}>
-              <div className="truncate text-xs text-muted">{email}</div>
-              <div className="text-[11px] uppercase tracking-wider text-muted/70">
+              <div className="truncate text-xs text-muted-foreground">{email}</div>
+              <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
                 {ROLE_LABEL[role] ?? role}
               </div>
             </div>

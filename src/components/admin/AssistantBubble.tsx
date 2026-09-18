@@ -96,10 +96,10 @@ export default function AssistantBubble() {
   return (
     <>
       {open ? (
-        <div className="fixed bottom-4 right-4 z-50 flex h-[min(34rem,calc(100vh-2rem))] w-[min(26rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-lg border border-line bg-card shadow-lg">
-          <header className="flex items-center gap-2 border-b border-line px-3 py-2">
+        <div className="fixed bottom-4 right-4 z-50 flex h-[min(34rem,calc(100vh-2rem))] w-[min(26rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-lg border border-border bg-card shadow-lg">
+          <header className="flex items-center gap-2 border-b border-border px-3 py-2">
             <img src="/favicon.png" alt="" className="h-5 w-5" />
-            <span className="text-sm font-medium text-ink">Assistant</span>
+            <span className="text-sm font-medium text-foreground">Assistant</span>
             <div className="ml-auto flex items-center gap-1">
               <Button
                 variant="ghost"
@@ -124,7 +124,7 @@ export default function AssistantBubble() {
           <Conversation className="flex-1">
             <ConversationContent className="gap-3 p-3">
               {messages.length === 0 ? (
-                <p className="px-1 py-6 text-center text-sm text-stone">
+                <p className="px-1 py-6 text-center text-sm text-muted-foreground">
                   Ask about the admin, Deerva&rsquo;s standards, your projects or your visitor
                   numbers.
                 </p>
@@ -171,7 +171,7 @@ export default function AssistantBubble() {
               ) : null}
 
               {error ? (
-                <p className="rounded-md border border-line bg-sand px-3 py-2 text-xs text-stone">
+                <p className="rounded-md border border-border bg-muted px-3 py-2 text-xs text-muted-foreground">
                   {error.message || "Something went wrong. Please try again."}
                 </p>
               ) : null}
@@ -179,7 +179,7 @@ export default function AssistantBubble() {
             <ConversationScrollButton />
           </Conversation>
 
-          <div className="border-t border-line p-2">
+          <div className="border-t border-border p-2">
             <PromptInput
               onSubmit={(_, event) => {
                 event.preventDefault();
@@ -203,14 +203,16 @@ export default function AssistantBubble() {
           </div>
         </div>
       ) : (
-        <button
+        <Button
           type="button"
+          size="icon"
+          variant="outline"
           onClick={() => setOpen(true)}
           aria-label="Open assistant"
-          className="fixed bottom-4 right-4 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full border border-line bg-card text-ink shadow-lg transition-colors hover:bg-sand"
+          className="fixed bottom-4 right-4 z-50 h-12 w-12 rounded-full bg-card shadow-lg"
         >
           <MessageCircle className="h-5 w-5" />
-        </button>
+        </Button>
       )}
     </>
   );

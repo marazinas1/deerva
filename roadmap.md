@@ -26,13 +26,20 @@
       Income, Expenses, Clients, Payment methods
 - [x] Project cards: agreed setup sum vs received, with "to go" amount
 
-## In progress — Universal admin brandbook
+## Done — Universal admin brandbook
 
 - [x] Align content, design-system and admin-structure standards
 - [x] Add admin UI and admin screen-pattern standards
 - [x] Publish the matching workspace Skills
 - [x] Audit Lumidenta, OCDG, StageHomy, Halliday Architects and Dorothe
 - [x] Prepare the reusable project prompt and Claude export
+
+## Done — Deerva admin reference implementation
+
+- [x] Replace legacy admin colour aliases with semantic roles
+- [x] Standardize shell, full-width headers and bordered tabs
+- [x] Align Dashboard, Projects, Finance, Analytics, Users and Settings
+- [x] Verify TypeScript, responsive overflow and signed-out auth layouts
 
 ## Deliberately deferred
 

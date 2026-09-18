@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink, Plus, Settings, UserCog } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { useAnalytics } from "@/hooks/admin/useAnalytics";
 import { getAdminMe, listClients } from "@/lib/admin.functions";
 import { getSiteSettings } from "@/lib/settings.functions";
@@ -36,23 +37,29 @@ function Dashboard() {
 
 
   return (
-    <div className="mx-auto max-w-4xl space-y-14">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Dashboard</h1>
-        <p className="mt-1 text-sm text-stone">
-          Welcome{me?.fullName ? `, ${me.fullName.split(" ")[0]}` : ""}.
-        </p>
-      </header>
+    <div className="w-full space-y-12">
+      <AdminPageHeader
+        title="Dashboard"
+        description={`Welcome${me?.fullName ? `, ${me.fullName.split(" ")[0]}` : ""}.`}
+        action={
+          <Button asChild>
+            <Link to="/admin/clients">
+              <Plus className="h-4 w-4" />
+              Add a project
+            </Link>
+          </Button>
+        }
+      />
 
       <section>
-        <h2 className="text-[11px] uppercase tracking-[0.14em] text-stone">Needs attention</h2>
+        <h2 className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Needs attention</h2>
         {attention.length === 0 ? (
-          <p className="mt-4 text-sm text-stone">Nothing waiting. Everything is up to date.</p>
+          <p className="mt-4 text-sm text-muted-foreground">Nothing waiting. Everything is up to date.</p>
         ) : (
           <ul className="mt-4 space-y-2">
             {attention.map((item) => (
               <li key={item.text}>
-                <Link to={item.to} className="text-sm text-ink underline-offset-4 hover:underline">
+                <Link to={item.to} className="text-sm text-foreground underline-offset-4 hover:underline">
                   {item.text}
                 </Link>
               </li>
@@ -62,48 +69,42 @@ function Dashboard() {
       </section>
 
       <section>
-        <h2 className="text-[11px] uppercase tracking-[0.14em] text-stone">Numbers</h2>
+        <h2 className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Numbers</h2>
         <div className="mt-6 grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3">
           <Link to="/admin/analytics" className="group block">
-            <span className="block text-4xl font-light tabular-nums text-ink transition-opacity group-hover:opacity-60">
+            <span className="block text-4xl font-light tabular-nums text-foreground transition-opacity group-hover:opacity-60">
               {analytics?.totals.visitors ?? 0}
             </span>
-            <span className="mt-2 block text-[11px] uppercase tracking-[0.14em] text-stone">
+            <span className="mt-2 block text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
               Visitors
             </span>
-            <span className="mt-1 block text-xs text-stone/80">last 7 days</span>
+            <span className="mt-1 block text-xs text-muted-foreground/80">last 7 days</span>
           </Link>
           <Link to="/admin/analytics" className="group block">
-            <span className="block text-4xl font-light tabular-nums text-ink transition-opacity group-hover:opacity-60">
+            <span className="block text-4xl font-light tabular-nums text-foreground transition-opacity group-hover:opacity-60">
               {analytics?.totals.views ?? 0}
             </span>
-            <span className="mt-2 block text-[11px] uppercase tracking-[0.14em] text-stone">
+            <span className="mt-2 block text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
               Page views
             </span>
-            <span className="mt-1 block text-xs text-stone/80">last 7 days</span>
+            <span className="mt-1 block text-xs text-muted-foreground/80">last 7 days</span>
           </Link>
           <Link to="/admin/clients" className="group block">
-            <span className="block text-4xl font-light tabular-nums text-ink transition-opacity group-hover:opacity-60">
+            <span className="block text-4xl font-light tabular-nums text-foreground transition-opacity group-hover:opacity-60">
               {clients?.length ?? 0}
             </span>
-            <span className="mt-2 block text-[11px] uppercase tracking-[0.14em] text-stone">
+            <span className="mt-2 block text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
               Projects
             </span>
-            <span className="mt-1 block text-xs text-stone/80">{live} live</span>
+            <span className="mt-1 block text-xs text-muted-foreground/80">{live} live</span>
           </Link>
 
         </div>
       </section>
 
       <section>
-        <h2 className="text-[11px] uppercase tracking-[0.14em] text-stone">Quick actions</h2>
+        <h2 className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Quick actions</h2>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Button asChild>
-            <Link to="/admin/clients">
-              <Plus className="h-4 w-4" />
-              Add a project
-            </Link>
-          </Button>
           <Button asChild variant="outline">
             <Link to="/admin/settings">
               <Settings className="h-4 w-4" />
