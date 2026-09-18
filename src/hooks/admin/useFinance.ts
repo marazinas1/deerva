@@ -49,6 +49,7 @@ export type ExpenseInput = Omit<Expense, "id">;
 export type FinanceContact = {
   id: string;
   client_id: string;
+  account_id: string | null;
   name: string;
   role: string | null;
   email: string | null;
@@ -77,6 +78,7 @@ export type FinancePayment = {
   client_id: string;
   contact_id: string | null;
   paid_on: string;
+  kind: string;
   services: string[] | null;
   payment_type: string | null;
   invoice_no: string | null;
@@ -92,6 +94,7 @@ export type PaymentInput = {
   client_id: string;
   contact_id: string | null;
   paid_on: string;
+  kind: string;
   services: string[];
   payment_type: string | null;
   invoice_no: string | null;
@@ -125,6 +128,8 @@ export const FINANCE_KEYS = {
   contactPhones: ["admin", "finance", "contact-phones"] as const,
   payments: ["admin", "finance", "payments"] as const,
   paymentMethods: ["admin", "finance", "payment-methods"] as const,
+  expenses: ["admin", "finance", "expenses"] as const,
+  accounts: ["admin", "finance", "accounts"] as const,
 };
 
 /**
