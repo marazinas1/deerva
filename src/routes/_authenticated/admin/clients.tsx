@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Github,
   Globe,
@@ -29,6 +29,7 @@ import {
 } from "@/hooks/admin/useFinance";
 import PaymentForm from "@/components/admin/finance/PaymentForm";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { useProjectStandardAssignments, useStandardsLibrary } from "@/hooks/admin/useStandards";
 import { collected, eurExact, shortDate } from "@/lib/finance";
 
 import { Badge } from "@/components/ui/badge";
@@ -223,6 +224,8 @@ function ProjectsPage() {
   const financeContacts = useFinanceContacts();
   const paymentMethods = usePaymentMethods();
   const savePayment = useSavePayment();
+  const standardsLibrary = useStandardsLibrary();
+  const standardAssignments = useProjectStandardAssignments();
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [current, setCurrent] = useState<ClientRow | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -427,6 +430,12 @@ function ProjectsPage() {
   }
 
   const liveClient = form.id ? (rows.find((row) => row.id === form.id) ?? current) : null;
+  const projectStandards = (standardsLibrary.data ?? []).filter((item) => item.kind === "standard");
+  const projectAssignments = (standardAssignments.data ?? []).filter((item) => item.client_id === form.id);
+  const reviewNeeded = projectStandards.filter((standard) => {
+    const assignment = projectAssignments.find((item) => item.standard_slug === standard.slug);
+    return !assignment || assignment.status === "review_needed" || (assignment.status === "compliant" && assignment.applied_revision !== standard.revision);
+  }).length;
 
   return (
     <div className="w-full">
@@ -853,6 +862,22 @@ function ProjectsPage() {
 
           {form.id ? (
             <div className="space-y-6 border-t border-border pt-5">
+              <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-sm font-medium text-foreground">Standards coverage</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {standardAssignments.isLoading || standardsLibrary.isLoading
+                      ? "Loading coverage…"
+                      : reviewNeeded > 0
+                        ? `${reviewNeeded} of ${projectStandards.length} standards need review.`
+                        : `All ${projectStandards.length} standards are reviewed.`}
+                  </p>
+                </div>
+                <Button asChild type="button" size="sm" variant="outline">
+                  <Link to="/admin/standards">Open coverage</Link>
+                </Button>
+              </section>
+
               <section className="space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-sm font-medium text-foreground">Thumbnail</h3>

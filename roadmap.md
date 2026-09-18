@@ -41,6 +41,14 @@
 - [x] Align Dashboard, Projects, Finance, Analytics, Users and Settings
 - [x] Verify TypeScript, responsive overflow and signed-out auth layouts
 
+## Done — Internal standards library
+
+- [x] Manage → Standards with Library, Skills, Project coverage and Drafts
+- [x] Read-only source documents with automatic revision hashes
+- [x] Manager-controlled drafts and project coverage with staff read access
+- [x] Compact standards summary in each project editor
+- [x] Assistant knowledge includes the final admin standards and reusable prompt
+
 ## Deliberately deferred
 
 - Enquiries — the public page has no form.
