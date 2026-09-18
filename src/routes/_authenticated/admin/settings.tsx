@@ -73,14 +73,14 @@ function SettingsPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-8">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Settings</h1>
-        <p className="mt-1 text-sm text-stone">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Settings</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Business details used across the site, its metadata and its search listing.
         </p>
       </header>
 
       {!canEdit ? (
-        <p className="rounded-md border border-line bg-card px-4 py-3 text-sm text-stone">
+        <p className="rounded-md border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
           You can view these details, but only an owner can change them.
         </p>
       ) : null}
@@ -92,7 +92,7 @@ function SettingsPage() {
 
         <TabsContent value="business" className="mt-6">
           {isLoading ? (
-            <p className="text-sm text-stone">Loading…</p>
+            <p className="text-sm text-muted-foreground">Loading…</p>
           ) : (
             <form
               className="space-y-6"
@@ -167,9 +167,9 @@ function SettingsPage() {
               </div>
 
               <div>
-                <h2 className="text-[11px] uppercase tracking-[0.14em] text-stone">Social links</h2>
+                <h2 className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Social links</h2>
                 {form.social_links.length === 0 ? (
-                  <p className="mt-3 text-sm text-stone">
+                  <p className="mt-3 text-sm text-muted-foreground">
                     No social profiles added. They appear in the site's search listing.
                   </p>
                 ) : (
@@ -177,7 +177,7 @@ function SettingsPage() {
                     {form.social_links.map((link, index) => (
                       <div key={index} className="flex flex-wrap items-end gap-3">
                         <div className="w-40">
-                          <Label className="text-xs text-stone">Label</Label>
+                          <Label className="text-xs text-muted-foreground">Label</Label>
                           <Input
                             value={link.label}
                             disabled={!canEdit}
@@ -185,7 +185,7 @@ function SettingsPage() {
                           />
                         </div>
                         <div className="min-w-[220px] flex-1">
-                          <Label className="text-xs text-stone">URL</Label>
+                          <Label className="text-xs text-muted-foreground">URL</Label>
                           <Input
                             value={link.url}
                             disabled={!canEdit}
@@ -226,11 +226,11 @@ function SettingsPage() {
               </div>
 
               {canEdit ? (
-                <div className="flex items-center gap-3 border-t border-line pt-6">
+                <div className="flex items-center gap-3 border-t border-border pt-6">
                   <Button type="submit" disabled={save.isPending || !dirty}>
                     {save.isPending ? "Saving…" : "Save changes"}
                   </Button>
-                  {dirty ? <span className="text-xs text-stone">Unsaved changes</span> : null}
+                  {dirty ? <span className="text-xs text-muted-foreground">Unsaved changes</span> : null}
                 </div>
               ) : null}
             </form>
@@ -260,7 +260,7 @@ function Field({
 }) {
   return (
     <div>
-      <Label htmlFor={id} className="text-xs text-stone">
+      <Label htmlFor={id} className="text-xs text-muted-foreground">
         {label}
       </Label>
       <Input

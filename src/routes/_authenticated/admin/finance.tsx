@@ -86,7 +86,7 @@ function FinancePage() {
   });
 
   if (mePending) {
-    return <p className="text-sm text-stone">Loading…</p>;
+    return <p className="text-sm text-muted-foreground">Loading…</p>;
   }
 
   // Editors never see finance. The database refuses them too; this is the
@@ -94,8 +94,8 @@ function FinancePage() {
   if (!me?.isManager) {
     return (
       <div className="mx-auto max-w-2xl">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Finance</h1>
-        <p className="mt-3 text-sm text-stone">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Finance</h1>
+        <p className="mt-3 text-sm text-muted-foreground">
           Only the owner and developer can see payment records.
         </p>
       </div>
@@ -106,7 +106,7 @@ function FinancePage() {
 }
 
 const TAB_CLASS =
-  "min-h-9 whitespace-normal px-3 text-xs data-[state=active]:bg-paper data-[state=active]:text-ink data-[state=active]:shadow-none sm:text-sm";
+  "min-h-9 whitespace-normal px-3 text-xs data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-none sm:text-sm";
 
 function FinanceWorkspace() {
   const clientsQuery = useFinanceClients();
@@ -130,14 +130,14 @@ function FinanceWorkspace() {
   return (
     <div className="w-full space-y-10">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Finance</h1>
-        <p className="mt-1 text-sm text-stone">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Finance</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Money in, money out and what is still owed. Internal only.
         </p>
       </header>
 
       <Tabs defaultValue="overview">
-        <TabsList className="grid h-auto w-full grid-cols-2 gap-1 bg-sand p-1 text-stone sm:inline-grid sm:w-auto sm:grid-cols-5">
+        <TabsList className="grid h-auto w-full grid-cols-2 gap-1 bg-muted p-1 text-muted-foreground sm:inline-grid sm:w-auto sm:grid-cols-5">
           <TabsTrigger value="overview" className={TAB_CLASS}>
             Overview
           </TabsTrigger>
@@ -286,12 +286,12 @@ function Overview({
   }, [payments, expenses, clients, yearFilter]);
 
   if (loading) {
-    return <p className="text-sm text-stone">Loading the full history…</p>;
+    return <p className="text-sm text-muted-foreground">Loading the full history…</p>;
   }
 
   if (payments.length === 0 && expenses.length === 0) {
     return (
-      <p className="text-sm text-stone">
+      <p className="text-sm text-muted-foreground">
         Nothing recorded yet. Add your first payment in the Income tab, or a cost in Expenses.
       </p>
     );
@@ -314,10 +314,10 @@ function Overview({
       </Select>
 
       <div>
-        <span className="block text-5xl font-light tabular-nums text-ink">
+        <span className="block text-5xl font-light tabular-nums text-foreground">
           {eur(stats.profit)}
         </span>
-        <span className="mt-1 block text-xs text-stone">
+        <span className="mt-1 block text-xs text-muted-foreground">
           Profit {yearFilter === "all" ? "so far" : `in ${yearFilter}`}
         </span>
       </div>
@@ -331,10 +331,10 @@ function Overview({
 
       {stats.outstanding.length > 0 ? (
         <section>
-          <h2 className="text-[11px] uppercase tracking-[0.14em] text-stone">Still to collect</h2>
+          <h2 className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Still to collect</h2>
           <div className="mt-4 space-y-2">
             {stats.outstanding.map((row) => (
-              <p key={row.name} className="text-sm text-ink">
+              <p key={row.name} className="text-sm text-foreground">
                 {row.name} — {money(row.left, row.currency)} outstanding
               </p>
             ))}
@@ -343,28 +343,28 @@ function Overview({
       ) : null}
 
       <section>
-        <h2 className="text-[11px] uppercase tracking-[0.14em] text-stone">
+        <h2 className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
           By year — income and cost
         </h2>
         <div className="mt-6 space-y-5">
           {stats.rows.map(([year, value]) => (
             <div key={year} className="flex items-center gap-4">
-              <span className="w-12 text-sm tabular-nums text-stone">{year}</span>
+              <span className="w-12 text-sm tabular-nums text-muted-foreground">{year}</span>
               <div className="flex-1 space-y-1">
-                <div className="h-2 bg-sand">
+                <div className="h-2 bg-muted">
                   <div
                     className="h-2 bg-ink"
                     style={{ width: `${Math.max(2, (value.income / stats.peak) * 100)}%` }}
                   />
                 </div>
-                <div className="h-2 bg-sand">
+                <div className="h-2 bg-muted">
                   <div
                     className="h-2 bg-stone"
                     style={{ width: `${Math.max(1, (value.cost / stats.peak) * 100)}%` }}
                   />
                 </div>
               </div>
-              <span className="w-40 text-right text-sm tabular-nums text-ink">
+              <span className="w-40 text-right text-sm tabular-nums text-foreground">
                 {eur(value.income - value.cost)}
               </span>
             </div>
@@ -378,8 +378,8 @@ function Overview({
 function Figure({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <span className="block text-3xl font-light tabular-nums text-ink">{value}</span>
-      <span className="mt-1 block text-xs text-stone">{label}</span>
+      <span className="block text-3xl font-light tabular-nums text-foreground">{value}</span>
+      <span className="mt-1 block text-xs text-muted-foreground">{label}</span>
     </div>
   );
 }
@@ -536,18 +536,18 @@ function PaymentsTab({
       </div>
 
       {loading ? (
-        <p className="text-sm text-stone">Loading the full payment history…</p>
+        <p className="text-sm text-muted-foreground">Loading the full payment history…</p>
       ) : rows.length === 0 ? (
-        <p className="text-sm text-stone">
+        <p className="text-sm text-muted-foreground">
           {payments.length === 0
             ? "No payments recorded yet."
             : "Nothing matches those filters."}
         </p>
       ) : (
         <>
-          <div className="overflow-x-auto border border-line">
+          <div className="overflow-x-auto border border-border">
             <table className="w-full text-sm">
-              <thead className="bg-sand text-left text-xs uppercase tracking-wider text-stone">
+              <thead className="bg-muted text-left text-xs uppercase tracking-wider text-muted-foreground">
                 <tr>
                   <th className="px-4 py-3">Date</th>
                   <th className="px-4 py-3">Client</th>
@@ -560,26 +560,26 @@ function PaymentsTab({
               </thead>
               <tbody>
                 {rows.map((row) => (
-                  <tr key={row.id} className="border-t border-line">
-                    <td className="whitespace-nowrap px-4 py-3 tabular-nums text-stone">
+                  <tr key={row.id} className="border-t border-border">
+                    <td className="whitespace-nowrap px-4 py-3 tabular-nums text-muted-foreground">
                       {shortDate(row.paid_on)}
                     </td>
-                    <td className="px-4 py-3 text-ink">
+                    <td className="px-4 py-3 text-foreground">
                       {clientName(row.client_id)}
-                      <span className="ml-2 text-xs text-stone">
+                      <span className="ml-2 text-xs text-muted-foreground">
                         {PAYMENT_KIND_LABEL[row.kind] ?? row.kind}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-stone">
+                    <td className="px-4 py-3 text-muted-foreground">
                       {(row.services ?? []).join(" / ") || "—"}
                     </td>
-                    <td className="px-4 py-3 text-stone">{row.invoice_no ?? "—"}</td>
-                    <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-stone">
+                    <td className="px-4 py-3 text-muted-foreground">{row.invoice_no ?? "—"}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-muted-foreground">
                       {row.gross_amount == null
                         ? "—"
                         : `${Number(row.gross_amount).toFixed(2)} ${row.gross_currency}`}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-ink">
+                    <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-foreground">
                       {eurExact(Number(row.net_eur ?? 0))}
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -595,7 +595,7 @@ function PaymentsTab({
               </tbody>
             </table>
           </div>
-          <p className="text-sm text-stone">
+          <p className="text-sm text-muted-foreground">
             {rows.length} payment{rows.length === 1 ? "" : "s"} · {eurExact(filteredTotal)}
           </p>
         </>
@@ -741,22 +741,22 @@ function MethodsTab({
       </div>
 
       {loading ? (
-        <p className="text-sm text-stone">Loading…</p>
+        <p className="text-sm text-muted-foreground">Loading…</p>
       ) : methods.length === 0 ? (
-        <p className="text-sm text-stone">
+        <p className="text-sm text-muted-foreground">
           No payment methods yet. Add the bank account or wallet you get paid into.
         </p>
       ) : (
-        <div className="divide-y divide-line border border-line">
+        <div className="divide-y divide-border border border-border">
           {methods.map((method) => (
             <div key={method.id} className="flex items-center gap-4 px-4 py-3">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-ink">{method.name}</span>
+                  <span className="text-sm text-foreground">{method.name}</span>
                   <Badge variant="outline">{method.currency}</Badge>
                   {!method.is_active ? <Badge variant="secondary">Inactive</Badge> : null}
                 </div>
-                <p className="truncate text-xs text-stone">
+                <p className="truncate text-xs text-muted-foreground">
                   {PAYMENT_METHOD_KIND_LABEL[method.kind] ?? method.kind}
                   {method.iban ? ` · ${method.iban}` : ""}
                   {method.account_number ? ` · ${method.account_number}` : ""}
@@ -1146,22 +1146,22 @@ function ExpensesTab({
       </div>
 
       {loading ? (
-        <p className="text-sm text-stone">Loading expenses…</p>
+        <p className="text-sm text-muted-foreground">Loading expenses…</p>
       ) : expenses.length === 0 ? (
-        <p className="text-sm text-stone">
+        <p className="text-sm text-muted-foreground">
           No costs recorded yet. Add what you pay for Lovable credits, hosting or domains.
         </p>
       ) : (
-        <div className="divide-y divide-line border-y border-line">
+        <div className="divide-y divide-border border-y border-border">
           {expenses.map((row) => (
             <div key={row.id} className="flex flex-wrap items-center gap-4 py-4">
-              <span className="w-24 text-sm tabular-nums text-stone">{shortDate(row.spent_on)}</span>
-              <span className="min-w-40 flex-1 text-sm text-ink">
+              <span className="w-24 text-sm tabular-nums text-muted-foreground">{shortDate(row.spent_on)}</span>
+              <span className="min-w-40 flex-1 text-sm text-foreground">
                 {EXPENSE_CATEGORY_LABEL[row.category] ?? row.category}
-                {row.vendor ? <span className="text-stone"> · {row.vendor}</span> : null}
+                {row.vendor ? <span className="text-muted-foreground"> · {row.vendor}</span> : null}
               </span>
-              <span className="text-sm text-stone">{clientName(row.client_id)}</span>
-              <span className="w-28 text-right text-sm tabular-nums text-ink">
+              <span className="text-sm text-muted-foreground">{clientName(row.client_id)}</span>
+              <span className="w-28 text-right text-sm tabular-nums text-foreground">
                 {eurExact(Number(row.net_eur ?? 0))}
               </span>
               <div className="flex gap-1">
@@ -1297,8 +1297,8 @@ function ExpensesTab({
               />
             </div>
 
-            <p className="text-sm text-stone">
-              Counts as <span className="text-ink">{eurExact(net)}</span> in the accounts.
+            <p className="text-sm text-muted-foreground">
+              Counts as <span className="text-foreground">{eurExact(net)}</span> in the accounts.
             </p>
 
             <div className="flex justify-end gap-2">
@@ -1411,12 +1411,12 @@ function ClientsTab({
     );
   };
 
-  if (loading) return <p className="text-sm text-stone">Loading clients…</p>;
+  if (loading) return <p className="text-sm text-muted-foreground">Loading clients…</p>;
 
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <p className="text-sm text-stone">
+        <p className="text-sm text-muted-foreground">
           A client is the person or company that pays. One client can hold several projects.
         </p>
         <Button onClick={startNew}>
@@ -1425,7 +1425,7 @@ function ClientsTab({
       </div>
 
       {accounts.length === 0 ? (
-        <p className="text-sm text-stone">
+        <p className="text-sm text-muted-foreground">
           No clients yet. Add one, then attach its projects below.
         </p>
       ) : (
@@ -1442,12 +1442,12 @@ function ClientsTab({
             );
 
             return (
-              <div key={account.id} className="space-y-4 border border-line bg-paper p-5">
+              <div key={account.id} className="space-y-4 border border-border bg-card p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="text-base font-medium text-ink">{account.name}</h3>
+                    <h3 className="text-base font-medium text-foreground">{account.name}</h3>
                     {account.country ? (
-                      <p className="text-xs text-stone">{account.country}</p>
+                      <p className="text-xs text-muted-foreground">{account.country}</p>
                     ) : null}
                   </div>
                   <div className="flex gap-1">
@@ -1460,15 +1460,15 @@ function ClientsTab({
                   </div>
                 </div>
 
-                <p className="text-sm tabular-nums text-ink">{eur(received)} received</p>
+                <p className="text-sm tabular-nums text-foreground">{eur(received)} received</p>
 
                 <div className="space-y-1">
-                  <p className="text-[11px] uppercase tracking-[0.14em] text-stone">People</p>
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">People</p>
                   {people.length === 0 ? (
-                    <p className="text-sm text-stone">Nobody added yet.</p>
+                    <p className="text-sm text-muted-foreground">Nobody added yet.</p>
                   ) : (
                     people.map((person) => (
-                      <p key={person.id} className="text-sm text-ink">
+                      <p key={person.id} className="text-sm text-foreground">
                         {person.name}
                         {person.is_primary ? (
                           <Badge variant="secondary" className="ml-2">
@@ -1481,12 +1481,12 @@ function ClientsTab({
                 </div>
 
                 <div className="space-y-1">
-                  <p className="text-[11px] uppercase tracking-[0.14em] text-stone">Projects</p>
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Projects</p>
                   {ownProjects.length === 0 ? (
-                    <p className="text-sm text-stone">No project attached.</p>
+                    <p className="text-sm text-muted-foreground">No project attached.</p>
                   ) : (
                     ownProjects.map((project) => (
-                      <p key={project.id} className="text-sm text-ink">
+                      <p key={project.id} className="text-sm text-foreground">
                         {project.name}
                       </p>
                     ))
@@ -1499,11 +1499,11 @@ function ClientsTab({
       )}
 
       <section className="space-y-3">
-        <h2 className="text-[11px] uppercase tracking-[0.14em] text-stone">Projects by client</h2>
-        <div className="divide-y divide-line border-y border-line">
+        <h2 className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Projects by client</h2>
+        <div className="divide-y divide-border border-y border-border">
           {clients.map((client) => (
             <div key={client.id} className="flex flex-wrap items-center gap-4 py-3">
-              <span className="min-w-40 flex-1 text-sm text-ink">{client.name}</span>
+              <span className="min-w-40 flex-1 text-sm text-foreground">{client.name}</span>
               <Select
                 value={client.account_id ?? "none"}
                 onValueChange={(value) =>
