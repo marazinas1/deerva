@@ -16,11 +16,17 @@ All colour, shadow and font values are **semantic CSS tokens** in `src/styles.cs
   --accent / --accent-foreground
   --destructive / --destructive-foreground
   --border / --input / --ring
+  --success / --success-foreground
+  --warning / --warning-foreground
+  --info / --info-foreground
+  --shadow-sm / --shadow-md
 }
 @theme inline { --color-background: var(--background); ... }
 ```
 
 Per-project the **values** change. The **names** never do. That is what makes a remix a one-file recolour.
+
+The public site and admin share this same semantic token contract. Do not create a separate hardcoded admin palette. Project-specific aliases such as `ink`, `stone`, `paper`, `sand`, `charcoal` or `slate` may support a public design, but reusable admin components use only the core semantic roles above. Raw palette utilities (`emerald-*`, `amber-*`), `white`/`black` utilities and hex colours are forbidden in components.
 
 ## Typography
 
@@ -47,6 +53,14 @@ Behaviour, identical everywhere:
 - disabled: 50% opacity, no pointer events
 - loading: spinner replaces the label, width does not change
 
+## Fields and states
+
+- Labels are always visible. Placeholders are examples, never substitutes for labels, and are visibly lighter than entered values.
+- Help text explains format or consequence; error text names the correction. Neither relies on colour alone.
+- `success`, `warning` and `info` use semantic status tokens. Never borrow a brand colour or Tailwind palette colour for a product state.
+- Focus rings use `ring`; inputs use `input`; validation and destructive states use `destructive`.
+- Loading placeholders keep the final element's dimensions so the page does not jump.
+
 ## Cursor
 
 - Every interactive element — buttons, links, clickable cards, table rows that open something, icon buttons — shows `cursor: pointer` on hover.
@@ -58,8 +72,8 @@ Behaviour, identical everywhere:
 - Page container: `max-w-7xl` with `px-4 md:px-6 lg:px-8`. Prose blocks cap at ~65 characters.
 - Section vertical rhythm: `py-16 md:py-24`. Hero may go larger; nothing goes smaller.
 - Full-bleed sections are allowed and encouraged — the content inside still respects the container.
-- Radius: one scale, one `--radius`, derived sizes. No mixing sharp and pill in the same view.
-- Shadows: the StageHomy scale (very soft, low opacity). Never a hard drop shadow.
+- Radius: one scale, one per-brand `--radius`, derived sizes. No local arbitrary radii and no pill tabs. Lumidenta may stay softer than OCDG because the value belongs to the brand; component anatomy does not change.
+- Shadows: semantic `--shadow-sm` / `--shadow-md`, very soft and low opacity. Borders define most admin surfaces; never use a hard drop shadow.
 
 ## Motion
 

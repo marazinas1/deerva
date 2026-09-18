@@ -1,86 +1,103 @@
 # 02 — Admin structure
 
-The admin panel is the product. The public site is what it produces. If the client needs to be taught how to add a service or answer an enquiry, the admin is not finished.
+The admin panel is the product. The public site is what it produces. This standard answers **what exists and where it lives**. Visual recipes belong in `03-admin-ui.md`; screen workflows belong in `04-admin-screens.md`.
 
 ## Menu order — fixed
 
-Ordered from most-used to least-used. Same in every project.
+Order items from most-used to least-used. Every client project has only these three groups:
 
-```
+```text
 WORKSPACE
   Dashboard       what needs attention, key numbers
   Inquiries       incoming leads / requests
-  Calendar        if the sector has one
-  Messages        conversations, if the sector has them and does not have Calendar
+  Calendar        when the sector requires it
+  Messages        conversations, only when the sector has no Calendar
   Analytics       real visitors, countries, sources
 
-MANAGE            ← the sector-specific part
+MANAGE            the sector-specific group
   <repeating entity>    services / listings / projects / developments
-  Articles              every project has a blog
+  <other sector management items>
+  Articles
   Testimonials
 
 SETTINGS
   Users
-  Settings        tabbed, see below
+  Settings
 ```
 
-Only the MANAGE group changes between sectors. WORKSPACE and SETTINGS are identical everywhere.
+`Workspace` and `Settings` stay identical. Only `Manage` changes with the sector. Do not show Calendar and Messages together without a real product need. Articles and Testimonials are default parts of every client project.
 
-Footer of the sidebar: user email, role label in small caps, "Back to site", "Sign out".
+Deerva's own internal control room may document sector-specific omissions because it is not a client website, but it follows the same shell and UI system.
 
-## Settings tabs
+The sidebar footer always shows the user's email, role label in small caps, “Back to site” and “Sign out”.
 
-Tab one and the last tab are fixed. The middle tabs **mirror the public site's menu** — one tab per public page.
+## Settings tabs — fixed model
 
+The first and last tabs are fixed. The middle tabs mirror the public site's primary navigation in the same order.
+
+```text
+Business & appearance   identity, address, map, contacts, social links,
+                        logo, logo size, favicon, maintenance
+Home                    editable text and media for /
+<one tab per further primary public page, in menu order>
+Contact                 always last
 ```
-Business        name, address, phone, email, licence numbers, social links
-Appearance      logo upload, logo size slider, favicon, reset to default
-Home texts      every editable slot on /
-About texts     …
-Contact texts   …
-<one tab per further public page>
-Maintenance     maintenance mode toggle — visitors see a holding page
+
+Legal or shared content that is not a primary-navigation page sits before Contact or in a clearly labelled shared block. Contact remains last.
+
+Adding a public page means adding its Settings tab in the same change. Every page tab edits both its text and images. A visible page with uneditable content is a defect.
+
+Do not duplicate page links in a second sidebar “Content” group. Repeating entities belong in Manage; single-page text and media belong only in Settings.
+
+## Business & appearance
+
+This tab edits the single `site_settings` source of truth:
+
+- business name, licences and domain;
+- address, map coordinates, phone, email and social profiles;
+- logo upload, one shared logo-size control, favicon and restore default;
+- maintenance mode and its visitor message.
+
+One logo and one configured size are used in the public header, sign-in screen and admin sidebar. Clicking the public logo always returns to the home page top, including when already on `/`.
 
 ## Maintenance mode behaviour
 
-When a signed-in staff member visits the site while maintenance mode is on, they see the real public site, not the holding page, but with a persistent, non-dismissible banner at the top: "Maintenance mode is on — you are seeing this site because you are signed in. Visitors see the holding page." The banner has two actions: "Preview as visitor" (switches the view to the same holding page everyone else sees) and "Turn off" (link straight to Settings → Maintenance).
+Maintenance is a collapsible block at the bottom of Business & appearance, never a separate tab.
 
-An unsigned-in visitor always sees the holding page, no exceptions.
+An unsigned visitor sees a holding page styled like the real site, with the real phone and email from `site_settings`. They never see the hidden site.
 
-The default state, while authentication is still being resolved, must be HIDDEN (the holding page), not visible. Showing real content while still checking whether the person is signed in means a quick visit or a crawler could see real content through that window. The default behaviour always shows less, never more, until proven otherwise.
-```
+Signed-in staff see the real site with a persistent, non-dismissible banner: “Maintenance mode is on — you are seeing this site because you are signed in. Visitors see the holding page.” It provides “Preview as visitor” and “Turn off”; the latter links directly to the maintenance block inside Business & appearance.
 
-Adding a public page means adding its tab in the same change. A page with uneditable text is a bug.
+While authentication is unresolved, default to the holding page. The system reveals less until access is proven, never more.
 
-## Logo rule
+## Admin width
 
-One logo, one size, everywhere:
+Admin is a working surface, not a reading page. Every admin route uses the full content width; only the shell padding constrains it (`px-4 py-6 md:px-6 md:py-8`).
 
-- top of the public site
-- the sign-in screen
-- top-left of the admin sidebar, above the menu
+- Root page container: `w-full` with consistent vertical spacing; never root-level `max-w-*` or `mx-auto` islands.
+- Lists, tables, forms and card grids fill the available width. Control density with grid columns, not a narrow wrapper.
+- Forms use responsive field grids rather than one narrow column.
+- `max-w-*` is allowed only inside dialogs/sheets, public-site preview frames and an isolated short field where full width is nonsensical.
+- Every page starts with a left-aligned title, one-sentence description and optional primary action. Width must not jump between sidebar destinations.
 
-It comes from `site_settings` — uploadable and resizable by the client in Appearance, with "restore default". Clicking it always returns to the home page top, scrolling to the top even when already there.
-
-Favicon is managed in the same tab and derived from the same mark.
-
-## Overview page
+## Dashboard
 
 Three blocks, in this order:
 
-1. **Needs attention** — unread enquiries, pending requests. Empty state says so plainly.
-2. **Numbers** — visits over 7 days, counts of the repeating entity, anything the owner checks weekly.
-3. **Quick actions** — 2–4 buttons to the things they do most.
+1. **Needs attention** — unread inquiries and pending requests; the empty state says plainly that nothing needs attention.
+2. **Numbers** — visits over seven days, repeating-entity counts and anything the owner checks weekly.
+3. **Quick actions** — two to four links to the most frequent tasks.
 
-## "Set as default" queue
+## Set as default queue
 
-Clients can ask for their current setup to become the pinned default. They press a button; the developer gets the request in a queue and applies it. Clients never write defaults directly — `page_media_defaults` belongs to the developer.
+Owners may request that their current text or media become the pinned default. The developer receives and applies the request. Clients never write `page_media_defaults` or other developer-owned defaults directly.
 
-## Behaviour rules
+## Behaviour and access
 
-- Every list has an empty state written in the client's language, not "No data".
-- Every destructive action confirms and says what will be lost.
-- Saving gives a toast. Unsaved changes warn before navigating away.
-- Editors see read-only notices instead of hidden buttons — silence looks like a bug.
-- Clickable cards and rows show the pointer cursor on hover (see design system → Cursor).
-- The panel is usable on a phone. Owners check enquiries from a phone.
+- Every list has a specific empty state in the client's language, never “No data”.
+- Every destructive action confirms exactly what will be lost.
+- Saving produces a toast. Unsaved changes warn before navigation.
+- Editors see an explicit read-only notice instead of silently missing controls.
+- Clickable cards and rows use a pointer cursor; disabled controls use not-allowed.
+- The panel works on a phone; owners check inquiries there.
+- Visibility and mutation rights follow `05-roles-and-access.md`; hiding a button is never the security boundary.
