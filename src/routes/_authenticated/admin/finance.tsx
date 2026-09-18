@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Download, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Copy, Download, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import PaymentForm from "@/components/admin/finance/PaymentForm";
