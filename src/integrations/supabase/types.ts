@@ -377,40 +377,64 @@ export type Database = {
         Row: {
           account_holder: string | null
           account_number: string | null
+          account_type: string | null
+          bank_address: string | null
           bank_name: string | null
+          beneficiary_address: string | null
           created_at: string
+          currency: string
+          iban: string | null
           id: string
+          intermediary_bank: string | null
           is_active: boolean
           kind: string
           name: string
           notes: string | null
+          routing_number: string | null
           swift: string | null
+          transfer_instructions: string | null
           updated_at: string
         }
         Insert: {
           account_holder?: string | null
           account_number?: string | null
+          account_type?: string | null
+          bank_address?: string | null
           bank_name?: string | null
+          beneficiary_address?: string | null
           created_at?: string
+          currency?: string
+          iban?: string | null
           id?: string
+          intermediary_bank?: string | null
           is_active?: boolean
           kind?: string
           name: string
           notes?: string | null
+          routing_number?: string | null
           swift?: string | null
+          transfer_instructions?: string | null
           updated_at?: string
         }
         Update: {
           account_holder?: string | null
           account_number?: string | null
+          account_type?: string | null
+          bank_address?: string | null
           bank_name?: string | null
+          beneficiary_address?: string | null
           created_at?: string
+          currency?: string
+          iban?: string | null
           id?: string
+          intermediary_bank?: string | null
           is_active?: boolean
           kind?: string
           name?: string
           notes?: string | null
+          routing_number?: string | null
           swift?: string | null
+          transfer_instructions?: string | null
           updated_at?: string
         }
         Relationships: []
