@@ -108,10 +108,25 @@ function FinanceWorkspace() {
       </header>
 
       <Tabs defaultValue="overview">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="payments">Payments</TabsTrigger>
-          <TabsTrigger value="methods">Payment methods</TabsTrigger>
+        <TabsList className="grid h-auto w-full grid-cols-3 gap-1 bg-sand p-1 text-stone sm:inline-grid sm:w-auto">
+          <TabsTrigger
+            value="overview"
+            className="min-h-9 whitespace-normal px-3 text-xs data-[state=active]:bg-paper data-[state=active]:text-ink data-[state=active]:shadow-none sm:text-sm"
+          >
+            Overview
+          </TabsTrigger>
+          <TabsTrigger
+            value="payments"
+            className="min-h-9 whitespace-normal px-3 text-xs data-[state=active]:bg-paper data-[state=active]:text-ink data-[state=active]:shadow-none sm:text-sm"
+          >
+            Payments
+          </TabsTrigger>
+          <TabsTrigger
+            value="methods"
+            className="min-h-9 whitespace-normal px-3 text-xs data-[state=active]:bg-paper data-[state=active]:text-ink data-[state=active]:shadow-none sm:text-sm"
+          >
+            Payment methods
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="pt-8">
