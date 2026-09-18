@@ -22,7 +22,7 @@ import {
   usePayments,
   useSetPrimaryChannel,
 } from "@/hooks/admin/useFinance";
-import { eurExact, shortDate } from "@/lib/finance";
+import { collected, eurExact, shortDate } from "@/lib/finance";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
