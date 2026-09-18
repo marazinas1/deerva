@@ -682,12 +682,41 @@ const emptyMethod: PaymentMethodInput = {
   name: "",
   kind: "bank_transfer",
   is_active: true,
+  currency: "EUR",
   account_holder: null,
+  beneficiary_address: null,
   account_number: null,
+  iban: null,
+  routing_number: null,
+  account_type: null,
   bank_name: null,
+  bank_address: null,
   swift: null,
+  intermediary_bank: null,
+  transfer_instructions: null,
   notes: null,
 };
+
+/** Invoice-ready bank block, formatted to the usual cross-border wire layout. */
+function methodInvoiceBlock(method: FinancePaymentMethod): string {
+  const lines: string[] = [];
+  const push = (label: string, value: string | null) => {
+    if (value && value.trim()) lines.push(`${label}: ${value.trim()}`);
+  };
+  push("Beneficiary", method.account_holder);
+  push("Beneficiary address", method.beneficiary_address);
+  push("Currency", method.currency);
+  push("Account type", method.account_type);
+  push("IBAN", method.iban);
+  push("Account number", method.account_number);
+  push("Routing number (ACH/wire)", method.routing_number);
+  push("SWIFT/BIC", method.swift);
+  push("Bank", method.bank_name);
+  push("Bank address", method.bank_address);
+  push("Intermediary bank", method.intermediary_bank);
+  push("Reference", method.transfer_instructions);
+  return lines.join("\n");
+}
 
 function MethodsTab({
   loading,

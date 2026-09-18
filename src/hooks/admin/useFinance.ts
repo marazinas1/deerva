@@ -246,7 +246,7 @@ export function usePaymentMethods() {
         supabase
           .from("payment_methods")
           .select(
-            "id, name, kind, is_active, account_holder, account_number, bank_name, swift, notes",
+            "id, name, kind, is_active, currency, account_holder, beneficiary_address, account_number, iban, routing_number, account_type, bank_name, bank_address, swift, intermediary_bank, transfer_instructions, notes",
           )
           .order("name")
           .range(from, to),
