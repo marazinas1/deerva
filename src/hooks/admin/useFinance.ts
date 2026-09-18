@@ -157,7 +157,9 @@ export function useFinanceClients() {
       fetchAllRows<FinanceClient>((from, to) =>
         supabase
           .from("clients")
-          .select("id, name, slug, status, country")
+          .select(
+            "id, name, slug, status, country, account_id, onboarding_fee, onboarding_fee_currency, monthly_fee, monthly_fee_currency",
+          )
           .order("name")
           .range(from, to),
       ),
@@ -171,7 +173,7 @@ export function useFinanceContacts() {
       fetchAllRows<FinanceContact>((from, to) =>
         supabase
           .from("client_contacts")
-          .select("id, client_id, name, role, email, phone, is_primary")
+          .select("id, client_id, account_id, name, role, email, phone, is_primary")
           .order("name")
           .range(from, to),
       ),
@@ -214,7 +216,7 @@ export function usePayments() {
         supabase
           .from("payments")
           .select(
-            "id, client_id, contact_id, paid_on, services, payment_type, invoice_no, gross_amount, gross_currency, fx_rate, net_eur, payment_method, description",
+            "id, client_id, contact_id, paid_on, kind, services, payment_type, invoice_no, gross_amount, gross_currency, fx_rate, net_eur, payment_method, description",
           )
           .order("paid_on", { ascending: false })
           .order("id")
