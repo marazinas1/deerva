@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink, Plus, Settings, UserCog } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { useAnalytics } from "@/hooks/admin/useAnalytics";
 import { getAdminMe, listClients } from "@/lib/admin.functions";
 import { getSiteSettings } from "@/lib/settings.functions";
@@ -36,13 +37,19 @@ function Dashboard() {
 
 
   return (
-    <div className="mx-auto max-w-4xl space-y-14">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Dashboard</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Welcome{me?.fullName ? `, ${me.fullName.split(" ")[0]}` : ""}.
-        </p>
-      </header>
+    <div className="w-full space-y-12">
+      <AdminPageHeader
+        title="Dashboard"
+        description={`Welcome${me?.fullName ? `, ${me.fullName.split(" ")[0]}` : ""}.`}
+        action={
+          <Button asChild>
+            <Link to="/admin/clients">
+              <Plus className="h-4 w-4" />
+              Add a project
+            </Link>
+          </Button>
+        }
+      />
 
       <section>
         <h2 className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Needs attention</h2>
@@ -98,12 +105,6 @@ function Dashboard() {
       <section>
         <h2 className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Quick actions</h2>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Button asChild>
-            <Link to="/admin/clients">
-              <Plus className="h-4 w-4" />
-              Add a project
-            </Link>
-          </Button>
           <Button asChild variant="outline">
             <Link to="/admin/settings">
               <Settings className="h-4 w-4" />

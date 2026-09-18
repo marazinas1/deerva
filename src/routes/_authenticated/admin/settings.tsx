@@ -5,9 +5,15 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import {
+  AdminTabs,
+  AdminTabsContent,
+  AdminTabsList,
+  AdminTabsTrigger,
+} from "@/components/admin/AdminTabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getAdminMe } from "@/lib/admin.functions";
 import {
   EMPTY_SETTINGS,
@@ -71,13 +77,11 @@ function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Settings</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Business details used across the site, its metadata and its search listing.
-        </p>
-      </header>
+    <div className="w-full space-y-8">
+      <AdminPageHeader
+        title="Settings"
+        description="Business details used across the site, its metadata and its search listing."
+      />
 
       {!canEdit ? (
         <p className="rounded-md border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
@@ -85,12 +89,12 @@ function SettingsPage() {
         </p>
       ) : null}
 
-      <Tabs defaultValue="business">
-        <TabsList>
-          <TabsTrigger value="business">Business</TabsTrigger>
-        </TabsList>
+      <AdminTabs defaultValue="business">
+        <AdminTabsList className="grid-cols-1">
+          <AdminTabsTrigger value="business">Business &amp; appearance</AdminTabsTrigger>
+        </AdminTabsList>
 
-        <TabsContent value="business" className="mt-6">
+        <AdminTabsContent value="business" className="mt-6">
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : (
@@ -235,8 +239,8 @@ function SettingsPage() {
               ) : null}
             </form>
           )}
-        </TabsContent>
-      </Tabs>
+        </AdminTabsContent>
+      </AdminTabs>
     </div>
   );
 }

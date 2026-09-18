@@ -203,14 +203,16 @@ export default function AssistantBubble() {
           </div>
         </div>
       ) : (
-        <button
+        <Button
           type="button"
+          size="icon"
+          variant="outline"
           onClick={() => setOpen(true)}
           aria-label="Open assistant"
-          className="fixed bottom-4 right-4 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-lg transition-colors hover:bg-muted"
+          className="fixed bottom-4 right-4 z-50 h-12 w-12 rounded-full bg-card shadow-lg"
         >
           <MessageCircle className="h-5 w-5" />
-        </button>
+        </Button>
       )}
     </>
   );

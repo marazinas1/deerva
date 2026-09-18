@@ -5,6 +5,13 @@ import { Copy, Download, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import PaymentForm from "@/components/admin/finance/PaymentForm";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import {
+  AdminTabs,
+  AdminTabsContent,
+  AdminTabsList,
+  AdminTabsTrigger,
+} from "@/components/admin/AdminTabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +36,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   useAssignProjectAccount,
   useClientAccounts,
@@ -93,20 +99,14 @@ function FinancePage() {
   // polite version of the same rule.
   if (!me?.isManager) {
     return (
-      <div className="mx-auto max-w-2xl">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Finance</h1>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Only the owner and developer can see payment records.
-        </p>
+      <div className="w-full">
+        <AdminPageHeader title="Finance" description="Only the owner and developer can see payment records." />
       </div>
     );
   }
 
   return <FinanceWorkspace />;
 }
-
-const TAB_CLASS =
-  "min-h-9 whitespace-normal px-3 text-xs data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-none sm:text-sm";
 
 function FinanceWorkspace() {
   const clientsQuery = useFinanceClients();
@@ -129,42 +129,37 @@ function FinanceWorkspace() {
 
   return (
     <div className="w-full space-y-10">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Finance</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Money in, money out and what is still owed. Internal only.
-        </p>
-      </header>
+      <AdminPageHeader title="Finance" description="Money in, money out and what is still owed. Internal only." />
 
-      <Tabs defaultValue="overview">
-        <TabsList className="grid h-auto w-full grid-cols-2 gap-1 bg-muted p-1 text-muted-foreground sm:inline-grid sm:w-auto sm:grid-cols-5">
-          <TabsTrigger value="overview" className={TAB_CLASS}>
+      <AdminTabs defaultValue="overview">
+        <AdminTabsList className="grid-cols-2 sm:grid-cols-5">
+          <AdminTabsTrigger value="overview">
             Overview
-          </TabsTrigger>
-          <TabsTrigger value="payments" className={TAB_CLASS}>
+          </AdminTabsTrigger>
+          <AdminTabsTrigger value="payments">
             Income
-          </TabsTrigger>
-          <TabsTrigger value="expenses" className={TAB_CLASS}>
+          </AdminTabsTrigger>
+          <AdminTabsTrigger value="expenses">
             Expenses
-          </TabsTrigger>
-          <TabsTrigger value="clients" className={TAB_CLASS}>
+          </AdminTabsTrigger>
+          <AdminTabsTrigger value="clients">
             Clients
-          </TabsTrigger>
-          <TabsTrigger value="methods" className={TAB_CLASS}>
+          </AdminTabsTrigger>
+          <AdminTabsTrigger value="methods">
             Payment methods
-          </TabsTrigger>
-        </TabsList>
+          </AdminTabsTrigger>
+        </AdminTabsList>
 
-        <TabsContent value="overview" className="pt-8">
+        <AdminTabsContent value="overview" className="pt-8">
           <Overview
             loading={loading}
             payments={payments}
             expenses={expenses}
             clients={clients}
           />
-        </TabsContent>
+        </AdminTabsContent>
 
-        <TabsContent value="payments" className="pt-8">
+        <AdminTabsContent value="payments" className="pt-8">
           <PaymentsTab
             loading={loading}
             payments={payments}
@@ -173,17 +168,17 @@ function FinanceWorkspace() {
             methods={methods}
             refetchClients={() => void clientsQuery.refetch()}
           />
-        </TabsContent>
+        </AdminTabsContent>
 
-        <TabsContent value="expenses" className="pt-8">
+        <AdminTabsContent value="expenses" className="pt-8">
           <ExpensesTab
             loading={expensesQuery.isPending}
             expenses={expenses}
             clients={clients}
           />
-        </TabsContent>
+        </AdminTabsContent>
 
-        <TabsContent value="clients" className="pt-8">
+        <AdminTabsContent value="clients" className="pt-8">
           <ClientsTab
             loading={accountsQuery.isPending || clientsQuery.isPending}
             accounts={accounts}
@@ -191,12 +186,12 @@ function FinanceWorkspace() {
             contacts={contacts}
             payments={payments}
           />
-        </TabsContent>
+        </AdminTabsContent>
 
-        <TabsContent value="methods" className="pt-8">
+        <AdminTabsContent value="methods" className="pt-8">
           <MethodsTab loading={methodsQuery.isPending} methods={methods} />
-        </TabsContent>
-      </Tabs>
+        </AdminTabsContent>
+      </AdminTabs>
     </div>
   );
 }

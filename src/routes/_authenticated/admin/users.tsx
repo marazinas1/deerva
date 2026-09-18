@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import {
   Dialog,
   DialogContent,
@@ -92,22 +93,19 @@ function UsersPage() {
 
   if (!canManage) {
     return (
-      <div className="mx-auto max-w-4xl">
-        <h1 className="text-2xl font-semibold text-foreground">Users</h1>
-        <p className="mt-2 text-sm text-muted">Only owners can manage people.</p>
+      <div className="w-full">
+        <AdminPageHeader title="Users" description="Only owners can manage people." />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground">Users</h1>
-          <p className="mt-1 text-sm text-muted">Who can access the Deerva admin, and how.</p>
-        </div>
-        <Button onClick={() => setOpen(true)}>Invite user</Button>
-      </div>
+    <div className="w-full">
+      <AdminPageHeader
+        title="Users"
+        description="Who can access the Deerva admin, and how."
+        action={<Button onClick={() => setOpen(true)}>Invite user</Button>}
+      />
 
       <div className="mt-8 rounded-lg border border-border">
         <Table>

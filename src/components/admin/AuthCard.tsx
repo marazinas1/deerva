@@ -16,7 +16,7 @@ export default function AuthCard({
           <p className="mb-4 text-xs uppercase tracking-[0.3em] text-muted-foreground">{eyebrow}</p>
         ) : null}
         <h1 className="text-3xl text-foreground">{title}</h1>
-        <div className="mt-6 h-px w-12 bg-ink/20" />
+        <div className="mt-6 h-px w-12 bg-foreground/20" />
       </div>
       <div className="rounded-sm border border-border bg-card p-8">{children}</div>
     </div>

@@ -15,8 +15,8 @@ export default function AuthSplit({ children }: { children: ReactNode }) {
         <div className="w-full max-w-md">{children}</div>
       </div>
 
-      <aside className="hidden flex-col items-center justify-center bg-ink px-16 py-24 md:flex">
-        <Link to="/" className="rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-paper/50">
+      <aside className="hidden flex-col items-center justify-center bg-primary px-16 py-24 md:flex">
+        <Link to="/" className="rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-foreground/50">
           <BrandLogo variant="dark" className="h-16 w-auto" />
         </Link>
         <div className="mt-10 h-px w-12 bg-card/20" />
