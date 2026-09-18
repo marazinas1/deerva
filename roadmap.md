@@ -48,6 +48,7 @@
 - [x] Manager-controlled drafts and project coverage with staff read access
 - [x] Compact standards summary in each project editor
 - [x] Assistant knowledge includes the final admin standards and reusable prompt
+- [x] Settings page tabs use exact public menu labels without “texts” or “content” suffixes
 
 ## Deliberately deferred
 
