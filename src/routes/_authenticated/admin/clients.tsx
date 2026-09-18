@@ -28,6 +28,7 @@ import {
   useSetPrimaryChannel,
 } from "@/hooks/admin/useFinance";
 import PaymentForm from "@/components/admin/finance/PaymentForm";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { collected, eurExact, shortDate } from "@/lib/finance";
 
 import { Badge } from "@/components/ui/badge";
@@ -114,11 +115,11 @@ const EMPTY_FORM: FormState = {
 };
 
 const STATUS_TONE: Record<string, string> = {
-  prospect: "bg-muted/15 text-muted",
-  building: "bg-accent/15 text-accent",
-  review: "bg-accent/10 text-accent",
-  live: "bg-emerald-500/15 text-emerald-700",
-  paused: "bg-amber-500/15 text-amber-700",
+  prospect: "bg-muted text-muted-foreground",
+  building: "bg-info/15 text-info-foreground",
+  review: "bg-info/10 text-info-foreground",
+  live: "bg-success/15 text-success-foreground",
+  paused: "bg-warning/20 text-warning-foreground",
 };
 
 function slugify(value: string) {
@@ -233,7 +234,7 @@ function ProjectsPage() {
   } | null>(null);
 
   const { data: me } = useQuery({ queryKey: ["admin", "me"], queryFn: () => getAdminMe() });
-  const { data: clients, isLoading } = useQuery({
+  const { data: clients, isLoading, error } = useQuery({
     queryKey: ["admin", "clients"],
     queryFn: () => listClients(),
   });
@@ -428,16 +429,12 @@ function ProjectsPage() {
   const liveClient = form.id ? (rows.find((row) => row.id === form.id) ?? current) : null;
 
   return (
-    <div className="mx-auto max-w-6xl">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground">Projects</h1>
-          <p className="mt-1 text-sm text-muted">
-            Every platform Deerva builds and maintains. Internal only.
-          </p>
-        </div>
-        {canManage ? <Button onClick={openNew}>Add project</Button> : null}
-      </div>
+    <div className="w-full">
+      <AdminPageHeader
+        title="Projects"
+        description="Every platform Deerva builds and maintains. Internal only."
+        action={canManage ? <Button onClick={openNew}>Add project</Button> : undefined}
+      />
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
@@ -465,23 +462,9 @@ function ProjectsPage() {
         ))}
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center gap-2">
-        {(["all", ...CLIENT_STATUSES] as const).map((value) => (
-          <Button
-            key={value}
-            size="sm"
-            variant={filter === value ? "default" : "outline"}
-            onClick={() => setFilter(value)}
-            className="capitalize"
-          >
-            {value}
-          </Button>
-        ))}
-      </div>
-
-      <div className="mt-3 flex flex-wrap items-center gap-2">
+      <div className="mt-6 flex flex-wrap items-center gap-3 border-y border-border py-3">
         <div className="relative w-full sm:w-72">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
@@ -490,6 +473,21 @@ function ProjectsPage() {
             aria-label="Search projects"
           />
         </div>
+        <Select value={filter} onValueChange={(value) => setFilter(value as "all" | Status)}>
+          <SelectTrigger className="w-40" aria-label="Filter by status">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {(["all", ...CLIENT_STATUSES] as const).map((value) => (
+              <SelectItem key={value} value={value} className="capitalize">
+                {value === "all" ? "All statuses" : value}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <span className="text-sm text-muted-foreground">
+          {visible.length} of {rows.length}
+        </span>
         <div className="flex flex-wrap gap-2">
           {SORTS.map((option) => (
             <Button
@@ -504,12 +502,22 @@ function ProjectsPage() {
         </div>
       </div>
 
-      {isLoading ? (
-        <p className="mt-10 text-sm text-muted">Loading…</p>
+      {error ? (
+        <div className="mt-6 border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+          Could not load projects. {error instanceof Error ? error.message : "Please try again."}
+        </div>
+      ) : isLoading ? (
+        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loading projects">
+          {[0, 1, 2].map((item) => (
+            <div key={item} className="h-72 animate-pulse rounded-lg border border-border bg-card" />
+          ))}
+        </div>
       ) : visible.length === 0 ? (
-        <p className="mt-10 text-sm text-muted">
-          No projects here yet. Add the first one to start tracking it.
-        </p>
+        <div className="mt-6 border border-border bg-card p-6 text-sm text-muted-foreground">
+          {rows.length === 0
+            ? "No projects yet. Add the first one to start tracking it."
+            : "No projects match the current search and filters."}
+        </div>
       ) : (
         <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((client) => (
@@ -574,7 +582,7 @@ function ProjectsPage() {
                     if (!payment) return null;
                     return (
                       <p
-                        className={`text-xs ${payment.overdue ? "text-red-600" : "text-muted"}`}
+                        className={`text-xs ${payment.overdue ? "text-destructive" : "text-muted-foreground"}`}
                       >
                         Next payment {client.next_payment_on} · {payment.text}
                       </p>
@@ -1236,9 +1244,11 @@ function ContactChannels({ contactId }: { contactId: string }) {
                   Primary
                 </Badge>
               ) : (
-                <button
+                <Button
                   type="button"
-                  className="text-muted underline-offset-2 hover:underline"
+                  variant="link"
+                  size="sm"
+                  className="h-auto p-0 text-muted-foreground"
                   onClick={() =>
                     setPrimary.mutate(
                       { kind: row.kind, contactId, id: row.id },
@@ -1247,11 +1257,14 @@ function ContactChannels({ contactId }: { contactId: string }) {
                   }
                 >
                   Make primary
-                </button>
+                </Button>
               )}
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon-sm"
                 className="ml-auto text-destructive"
+                aria-label={`Remove ${row.value}`}
                 onClick={() => {
                   if (confirm(`Remove ${row.value}?`)) {
                     remove.mutate({ kind: row.kind, id: row.id }, { onError: fail });
@@ -1259,7 +1272,7 @@ function ContactChannels({ contactId }: { contactId: string }) {
                 }}
               >
                 <Trash2 className="h-3.5 w-3.5" />
-              </button>
+              </Button>
             </li>
           ))}
         </ul>

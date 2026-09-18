@@ -12,6 +12,7 @@ import {
 import { Clock, Eye, Layers, LogOut, TrendingDown, TrendingUp, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -162,15 +163,11 @@ function AnalyticsPage() {
 
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Analytics</h1>
-          <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-            First-party traffic data. No cookies and no third-party trackers. Only real visits are
-            counted: robots are dropped, and a visit is recorded once someone stays at least 5
-            seconds or interacts with the page.
-          </p>
-        </div>
+      <AdminPageHeader
+        className="mb-6"
+        title="Analytics"
+        description="First-party traffic data without cookies or third-party trackers. Robots and visits under five seconds without interaction are excluded."
+        action={
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
             <Switch id="include-short" checked={includeShort} onCheckedChange={setIncludeShort} />
@@ -192,7 +189,8 @@ function AnalyticsPage() {
             ))}
           </div>
         </div>
-      </div>
+        }
+      />
 
       {error && (
         <div className="rounded-lg border border-border bg-card p-4 text-sm text-destructive">
@@ -201,8 +199,10 @@ function AnalyticsPage() {
       )}
 
       {isLoading ? (
-        <div className="rounded-lg border border-border bg-card p-10 text-center text-sm text-muted-foreground">
-          Loading…
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Loading analytics">
+          {[0, 1, 2, 3].map((item) => (
+            <div key={item} className="h-32 animate-pulse rounded-lg border border-border bg-card" />
+          ))}
         </div>
       ) : (
         <>
