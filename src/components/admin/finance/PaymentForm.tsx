@@ -335,12 +335,12 @@ export default function PaymentForm({
             id="gross"
             inputMode="decimal"
             value={gross}
-            onChange={(event) => setGross(event.target.value)}
+            onChange={(event) => applyGross(event.target.value)}
           />
         </div>
         <div className="space-y-2">
           <Label>Currency</Label>
-          <Select value={currency} onValueChange={setCurrency}>
+          <Select value={currency} onValueChange={applyCurrency}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -360,9 +360,10 @@ export default function PaymentForm({
               id="fx"
               inputMode="decimal"
               value={fxRate}
-              onChange={(event) => setFxRate(event.target.value)}
+              onChange={(event) => applyFxRate(event.target.value)}
               placeholder="1.08"
             />
+            <p className="text-xs text-stone">Gross ÷ rate = net EUR</p>
           </div>
         ) : null}
         <div className="space-y-2">
@@ -371,13 +372,15 @@ export default function PaymentForm({
             id="net"
             inputMode="decimal"
             value={net}
-            onChange={(event) => {
-              setNetTouched(true);
-              setNet(event.target.value);
-            }}
+            onChange={(event) => applyNet(event.target.value)}
           />
-          <p className="text-xs text-stone">Calculated: {eurExact(computed)}</p>
+          <p className="text-xs text-stone">
+            {currency === "USD"
+              ? "Type the euros you received — the rate is filled in for you."
+              : `Calculated: ${eurExact(computed)}`}
+          </p>
         </div>
+
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
