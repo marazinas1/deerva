@@ -104,52 +104,63 @@ function FinancePage() {
   return <FinanceWorkspace />;
 }
 
+const TAB_CLASS =
+  "min-h-9 whitespace-normal px-3 text-xs data-[state=active]:bg-paper data-[state=active]:text-ink data-[state=active]:shadow-none sm:text-sm";
+
 function FinanceWorkspace() {
   const clientsQuery = useFinanceClients();
   const contactsQuery = useFinanceContacts();
   const paymentsQuery = usePayments();
   const methodsQuery = usePaymentMethods();
+  const expensesQuery = useExpenses();
+  const accountsQuery = useClientAccounts();
 
   const clients = clientsQuery.data ?? [];
   const contacts = contactsQuery.data ?? [];
   const payments = paymentsQuery.data ?? [];
   const methods = methodsQuery.data ?? [];
+  const expenses = expensesQuery.data ?? [];
+  const accounts = accountsQuery.data ?? [];
 
   // Totals stay hidden until the whole history is in — a partial number is
   // worse than none.
-  const loading = paymentsQuery.isPending || clientsQuery.isPending;
+  const loading = paymentsQuery.isPending || clientsQuery.isPending || expensesQuery.isPending;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-10">
+    <div className="w-full space-y-10">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight text-ink">Finance</h1>
-        <p className="mt-1 text-sm text-stone">Every payment received, by project.</p>
+        <p className="mt-1 text-sm text-stone">
+          Money in, money out and what is still owed. Internal only.
+        </p>
       </header>
 
       <Tabs defaultValue="overview">
-        <TabsList className="grid h-auto w-full grid-cols-3 gap-1 bg-sand p-1 text-stone sm:inline-grid sm:w-auto">
-          <TabsTrigger
-            value="overview"
-            className="min-h-9 whitespace-normal px-3 text-xs data-[state=active]:bg-paper data-[state=active]:text-ink data-[state=active]:shadow-none sm:text-sm"
-          >
+        <TabsList className="grid h-auto w-full grid-cols-2 gap-1 bg-sand p-1 text-stone sm:inline-grid sm:w-auto sm:grid-cols-5">
+          <TabsTrigger value="overview" className={TAB_CLASS}>
             Overview
           </TabsTrigger>
-          <TabsTrigger
-            value="payments"
-            className="min-h-9 whitespace-normal px-3 text-xs data-[state=active]:bg-paper data-[state=active]:text-ink data-[state=active]:shadow-none sm:text-sm"
-          >
-            Payments
+          <TabsTrigger value="payments" className={TAB_CLASS}>
+            Income
           </TabsTrigger>
-          <TabsTrigger
-            value="methods"
-            className="min-h-9 whitespace-normal px-3 text-xs data-[state=active]:bg-paper data-[state=active]:text-ink data-[state=active]:shadow-none sm:text-sm"
-          >
+          <TabsTrigger value="expenses" className={TAB_CLASS}>
+            Expenses
+          </TabsTrigger>
+          <TabsTrigger value="clients" className={TAB_CLASS}>
+            Clients
+          </TabsTrigger>
+          <TabsTrigger value="methods" className={TAB_CLASS}>
             Payment methods
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="pt-8">
-          <Overview loading={loading} payments={payments} clients={clients} />
+          <Overview
+            loading={loading}
+            payments={payments}
+            expenses={expenses}
+            clients={clients}
+          />
         </TabsContent>
 
         <TabsContent value="payments" className="pt-8">
@@ -160,6 +171,24 @@ function FinanceWorkspace() {
             contacts={contacts}
             methods={methods}
             refetchClients={() => void clientsQuery.refetch()}
+          />
+        </TabsContent>
+
+        <TabsContent value="expenses" className="pt-8">
+          <ExpensesTab
+            loading={expensesQuery.isPending}
+            expenses={expenses}
+            clients={clients}
+          />
+        </TabsContent>
+
+        <TabsContent value="clients" className="pt-8">
+          <ClientsTab
+            loading={accountsQuery.isPending || clientsQuery.isPending}
+            accounts={accounts}
+            clients={clients}
+            contacts={contacts}
+            payments={payments}
           />
         </TabsContent>
 
