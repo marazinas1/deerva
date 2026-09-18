@@ -65,6 +65,7 @@ export default function PaymentForm({
   const [clientId, setClientId] = useState(payment?.client_id ?? "");
   const [contactId, setContactId] = useState(payment?.contact_id ?? "");
   const [paidOn, setPaidOn] = useState(payment?.paid_on ?? today());
+  const [kind, setKind] = useState(payment?.kind ?? "other");
   const [services, setServices] = useState<string[]>(payment?.services ?? []);
   const [paymentType, setPaymentType] = useState(payment?.payment_type ?? "Full");
   const [invoiceNo, setInvoiceNo] = useState(payment?.invoice_no ?? "");

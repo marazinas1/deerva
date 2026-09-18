@@ -371,3 +371,101 @@ async function clearPrimary(kind: "email" | "phone", contactId: string) {
     .eq("is_primary", true);
   if (error) throw new Error(error.message);
 }
+
+/* ------------------------------------------------------------- Expenses */
+
+export function useExpenses() {
+  return useQuery({
+    queryKey: FINANCE_KEYS.expenses,
+    queryFn: () =>
+      fetchAllRows<Expense>((from, to) =>
+        supabase
+          .from("expenses")
+          .select(
+            "id, client_id, spent_on, category, vendor, gross_amount, gross_currency, fx_rate, net_eur, description",
+          )
+          .order("spent_on", { ascending: false })
+          .order("id")
+          .range(from, to),
+      ),
+  });
+}
+
+export function useSaveExpense() {
+  const invalidate = useFinanceInvalidate();
+  return useMutation({
+    mutationFn: async ({ id, values }: { id?: string | undefined; values: ExpenseInput }) => {
+      const { error } = id
+        ? await supabase.from("expenses").update(values).eq("id", id)
+        : await supabase.from("expenses").insert(values);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteExpense() {
+  const invalidate = useFinanceInvalidate();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("expenses").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: invalidate,
+  });
+}
+
+/* ------------------------------------------------------- Client accounts */
+
+export function useClientAccounts() {
+  return useQuery({
+    queryKey: FINANCE_KEYS.accounts,
+    queryFn: () =>
+      fetchAllRows<ClientAccount>((from, to) =>
+        supabase
+          .from("client_accounts")
+          .select("id, name, country, status, notes")
+          .order("name")
+          .range(from, to),
+      ),
+  });
+}
+
+export function useSaveClientAccount() {
+  const invalidate = useFinanceInvalidate();
+  return useMutation({
+    mutationFn: async ({ id, values }: { id?: string | undefined; values: ClientAccountInput }) => {
+      const { error } = id
+        ? await supabase.from("client_accounts").update(values).eq("id", id)
+        : await supabase.from("client_accounts").insert(values);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteClientAccount() {
+  const invalidate = useFinanceInvalidate();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("client_accounts").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: invalidate,
+  });
+}
+
+/** Moves a project under a client, or detaches it. */
+export function useAssignProjectAccount() {
+  const invalidate = useFinanceInvalidate();
+  return useMutation({
+    mutationFn: async ({ clientId, accountId }: { clientId: string; accountId: string | null }) => {
+      const { error } = await supabase
+        .from("clients")
+        .update({ account_id: accountId })
+        .eq("id", clientId);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: invalidate,
+  });
+}
