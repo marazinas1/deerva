@@ -34,6 +34,13 @@
 - [x] Audit Lumidenta, OCDG, StageHomy, Halliday Architects and Dorothe
 - [x] Prepare the reusable project prompt and Claude export
 
+## In progress — Deerva admin reference implementation
+
+- [ ] Replace legacy admin colour aliases with semantic roles
+- [ ] Standardize shell, full-width headers and bordered tabs
+- [ ] Align Dashboard, Projects, Finance, Analytics, Users and Settings
+- [ ] Verify authenticated desktop, tablet and phone layouts
+
 ## Deliberately deferred
 
 - Enquiries — the public page has no form.

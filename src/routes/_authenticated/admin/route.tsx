@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
-import { Home } from "lucide-react";
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AssistantBubble from "@/components/admin/AssistantBubble";
@@ -53,7 +52,7 @@ function AdminLayout() {
     return (
       <div className="admin-theme flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
         <h1 className="text-lg font-semibold">No access yet</h1>
-        <p className="max-w-sm text-sm text-muted">
+        <p className="max-w-sm text-sm text-muted-foreground">
           Your account has no role assigned. Ask a Deerva owner to give you access.
         </p>
         <Button variant="outline" onClick={signOut}>
@@ -66,7 +65,7 @@ function AdminLayout() {
   return (
     <div className="admin-theme">
       <SidebarProvider>
-        <div className="flex min-h-screen w-full bg-sand">
+        <div className="flex min-h-screen w-full bg-muted">
           <AdminSidebar
             email={me.email ?? ""}
             role={me.role}
@@ -75,18 +74,11 @@ function AdminLayout() {
           />
 
           <div className="flex min-w-0 flex-1 flex-col">
-            <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b border-line bg-card px-4">
+            <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b border-border bg-card px-4 md:px-6">
               <SidebarTrigger />
-              <span className="truncate font-medium tracking-tight text-ink">
+              <span className="truncate font-medium text-foreground">
                 Deerva Admin
               </span>
-              <Link
-                to="/"
-                className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-line px-2.5 py-1.5 text-xs text-stone transition-colors hover:bg-sand hover:text-ink"
-              >
-                <Home className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Back to site</span>
-              </Link>
             </header>
 
             <main className="flex-1 px-4 py-6 md:px-6 md:py-8">
