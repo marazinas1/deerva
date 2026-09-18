@@ -205,72 +205,167 @@ function FinanceWorkspace() {
 function Overview({
   loading,
   payments,
+  expenses,
   clients,
 }: {
   loading: boolean;
   payments: FinancePayment[];
-  clients: { id: string; name: string }[];
+  expenses: Expense[];
+  clients: FinanceClient[];
 }) {
-  const stats = useMemo(() => {
-    const year = new Date().getFullYear();
-    const total = payments.reduce((sum, row) => sum + Number(row.net_eur ?? 0), 0);
-    const thisYear = payments
-      .filter((row) => new Date(row.paid_on).getFullYear() === year)
-      .reduce((sum, row) => sum + Number(row.net_eur ?? 0), 0);
+  const [yearFilter, setYearFilter] = useState("all");
 
-    const byYear = new Map<number, number>();
+  const years = useMemo(() => {
+    const set = new Set<number>();
+    for (const row of payments) set.add(new Date(row.paid_on).getFullYear());
+    for (const row of expenses) set.add(new Date(row.spent_on).getFullYear());
+    return [...set].sort((a, b) => b - a);
+  }, [payments, expenses]);
+
+  const stats = useMemo(() => {
+    const inYear = (date: string) =>
+      yearFilter === "all" || String(new Date(date).getFullYear()) === yearFilter;
+
+    const paid = payments.filter((row) => inYear(row.paid_on));
+    const spent = expenses.filter((row) => inYear(row.spent_on));
+
+    const income = paid.reduce((sum, row) => sum + Number(row.net_eur ?? 0), 0);
+    const cost = spent.reduce((sum, row) => sum + Number(row.net_eur ?? 0), 0);
+
+    const byYear = new Map<number, { income: number; cost: number }>();
+    const bucket = (year: number) => {
+      if (!byYear.has(year)) byYear.set(year, { income: 0, cost: 0 });
+      return byYear.get(year)!;
+    };
+    for (const row of payments) {
+      bucket(new Date(row.paid_on).getFullYear()).income += Number(row.net_eur ?? 0);
+    }
+    for (const row of expenses) {
+      bucket(new Date(row.spent_on).getFullYear()).cost += Number(row.net_eur ?? 0);
+    }
+
+    // Still owed, in each project's own agreed currency.
+    const outstanding: { name: string; left: number; currency: string }[] = [];
+    for (const client of clients) {
+      const received = payments
+        .filter((row) => row.client_id === client.id && row.kind === "onboarding")
+        .reduce((sum, row) => sum + Number(row.gross_amount ?? 0), 0);
+      const progress = collected(client.onboarding_fee, received);
+      if (progress.agreed > 0 && progress.left > 0) {
+        outstanding.push({
+          name: client.name,
+          left: progress.left,
+          currency: client.onboarding_fee_currency ?? "EUR",
+        });
+      }
+    }
+
     const lastPaid = new Map<string, string>();
     for (const row of payments) {
-      const rowYear = new Date(row.paid_on).getFullYear();
-      byYear.set(rowYear, (byYear.get(rowYear) ?? 0) + Number(row.net_eur ?? 0));
       const current = lastPaid.get(row.client_id);
       if (!current || row.paid_on > current) lastPaid.set(row.client_id, row.paid_on);
     }
-
     const activeClients = clients.filter(
       (client) => clientStatus(lastPaid.get(client.id) ?? null) === "active",
     ).length;
 
-    const years = [...byYear.entries()].sort((a, b) => a[0] - b[0]);
-    const peak = Math.max(1, ...years.map(([, value]) => value));
+    const rows = [...byYear.entries()].sort((a, b) => a[0] - b[0]);
+    const peak = Math.max(1, ...rows.map(([, value]) => Math.max(value.income, value.cost)));
 
-    return { total, thisYear, count: payments.length, activeClients, years, peak };
-  }, [payments, clients]);
+    return {
+      income,
+      cost,
+      profit: income - cost,
+      count: paid.length,
+      activeClients,
+      rows,
+      peak,
+      outstanding,
+    };
+  }, [payments, expenses, clients, yearFilter]);
 
   if (loading) {
-    return <p className="text-sm text-stone">Loading the full payment history…</p>;
+    return <p className="text-sm text-stone">Loading the full history…</p>;
   }
 
-  if (payments.length === 0) {
+  if (payments.length === 0 && expenses.length === 0) {
     return (
       <p className="text-sm text-stone">
-        No payments recorded yet. Add the first one in the Payments tab.
+        Nothing recorded yet. Add your first payment in the Income tab, or a cost in Expenses.
       </p>
     );
   }
 
   return (
     <div className="space-y-12">
+      <Select value={yearFilter} onValueChange={setYearFilter}>
+        <SelectTrigger className="w-40">
+          <SelectValue placeholder="All years" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All years</SelectItem>
+          {years.map((year) => (
+            <SelectItem key={year} value={String(year)}>
+              {year}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <div>
+        <span className="block text-5xl font-light tabular-nums text-ink">
+          {eur(stats.profit)}
+        </span>
+        <span className="mt-1 block text-xs text-stone">
+          Profit {yearFilter === "all" ? "so far" : `in ${yearFilter}`}
+        </span>
+      </div>
+
       <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4">
-        <Figure label="Total received" value={eur(stats.total)} />
-        <Figure label={`${new Date().getFullYear()} so far`} value={eur(stats.thisYear)} />
+        <Figure label="Income" value={eur(stats.income)} />
+        <Figure label="Expenses" value={eur(stats.cost)} />
         <Figure label="Payments" value={String(stats.count)} />
         <Figure label="Active clients" value={String(stats.activeClients)} />
       </div>
 
+      {stats.outstanding.length > 0 ? (
+        <section>
+          <h2 className="text-[11px] uppercase tracking-[0.14em] text-stone">Still to collect</h2>
+          <div className="mt-4 space-y-2">
+            {stats.outstanding.map((row) => (
+              <p key={row.name} className="text-sm text-ink">
+                {row.name} — {money(row.left, row.currency)} outstanding
+              </p>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <section>
-        <h2 className="text-[11px] uppercase tracking-[0.14em] text-stone">By year</h2>
-        <div className="mt-6 space-y-3">
-          {stats.years.map(([year, value]) => (
+        <h2 className="text-[11px] uppercase tracking-[0.14em] text-stone">
+          By year — income and cost
+        </h2>
+        <div className="mt-6 space-y-5">
+          {stats.rows.map(([year, value]) => (
             <div key={year} className="flex items-center gap-4">
               <span className="w-12 text-sm tabular-nums text-stone">{year}</span>
-              <div className="h-2 flex-1 bg-sand">
-                <div
-                  className="h-2 bg-ink"
-                  style={{ width: `${Math.max(2, (value / stats.peak) * 100)}%` }}
-                />
+              <div className="flex-1 space-y-1">
+                <div className="h-2 bg-sand">
+                  <div
+                    className="h-2 bg-ink"
+                    style={{ width: `${Math.max(2, (value.income / stats.peak) * 100)}%` }}
+                  />
+                </div>
+                <div className="h-2 bg-sand">
+                  <div
+                    className="h-2 bg-stone"
+                    style={{ width: `${Math.max(1, (value.cost / stats.peak) * 100)}%` }}
+                  />
+                </div>
               </div>
-              <span className="w-28 text-right text-sm tabular-nums text-ink">{eur(value)}</span>
+              <span className="w-40 text-right text-sm tabular-nums text-ink">
+                {eur(value.income - value.cost)}
+              </span>
             </div>
           ))}
         </div>
