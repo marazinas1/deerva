@@ -26,6 +26,14 @@
       Income, Expenses, Clients, Payment methods
 - [x] Project cards: agreed setup sum vs received, with "to go" amount
 
+## In progress — Universal admin brandbook
+
+- [ ] Align content, design-system and admin-structure standards
+- [ ] Add admin UI and admin screen-pattern standards
+- [ ] Publish the matching workspace Skills
+- [ ] Audit Lumidenta, OCDG, StageHomy, Halliday Architects and Dorothe
+- [ ] Prepare the reusable project prompt and Claude export
+
 ## Deliberately deferred
 
 - Enquiries — the public page has no form.
