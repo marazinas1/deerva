@@ -593,6 +593,11 @@ function ProjectsPage() {
                     </a>
                   </Button>
                 ) : null}
+                {canManage ? (
+                  <Button size="sm" variant="outline" onClick={() => setPayFor(client)}>
+                    <Wallet className="h-3.5 w-3.5" /> Add payment
+                  </Button>
+                ) : null}
                 {canManage && client.next_payment_on ? (
                   <Button
                     size="sm"
