@@ -42,7 +42,7 @@ import {
 import { getAdminMe } from "@/lib/admin.functions";
 import { useQuery } from "@tanstack/react-query";
 
-export const Route = createFileRoute("/_authenticated/admin/standards")({
+export const Route = createFileRoute("/_authenticated/admin/standards/")({
   head: () => ({
     meta: [
       { title: "Standards Library | Deerva" },
