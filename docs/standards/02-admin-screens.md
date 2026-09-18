@@ -20,7 +20,7 @@ Choose the collection shape by the work:
 - **Card grid** when an image or visual state is essential.
 - **Expandable rows** when users repeatedly edit long records in context.
 
-Do not offer two navigation paths to the same content. Page text belongs in Settings; repeatable records belong in Manage.
+Do not offer two navigation paths to the same content. Page-specific content belongs in Settings; repeatable records belong in Manage.
 
 ## Expandable editor list
 
@@ -44,6 +44,8 @@ Testimonials are the reference pattern; the same anatomy may serve articles, ser
 
 Each public page tab follows the rendered page order so the owner can recognise the site while editing it.
 
+- Name the tab with the exact public menu label only: `Home`, not `Home texts`; `Gallery`, not `Gallery content`.
+- Treat the tab as the editor for the whole page, not as a text-only form.
 - Group fields by public section and label them with client-facing names.
 - Every visible string has a text field; every replaceable image has a media slot and alt text.
 - Media shows current preview, replace, remove/reset and source state.

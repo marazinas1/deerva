@@ -17,7 +17,7 @@ Pagination / load-more
 Loading / empty / error / read-only
 ```
 
-Table — palyginimui; card grid — kai vaizdas esminis; expandable rows — dažnam ilgo įrašo redagavimui. Nedubliuoti navigacijos: puslapio tekstai Settings, repeatable records Manage.
+Table — palyginimui; card grid — kai vaizdas esminis; expandable rows — dažnam ilgo įrašo redagavimui. Nedubliuoti navigacijos: puslapio turinys Settings, repeatable records Manage.
 
 ## Expandable editor
 
@@ -35,6 +35,8 @@ Testimonials yra etalonas ir gali būti taikomas Articles, Services, FAQ.
 Inline expansion — dažnai redaguojamai repeatable esybei. Dialog/sheet — trumpam create ar secondary task. Dedicated route — sudėtingam record su sub-sections/history/deep links. Ilgos multi-section formos nekišti į mažą modal.
 
 ## Page-content tabas
+
+Tabo pavadinimas tiksliai atkartoja public menu label: `Home`, ne `Home texts`; `Gallery`, ne `Gallery content`. Tabas yra viso puslapio editorius, ne text-only forma.
 
 Laukai eina tokia tvarka kaip renderinamas viešas puslapis. Kiekviena matoma eilutė turi text field, kiekvienas keičiamas vaizdas — media slot ir alt. Tuščia DB nepalieka broken page, nes komponentas turi fallback. Naujas public route + Settings tabas kuriami kartu.
 

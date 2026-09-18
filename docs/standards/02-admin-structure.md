@@ -33,21 +33,23 @@ The sidebar footer always shows the user's email, role label in small caps, “B
 
 ## Settings tabs — fixed model
 
-The first and last tabs are fixed. The middle tabs mirror the public site's primary navigation in the same order.
+The first and last tabs are fixed. The middle tabs mirror the public site's primary navigation in the same order and use the exact public menu labels.
 
 ```text
 Business & appearance   identity, address, map, contacts, social links,
                         logo, logo size, favicon, maintenance
-Home                    editable text and media for /
+Home                    editable content for /: text, images and page-specific settings
 <one tab per further primary public page, in menu order>
 Contact                 always last
 ```
 
 Legal or shared content that is not a primary-navigation page sits before Contact or in a clearly labelled shared block. Contact remains last.
 
-Adding a public page means adding its Settings tab in the same change. Every page tab edits both its text and images. A visible page with uneditable content is a defect.
+Name page tabs only after their public menu label: `Home`, `Developments`, `Gallery`, `Testimonials`, `About`, `Contact`. Never append `texts`, `content`, `page`, `settings` or another implementation label. Those qualifiers are misleading because one tab can edit text, images, alt text and page-specific options.
 
-Do not duplicate page links in a second sidebar “Content” group. Repeating entities belong in Manage; single-page text and media belong only in Settings.
+Adding a public page means adding its Settings tab in the same change. Every page tab edits all client-owned content for that page, including text and replaceable images. A visible page with uneditable content is a defect.
+
+Do not duplicate page links in a second sidebar “Content” group. Repeating entities belong in Manage; page-specific text, media and options belong only in Settings.
 
 ## Business & appearance
 

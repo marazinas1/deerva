@@ -8,7 +8,7 @@ Use this prompt in a client project:
 >
 > Use exactly three sidebar groups: Workspace, Manage and Settings. Workspace contains Dashboard, Inquiries, optional Calendar or Messages, then Analytics. Manage contains the sector's repeating entities, Articles and Testimonials. Settings contains Users and Settings. Use the fixed icon vocabulary.
 >
-> Settings starts with one Business & appearance tab backed by one source of truth, mirrors each public menu page in order, and ends with Contact. Put maintenance as a collapsible block inside Business & appearance, not a separate tab. Page text and media editing exists only in Settings; repeatable entities exist only in Manage.
+> Settings starts with one Business & appearance tab backed by one source of truth, mirrors each public menu page in order, and ends with Contact. Name every page tab with the exact public menu label only (for example Home, Developments, Gallery), never “Home texts” or “Gallery content”. Put maintenance as a collapsible block inside Business & appearance, not a separate tab. Page text and media editing exists only in Settings; repeatable entities exist only in Manage.
 >
 > Use the shared full-width admin layout, bordered AdminTabs, standard card/form/table/expandable-row anatomy and complete loading, empty, error, read-only, dirty and save states. Use only semantic design tokens and shared controls. Verify phone, tablet and desktop layouts, keyboard focus, cursor behaviour and unsaved-change protection.
 >

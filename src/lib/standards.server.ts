@@ -16,15 +16,15 @@ import projectLifecycle from "../../docs/standards/06-project-lifecycle.md?raw";
 import techBaseline from "../../docs/standards/07-tech-baseline.md?raw";
 import adminAudit from "../../docs/standards/admin-brandbook-audit.md?raw";
 import adminPrompt from "../../docs/standards/admin-template-prompt.md?raw";
-import skillAdminScreens from "../../.workspace/skills/deerva-admin-screens/SKILL.md?raw";
-import skillAdminStructure from "../../.workspace/skills/deerva-admin-structure/SKILL.md?raw";
-import skillAdminUi from "../../.workspace/skills/deerva-admin-ui/SKILL.md?raw";
-import skillAnalytics from "../../.workspace/skills/deerva-analytics-attribution/SKILL.md?raw";
-import skillContentModel from "../../.workspace/skills/deerva-content-model/SKILL.md?raw";
-import skillDesignSystem from "../../.workspace/skills/deerva-design-system/SKILL.md?raw";
-import skillRoles from "../../.workspace/skills/deerva-roles-and-access/SKILL.md?raw";
-import skillSeo from "../../.workspace/skills/deerva-seo-baseline/SKILL.md?raw";
-import skillTech from "../../.workspace/skills/deerva-tech-baseline/SKILL.md?raw";
+import skillAdminScreens from "../../.agents/skills/deerva-admin-screens/SKILL.md?raw";
+import skillAdminStructure from "../../.agents/skills/deerva-admin-structure/SKILL.md?raw";
+import skillAdminUi from "../../.agents/skills/deerva-admin-ui/SKILL.md?raw";
+import skillAnalytics from "../../.agents/skills/deerva-analytics-attribution/SKILL.md?raw";
+import skillContentModel from "../../.agents/skills/deerva-content-model/SKILL.md?raw";
+import skillDesignSystem from "../../.agents/skills/deerva-design-system/SKILL.md?raw";
+import skillRoles from "../../.agents/skills/deerva-roles-and-access/SKILL.md?raw";
+import skillSeo from "../../.agents/skills/deerva-seo-baseline/SKILL.md?raw";
+import skillTech from "../../.agents/skills/deerva-tech-baseline/SKILL.md?raw";
 
 export type LibraryKind = "standard" | "skill" | "document";
 

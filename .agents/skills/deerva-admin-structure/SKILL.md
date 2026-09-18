@@ -35,12 +35,14 @@ Sidebar apačia: vartotojo el. paštas, rolė small caps, „Back to site“, �
 ## Settings tabai
 
 1. **Business & appearance** — business identity, adresas, map, telefonas, el. paštas, socialai, licencijos, logo, vienas logo dydis, favicon ir maintenance.
-2. **Home** ir visi kiti pagrindinio viešo meniu puslapiai ta pačia tvarka.
+2. **Home** ir visi kiti pagrindinio viešo meniu puslapiai ta pačia tvarka ir tiksliai tokiais pačiais pavadinimais.
 3. **Contact** — visada paskutinis.
 
-Legal/shared turinys eina prieš Contact arba aiškiame shared bloke. Naujas viešas puslapis ir jo Settings tabas sukuriami kartu. Kiekvienas puslapio tabas redaguoja tekstus ir nuotraukas.
+Puslapio tabą vadinti tik viešo meniu pavadinimu: `Home`, `Developments`, `Gallery`, `Testimonials`, `About`, `Contact`. Nepridėti `texts`, `content`, `page`, `settings` ar kito techninio prierašo — tabas valdo visą puslapio turinį: tekstus, paveikslėlius, alt tekstus ir puslapio nustatymus.
 
-Nedubliuoti tų pačių page-text nuorodų atskiroje sidebar Content grupėje: kartojamos esybės eina į Manage, puslapių tekstai/media — tik į Settings.
+Legal/shared turinys eina prieš Contact arba aiškiame shared bloke. Naujas viešas puslapis ir jo Settings tabas sukuriami kartu. Kiekvienas puslapio tabas redaguoja visą tam puslapiui priklausantį turinį.
+
+Nedubliuoti tų pačių puslapių nuorodų atskiroje sidebar Content grupėje: kartojamos esybės eina į Manage, puslapio tekstai/media/options — tik į Settings.
 
 ## Business & appearance ir maintenance
 
