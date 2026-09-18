@@ -18,6 +18,14 @@
 - [x] `/admin/finance` — one Manage sidebar item, tabs: Overview / Payments / Payment methods
 - [x] Projects page: contacts with extra emails/phones + payment history per project
 
+## Done — Contracts, expenses and profit
+
+- [x] `client_accounts` (paying customer) + nullable `account_id` on clients/contacts
+- [x] `payments.kind` (onboarding / monthly / other) and `expenses` table, manager-only
+- [x] Finance tabs: Overview (profit, still-to-collect, income vs cost by year),
+      Income, Expenses, Clients, Payment methods
+- [x] Project cards: agreed setup sum vs received, with "to go" amount
+
 ## Deliberately deferred
 
 - Enquiries — the public page has no form.

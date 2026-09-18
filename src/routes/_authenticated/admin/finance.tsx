@@ -31,27 +31,47 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  useAssignProjectAccount,
+  useClientAccounts,
+  useDeleteClientAccount,
+  useDeleteExpense,
   useDeletePayment,
   useDeletePaymentMethod,
+  useExpenses,
   useFinanceClients,
   useFinanceContacts,
   usePaymentMethods,
   usePayments,
+  useSaveClientAccount,
+  useSaveExpense,
   useSavePayment,
   useSavePaymentMethod,
+  type ClientAccount,
+  type Expense,
+  type ExpenseInput,
+  type FinanceClient,
+  type FinanceContact,
   type FinancePayment,
   type FinancePaymentMethod,
   type PaymentMethodInput,
 } from "@/hooks/admin/useFinance";
 import {
   clientStatus,
+  collected,
+  computeNetEur,
   downloadCsv,
   eur,
   eurExact,
+  EXPENSE_CATEGORIES,
+  EXPENSE_CATEGORY_LABEL,
+  FINANCE_CURRENCIES,
   FINANCE_PAYMENT_METHOD_KINDS,
   FINANCE_SERVICES,
+  money,
+  PAYMENT_KIND_LABEL,
   PAYMENT_METHOD_KIND_LABEL,
   shortDate,
+  toNumber,
 } from "@/lib/finance";
 import { getAdminMe } from "@/lib/admin.functions";
 
@@ -85,52 +105,63 @@ function FinancePage() {
   return <FinanceWorkspace />;
 }
 
+const TAB_CLASS =
+  "min-h-9 whitespace-normal px-3 text-xs data-[state=active]:bg-paper data-[state=active]:text-ink data-[state=active]:shadow-none sm:text-sm";
+
 function FinanceWorkspace() {
   const clientsQuery = useFinanceClients();
   const contactsQuery = useFinanceContacts();
   const paymentsQuery = usePayments();
   const methodsQuery = usePaymentMethods();
+  const expensesQuery = useExpenses();
+  const accountsQuery = useClientAccounts();
 
   const clients = clientsQuery.data ?? [];
   const contacts = contactsQuery.data ?? [];
   const payments = paymentsQuery.data ?? [];
   const methods = methodsQuery.data ?? [];
+  const expenses = expensesQuery.data ?? [];
+  const accounts = accountsQuery.data ?? [];
 
   // Totals stay hidden until the whole history is in — a partial number is
   // worse than none.
-  const loading = paymentsQuery.isPending || clientsQuery.isPending;
+  const loading = paymentsQuery.isPending || clientsQuery.isPending || expensesQuery.isPending;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-10">
+    <div className="w-full space-y-10">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight text-ink">Finance</h1>
-        <p className="mt-1 text-sm text-stone">Every payment received, by project.</p>
+        <p className="mt-1 text-sm text-stone">
+          Money in, money out and what is still owed. Internal only.
+        </p>
       </header>
 
       <Tabs defaultValue="overview">
-        <TabsList className="grid h-auto w-full grid-cols-3 gap-1 bg-sand p-1 text-stone sm:inline-grid sm:w-auto">
-          <TabsTrigger
-            value="overview"
-            className="min-h-9 whitespace-normal px-3 text-xs data-[state=active]:bg-paper data-[state=active]:text-ink data-[state=active]:shadow-none sm:text-sm"
-          >
+        <TabsList className="grid h-auto w-full grid-cols-2 gap-1 bg-sand p-1 text-stone sm:inline-grid sm:w-auto sm:grid-cols-5">
+          <TabsTrigger value="overview" className={TAB_CLASS}>
             Overview
           </TabsTrigger>
-          <TabsTrigger
-            value="payments"
-            className="min-h-9 whitespace-normal px-3 text-xs data-[state=active]:bg-paper data-[state=active]:text-ink data-[state=active]:shadow-none sm:text-sm"
-          >
-            Payments
+          <TabsTrigger value="payments" className={TAB_CLASS}>
+            Income
           </TabsTrigger>
-          <TabsTrigger
-            value="methods"
-            className="min-h-9 whitespace-normal px-3 text-xs data-[state=active]:bg-paper data-[state=active]:text-ink data-[state=active]:shadow-none sm:text-sm"
-          >
+          <TabsTrigger value="expenses" className={TAB_CLASS}>
+            Expenses
+          </TabsTrigger>
+          <TabsTrigger value="clients" className={TAB_CLASS}>
+            Clients
+          </TabsTrigger>
+          <TabsTrigger value="methods" className={TAB_CLASS}>
             Payment methods
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="pt-8">
-          <Overview loading={loading} payments={payments} clients={clients} />
+          <Overview
+            loading={loading}
+            payments={payments}
+            expenses={expenses}
+            clients={clients}
+          />
         </TabsContent>
 
         <TabsContent value="payments" className="pt-8">
@@ -141,6 +172,24 @@ function FinanceWorkspace() {
             contacts={contacts}
             methods={methods}
             refetchClients={() => void clientsQuery.refetch()}
+          />
+        </TabsContent>
+
+        <TabsContent value="expenses" className="pt-8">
+          <ExpensesTab
+            loading={expensesQuery.isPending}
+            expenses={expenses}
+            clients={clients}
+          />
+        </TabsContent>
+
+        <TabsContent value="clients" className="pt-8">
+          <ClientsTab
+            loading={accountsQuery.isPending || clientsQuery.isPending}
+            accounts={accounts}
+            clients={clients}
+            contacts={contacts}
+            payments={payments}
           />
         </TabsContent>
 
@@ -157,72 +206,167 @@ function FinanceWorkspace() {
 function Overview({
   loading,
   payments,
+  expenses,
   clients,
 }: {
   loading: boolean;
   payments: FinancePayment[];
-  clients: { id: string; name: string }[];
+  expenses: Expense[];
+  clients: FinanceClient[];
 }) {
-  const stats = useMemo(() => {
-    const year = new Date().getFullYear();
-    const total = payments.reduce((sum, row) => sum + Number(row.net_eur ?? 0), 0);
-    const thisYear = payments
-      .filter((row) => new Date(row.paid_on).getFullYear() === year)
-      .reduce((sum, row) => sum + Number(row.net_eur ?? 0), 0);
+  const [yearFilter, setYearFilter] = useState("all");
 
-    const byYear = new Map<number, number>();
+  const years = useMemo(() => {
+    const set = new Set<number>();
+    for (const row of payments) set.add(new Date(row.paid_on).getFullYear());
+    for (const row of expenses) set.add(new Date(row.spent_on).getFullYear());
+    return [...set].sort((a, b) => b - a);
+  }, [payments, expenses]);
+
+  const stats = useMemo(() => {
+    const inYear = (date: string) =>
+      yearFilter === "all" || String(new Date(date).getFullYear()) === yearFilter;
+
+    const paid = payments.filter((row) => inYear(row.paid_on));
+    const spent = expenses.filter((row) => inYear(row.spent_on));
+
+    const income = paid.reduce((sum, row) => sum + Number(row.net_eur ?? 0), 0);
+    const cost = spent.reduce((sum, row) => sum + Number(row.net_eur ?? 0), 0);
+
+    const byYear = new Map<number, { income: number; cost: number }>();
+    const bucket = (year: number) => {
+      if (!byYear.has(year)) byYear.set(year, { income: 0, cost: 0 });
+      return byYear.get(year)!;
+    };
+    for (const row of payments) {
+      bucket(new Date(row.paid_on).getFullYear()).income += Number(row.net_eur ?? 0);
+    }
+    for (const row of expenses) {
+      bucket(new Date(row.spent_on).getFullYear()).cost += Number(row.net_eur ?? 0);
+    }
+
+    // Still owed, in each project's own agreed currency.
+    const outstanding: { name: string; left: number; currency: string }[] = [];
+    for (const client of clients) {
+      const received = payments
+        .filter((row) => row.client_id === client.id && row.kind === "onboarding")
+        .reduce((sum, row) => sum + Number(row.gross_amount ?? 0), 0);
+      const progress = collected(client.onboarding_fee, received);
+      if (progress.agreed > 0 && progress.left > 0) {
+        outstanding.push({
+          name: client.name,
+          left: progress.left,
+          currency: client.onboarding_fee_currency ?? "EUR",
+        });
+      }
+    }
+
     const lastPaid = new Map<string, string>();
     for (const row of payments) {
-      const rowYear = new Date(row.paid_on).getFullYear();
-      byYear.set(rowYear, (byYear.get(rowYear) ?? 0) + Number(row.net_eur ?? 0));
       const current = lastPaid.get(row.client_id);
       if (!current || row.paid_on > current) lastPaid.set(row.client_id, row.paid_on);
     }
-
     const activeClients = clients.filter(
       (client) => clientStatus(lastPaid.get(client.id) ?? null) === "active",
     ).length;
 
-    const years = [...byYear.entries()].sort((a, b) => a[0] - b[0]);
-    const peak = Math.max(1, ...years.map(([, value]) => value));
+    const rows = [...byYear.entries()].sort((a, b) => a[0] - b[0]);
+    const peak = Math.max(1, ...rows.map(([, value]) => Math.max(value.income, value.cost)));
 
-    return { total, thisYear, count: payments.length, activeClients, years, peak };
-  }, [payments, clients]);
+    return {
+      income,
+      cost,
+      profit: income - cost,
+      count: paid.length,
+      activeClients,
+      rows,
+      peak,
+      outstanding,
+    };
+  }, [payments, expenses, clients, yearFilter]);
 
   if (loading) {
-    return <p className="text-sm text-stone">Loading the full payment history…</p>;
+    return <p className="text-sm text-stone">Loading the full history…</p>;
   }
 
-  if (payments.length === 0) {
+  if (payments.length === 0 && expenses.length === 0) {
     return (
       <p className="text-sm text-stone">
-        No payments recorded yet. Add the first one in the Payments tab.
+        Nothing recorded yet. Add your first payment in the Income tab, or a cost in Expenses.
       </p>
     );
   }
 
   return (
     <div className="space-y-12">
+      <Select value={yearFilter} onValueChange={setYearFilter}>
+        <SelectTrigger className="w-40">
+          <SelectValue placeholder="All years" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All years</SelectItem>
+          {years.map((year) => (
+            <SelectItem key={year} value={String(year)}>
+              {year}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <div>
+        <span className="block text-5xl font-light tabular-nums text-ink">
+          {eur(stats.profit)}
+        </span>
+        <span className="mt-1 block text-xs text-stone">
+          Profit {yearFilter === "all" ? "so far" : `in ${yearFilter}`}
+        </span>
+      </div>
+
       <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4">
-        <Figure label="Total received" value={eur(stats.total)} />
-        <Figure label={`${new Date().getFullYear()} so far`} value={eur(stats.thisYear)} />
+        <Figure label="Income" value={eur(stats.income)} />
+        <Figure label="Expenses" value={eur(stats.cost)} />
         <Figure label="Payments" value={String(stats.count)} />
         <Figure label="Active clients" value={String(stats.activeClients)} />
       </div>
 
+      {stats.outstanding.length > 0 ? (
+        <section>
+          <h2 className="text-[11px] uppercase tracking-[0.14em] text-stone">Still to collect</h2>
+          <div className="mt-4 space-y-2">
+            {stats.outstanding.map((row) => (
+              <p key={row.name} className="text-sm text-ink">
+                {row.name} — {money(row.left, row.currency)} outstanding
+              </p>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <section>
-        <h2 className="text-[11px] uppercase tracking-[0.14em] text-stone">By year</h2>
-        <div className="mt-6 space-y-3">
-          {stats.years.map(([year, value]) => (
+        <h2 className="text-[11px] uppercase tracking-[0.14em] text-stone">
+          By year — income and cost
+        </h2>
+        <div className="mt-6 space-y-5">
+          {stats.rows.map(([year, value]) => (
             <div key={year} className="flex items-center gap-4">
               <span className="w-12 text-sm tabular-nums text-stone">{year}</span>
-              <div className="h-2 flex-1 bg-sand">
-                <div
-                  className="h-2 bg-ink"
-                  style={{ width: `${Math.max(2, (value / stats.peak) * 100)}%` }}
-                />
+              <div className="flex-1 space-y-1">
+                <div className="h-2 bg-sand">
+                  <div
+                    className="h-2 bg-ink"
+                    style={{ width: `${Math.max(2, (value.income / stats.peak) * 100)}%` }}
+                  />
+                </div>
+                <div className="h-2 bg-sand">
+                  <div
+                    className="h-2 bg-stone"
+                    style={{ width: `${Math.max(1, (value.cost / stats.peak) * 100)}%` }}
+                  />
+                </div>
               </div>
-              <span className="w-28 text-right text-sm tabular-nums text-ink">{eur(value)}</span>
+              <span className="w-40 text-right text-sm tabular-nums text-ink">
+                {eur(value.income - value.cost)}
+              </span>
             </div>
           ))}
         </div>
@@ -305,10 +449,22 @@ function PaymentsTab({
   function exportCsv() {
     downloadCsv(
       `deerva-payments-${new Date().toISOString().slice(0, 10)}.csv`,
-      ["Date", "Client", "Services", "Type", "Invoice", "Gross", "Currency", "Net EUR", "Method"],
+      [
+        "Date",
+        "Client",
+        "Covers",
+        "Services",
+        "Type",
+        "Invoice",
+        "Gross",
+        "Currency",
+        "Net EUR",
+        "Method",
+      ],
       rows.map((row) => [
         row.paid_on,
         clientName(row.client_id),
+        PAYMENT_KIND_LABEL[row.kind] ?? row.kind,
         (row.services ?? []).join(" / "),
         row.payment_type,
         row.invoice_no,
@@ -408,7 +564,12 @@ function PaymentsTab({
                     <td className="whitespace-nowrap px-4 py-3 tabular-nums text-stone">
                       {shortDate(row.paid_on)}
                     </td>
-                    <td className="px-4 py-3 text-ink">{clientName(row.client_id)}</td>
+                    <td className="px-4 py-3 text-ink">
+                      {clientName(row.client_id)}
+                      <span className="ml-2 text-xs text-stone">
+                        {PAYMENT_KIND_LABEL[row.kind] ?? row.kind}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 text-stone">
                       {(row.services ?? []).join(" / ") || "—"}
                     </td>
@@ -761,6 +922,552 @@ function MethodForm({
           Save
         </Button>
       </div>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------- Expenses */
+
+const emptyExpense = (): ExpenseInput => ({
+  client_id: null,
+  spent_on: new Date().toISOString().slice(0, 10),
+  category: "lovable_credits",
+  vendor: null,
+  gross_amount: null,
+  gross_currency: "EUR",
+  fx_rate: null,
+  net_eur: 0,
+  description: null,
+});
+
+function ExpensesTab({
+  loading,
+  expenses,
+  clients,
+}: {
+  loading: boolean;
+  expenses: Expense[];
+  clients: FinanceClient[];
+}) {
+  const save = useSaveExpense();
+  const remove = useDeleteExpense();
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Expense | null>(null);
+  const [form, setForm] = useState<ExpenseInput>(emptyExpense());
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+
+  const clientName = (id: string | null) =>
+    id ? (clients.find((c) => c.id === id)?.name ?? "—") : "General";
+
+  const total = expenses.reduce((sum, row) => sum + Number(row.net_eur ?? 0), 0);
+
+  const startNew = () => {
+    setEditing(null);
+    setForm(emptyExpense());
+    setOpen(true);
+  };
+
+  const startEdit = (row: Expense) => {
+    setEditing(row);
+    setForm({
+      client_id: row.client_id,
+      spent_on: row.spent_on,
+      category: row.category,
+      vendor: row.vendor,
+      gross_amount: row.gross_amount,
+      gross_currency: row.gross_currency,
+      fx_rate: row.fx_rate,
+      net_eur: row.net_eur,
+      description: row.description,
+    });
+    setOpen(true);
+  };
+
+  const net = computeNetEur({
+    gross: form.gross_amount,
+    currency: form.gross_currency,
+    fxRate: form.fx_rate,
+  });
+
+  const submit = () => {
+    save.mutate(
+      { id: editing?.id, values: { ...form, net_eur: net } },
+      {
+        onSuccess: () => {
+          toast.success(editing ? "Expense updated." : "Expense added.");
+          setOpen(false);
+        },
+        onError: (error) => toast.error(error.message),
+      },
+    );
+  };
+
+  return (
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <Figure label="Total spent" value={eur(total)} />
+        <Button onClick={startNew}>
+          <Plus className="mr-2 h-4 w-4" /> New expense
+        </Button>
+      </div>
+
+      {loading ? (
+        <p className="text-sm text-stone">Loading expenses…</p>
+      ) : expenses.length === 0 ? (
+        <p className="text-sm text-stone">
+          No costs recorded yet. Add what you pay for Lovable credits, hosting or domains.
+        </p>
+      ) : (
+        <div className="divide-y divide-line border-y border-line">
+          {expenses.map((row) => (
+            <div key={row.id} className="flex flex-wrap items-center gap-4 py-4">
+              <span className="w-24 text-sm tabular-nums text-stone">{shortDate(row.spent_on)}</span>
+              <span className="min-w-40 flex-1 text-sm text-ink">
+                {EXPENSE_CATEGORY_LABEL[row.category] ?? row.category}
+                {row.vendor ? <span className="text-stone"> · {row.vendor}</span> : null}
+              </span>
+              <span className="text-sm text-stone">{clientName(row.client_id)}</span>
+              <span className="w-28 text-right text-sm tabular-nums text-ink">
+                {eurExact(Number(row.net_eur ?? 0))}
+              </span>
+              <div className="flex gap-1">
+                <Button variant="ghost" size="icon" onClick={() => startEdit(row)}>
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => setConfirmId(row.id)}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editing ? "Edit expense" : "New expense"}</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="spent_on">Spent on</Label>
+                <Input
+                  id="spent_on"
+                  type="date"
+                  value={form.spent_on}
+                  onChange={(event) => setForm({ ...form, spent_on: event.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Category</Label>
+                <Select
+                  value={form.category}
+                  onValueChange={(value) => setForm({ ...form, category: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {EXPENSE_CATEGORIES.map((item) => (
+                      <SelectItem key={item} value={item}>
+                        {EXPENSE_CATEGORY_LABEL[item]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="vendor">Paid to</Label>
+                <Input
+                  id="vendor"
+                  value={form.vendor ?? ""}
+                  placeholder="Lovable, Cloudflare…"
+                  onChange={(event) => setForm({ ...form, vendor: event.target.value || null })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Project</Label>
+                <Select
+                  value={form.client_id ?? "none"}
+                  onValueChange={(value) =>
+                    setForm({ ...form, client_id: value === "none" ? null : value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">General (no project)</SelectItem>
+                    {clients.map((client) => (
+                      <SelectItem key={client.id} value={client.id}>
+                        {client.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="space-y-2">
+                <Label htmlFor="gross">Amount</Label>
+                <Input
+                  id="gross"
+                  value={form.gross_amount ?? ""}
+                  onChange={(event) =>
+                    setForm({ ...form, gross_amount: toNumber(event.target.value) })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Currency</Label>
+                <Select
+                  value={form.gross_currency}
+                  onValueChange={(value) => setForm({ ...form, gross_currency: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FINANCE_CURRENCIES.map((currency) => (
+                      <SelectItem key={currency} value={currency}>
+                        {currency}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {form.gross_currency === "USD" ? (
+                <div className="space-y-2">
+                  <Label htmlFor="fx">USD per EUR</Label>
+                  <Input
+                    id="fx"
+                    value={form.fx_rate ?? ""}
+                    onChange={(event) => setForm({ ...form, fx_rate: toNumber(event.target.value) })}
+                  />
+                </div>
+              ) : null}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="expense-note">Note</Label>
+              <Textarea
+                id="expense-note"
+                value={form.description ?? ""}
+                onChange={(event) => setForm({ ...form, description: event.target.value || null })}
+              />
+            </div>
+
+            <p className="text-sm text-stone">
+              Counts as <span className="text-ink">{eurExact(net)}</span> in the accounts.
+            </p>
+
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={submit} disabled={save.isPending}>
+                {save.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Save
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={confirmId !== null} onOpenChange={(value) => !value && setConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this expense?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The cost disappears from every total. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep it</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (confirmId) {
+                  remove.mutate(confirmId, {
+                    onSuccess: () => toast.success("Expense deleted."),
+                    onError: (error) => toast.error(error.message),
+                  });
+                }
+                setConfirmId(null);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
+
+/* ----------------------------------------------------------------- Clients */
+
+function ClientsTab({
+  loading,
+  accounts,
+  clients,
+  contacts,
+  payments,
+}: {
+  loading: boolean;
+  accounts: ClientAccount[];
+  clients: FinanceClient[];
+  contacts: FinanceContact[];
+  payments: FinancePayment[];
+}) {
+  const save = useSaveClientAccount();
+  const remove = useDeleteClientAccount();
+  const assign = useAssignProjectAccount();
+
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<ClientAccount | null>(null);
+  const [name, setName] = useState("");
+  const [country, setCountry] = useState("");
+  const [notes, setNotes] = useState("");
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+
+  const startNew = () => {
+    setEditing(null);
+    setName("");
+    setCountry("");
+    setNotes("");
+    setOpen(true);
+  };
+
+  const startEdit = (account: ClientAccount) => {
+    setEditing(account);
+    setName(account.name);
+    setCountry(account.country ?? "");
+    setNotes(account.notes ?? "");
+    setOpen(true);
+  };
+
+  const submit = () => {
+    if (!name.trim()) {
+      toast.error("A client needs a name.");
+      return;
+    }
+    save.mutate(
+      {
+        id: editing?.id,
+        values: {
+          name: name.trim(),
+          country: country.trim() || null,
+          status: editing?.status ?? "active",
+          notes: notes.trim() || null,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success(editing ? "Client updated." : "Client added.");
+          setOpen(false);
+        },
+        onError: (error) => toast.error(error.message),
+      },
+    );
+  };
+
+  if (loading) return <p className="text-sm text-stone">Loading clients…</p>;
+
+  return (
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <p className="text-sm text-stone">
+          A client is the person or company that pays. One client can hold several projects.
+        </p>
+        <Button onClick={startNew}>
+          <Plus className="mr-2 h-4 w-4" /> New client
+        </Button>
+      </div>
+
+      {accounts.length === 0 ? (
+        <p className="text-sm text-stone">
+          No clients yet. Add one, then attach its projects below.
+        </p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {accounts.map((account) => {
+            const ownProjects = clients.filter((client) => client.account_id === account.id);
+            const projectIds = new Set(ownProjects.map((client) => client.id));
+            const received = payments
+              .filter((row) => projectIds.has(row.client_id))
+              .reduce((sum, row) => sum + Number(row.net_eur ?? 0), 0);
+            const people = contacts.filter(
+              (contact) =>
+                contact.account_id === account.id || projectIds.has(contact.client_id),
+            );
+
+            return (
+              <div key={account.id} className="space-y-4 border border-line bg-paper p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-medium text-ink">{account.name}</h3>
+                    {account.country ? (
+                      <p className="text-xs text-stone">{account.country}</p>
+                    ) : null}
+                  </div>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => startEdit(account)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => setConfirmId(account.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <p className="text-sm tabular-nums text-ink">{eur(received)} received</p>
+
+                <div className="space-y-1">
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-stone">People</p>
+                  {people.length === 0 ? (
+                    <p className="text-sm text-stone">Nobody added yet.</p>
+                  ) : (
+                    people.map((person) => (
+                      <p key={person.id} className="text-sm text-ink">
+                        {person.name}
+                        {person.is_primary ? (
+                          <Badge variant="secondary" className="ml-2">
+                            primary
+                          </Badge>
+                        ) : null}
+                      </p>
+                    ))
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-stone">Projects</p>
+                  {ownProjects.length === 0 ? (
+                    <p className="text-sm text-stone">No project attached.</p>
+                  ) : (
+                    ownProjects.map((project) => (
+                      <p key={project.id} className="text-sm text-ink">
+                        {project.name}
+                      </p>
+                    ))
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <section className="space-y-3">
+        <h2 className="text-[11px] uppercase tracking-[0.14em] text-stone">Projects by client</h2>
+        <div className="divide-y divide-line border-y border-line">
+          {clients.map((client) => (
+            <div key={client.id} className="flex flex-wrap items-center gap-4 py-3">
+              <span className="min-w-40 flex-1 text-sm text-ink">{client.name}</span>
+              <Select
+                value={client.account_id ?? "none"}
+                onValueChange={(value) =>
+                  assign.mutate(
+                    { clientId: client.id, accountId: value === "none" ? null : value },
+                    {
+                      onSuccess: () => toast.success("Project moved."),
+                      onError: (error) => toast.error(error.message),
+                    },
+                  )
+                }
+              >
+                <SelectTrigger className="w-56">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No client</SelectItem>
+                  {accounts.map((account) => (
+                    <SelectItem key={account.id} value={account.id}>
+                      {account.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editing ? "Edit client" : "New client"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="account-name">Name</Label>
+              <Input
+                id="account-name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="account-country">Country</Label>
+              <Input
+                id="account-country"
+                value={country}
+                onChange={(event) => setCountry(event.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="account-notes">Notes</Label>
+              <Textarea
+                id="account-notes"
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={submit} disabled={save.isPending}>
+                {save.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Save
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={confirmId !== null} onOpenChange={(value) => !value && setConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this client?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Projects and payments stay; they simply lose their client. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep it</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (confirmId) {
+                  remove.mutate(confirmId, {
+                    onSuccess: () => toast.success("Client deleted."),
+                    onError: (error) => toast.error(error.message),
+                  });
+                }
+                setConfirmId(null);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

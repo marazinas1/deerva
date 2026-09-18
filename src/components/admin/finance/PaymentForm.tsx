@@ -19,8 +19,10 @@ import {
   eurExact,
   FINANCE_CURRENCIES,
   FINANCE_PAYMENT_TYPES,
+  FINANCE_PAYMENT_KINDS,
   FINANCE_SERVICES,
   invoiceNoExample,
+  PAYMENT_KIND_LABEL,
   toNumber,
 } from "@/lib/finance";
 import { saveClient } from "@/lib/admin.functions";
@@ -65,6 +67,7 @@ export default function PaymentForm({
   const [clientId, setClientId] = useState(payment?.client_id ?? "");
   const [contactId, setContactId] = useState(payment?.contact_id ?? "");
   const [paidOn, setPaidOn] = useState(payment?.paid_on ?? today());
+  const [kind, setKind] = useState(payment?.kind ?? "other");
   const [services, setServices] = useState<string[]>(payment?.services ?? []);
   const [paymentType, setPaymentType] = useState(payment?.payment_type ?? "Full");
   const [invoiceNo, setInvoiceNo] = useState(payment?.invoice_no ?? "");
@@ -138,6 +141,7 @@ export default function PaymentForm({
       client_id: clientId,
       contact_id: contactId || null,
       paid_on: paidOn,
+      kind,
       services,
       payment_type: paymentType || null,
       invoice_no: invoiceNo.trim() || null,
@@ -214,7 +218,23 @@ export default function PaymentForm({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-4">
+        <div className="space-y-2">
+          <Label>Covers</Label>
+          <Select value={kind} onValueChange={setKind}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {FINANCE_PAYMENT_KINDS.map((item) => (
+                <SelectItem key={item} value={item}>
+                  {PAYMENT_KIND_LABEL[item]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-stone">Counts towards the project's agreed sum.</p>
+        </div>
         <div className="space-y-2">
           <Label htmlFor="paid_on">Paid on</Label>
           <Input

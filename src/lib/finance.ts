@@ -13,6 +13,34 @@ export const FINANCE_SERVICES = [
 
 export const FINANCE_PAYMENT_TYPES = ["Full", "Advance", "Balance", "Partial"] as const;
 
+/** Which part of the agreed deal a payment covers. */
+export const FINANCE_PAYMENT_KINDS = ["onboarding", "monthly", "other"] as const;
+
+export const PAYMENT_KIND_LABEL: Record<string, string> = {
+  onboarding: "Onboarding",
+  monthly: "Monthly fee",
+  other: "Other",
+};
+
+/** Where the money goes out. Lovable credits are the recurring one. */
+export const EXPENSE_CATEGORIES = [
+  "lovable_credits",
+  "hosting",
+  "domains",
+  "contractor",
+  "tools",
+  "other",
+] as const;
+
+export const EXPENSE_CATEGORY_LABEL: Record<string, string> = {
+  lovable_credits: "Lovable credits",
+  hosting: "Hosting",
+  domains: "Domains",
+  contractor: "Contractor",
+  tools: "Tools",
+  other: "Other",
+};
+
 export const FINANCE_CURRENCIES = ["EUR", "USD"] as const;
 
 /** Kinds of payment method, using the wording banks and invoicing tools use. */
@@ -98,6 +126,28 @@ export function computeNetEur(input: {
   const gross = input.gross ?? 0;
   return round2(input.currency === "EUR" ? gross : gross / rate);
 }
+
+/**
+ * How much of an agreed sum has actually landed. Agreed figures are kept in
+ * the project's own currency, so received amounts are compared in that same
+ * currency using the gross value, not the EUR net.
+ */
+export function collected(
+  agreed: number | null,
+  received: number,
+): { agreed: number; received: number; left: number; percent: number } {
+  const target = agreed ?? 0;
+  const left = Math.max(0, round2(target - received));
+  const percent = target > 0 ? Math.min(100, Math.round((received / target) * 100)) : 0;
+  return { agreed: target, received: round2(received), left, percent };
+}
+
+export const money = (value: number, currency: string) =>
+  new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency: currency || "EUR",
+    maximumFractionDigits: 0,
+  }).format(Number.isFinite(value) ? value : 0);
 
 export const toNumber = (value: unknown): number | null => {
   if (value === null || value === undefined || value === "") return null;

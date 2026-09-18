@@ -22,7 +22,7 @@ import {
   usePayments,
   useSetPrimaryChannel,
 } from "@/hooks/admin/useFinance";
-import { eurExact, shortDate } from "@/lib/finance";
+import { collected, eurExact, shortDate } from "@/lib/finance";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -557,6 +557,7 @@ function ProjectsPage() {
                       ? ` · setup ${money(client.onboarding_fee, client.onboarding_fee_currency)}`
                       : ""}
                   </p>
+                  <SetupProgress client={client} />
                   {(() => {
                     const payment = paymentLabel(client.next_payment_on);
                     if (!payment) return null;
@@ -1262,6 +1263,40 @@ function ContactChannels({ contactId }: { contactId: string }) {
           </Button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Agreed setup sum against what has actually landed, in the currency the deal
+ * was made in. Hidden when no setup fee was agreed.
+ */
+function SetupProgress({
+  client,
+}: {
+  client: { id: string; onboarding_fee: number | null; onboarding_fee_currency: string | null };
+}) {
+  const payments = usePayments();
+  if (client.onboarding_fee == null) return null;
+
+  const received = (payments.data ?? [])
+    .filter((row) => row.client_id === client.id && row.kind === "onboarding")
+    .reduce((sum, row) => sum + Number(row.gross_amount ?? 0), 0);
+  const progress = collected(client.onboarding_fee, received);
+  const currency = client.onboarding_fee_currency ?? "EUR";
+
+  return (
+    <div className="space-y-1 pt-1">
+      <div className="h-1.5 w-full rounded-full bg-muted/20">
+        <div
+          className="h-1.5 rounded-full bg-foreground"
+          style={{ width: `${progress.percent}%` }}
+        />
+      </div>
+      <p className="text-xs text-muted">
+        {money(progress.received, currency)} of {money(progress.agreed, currency)} received
+        {progress.left > 0 ? ` · ${money(progress.left, currency)} to go` : " · settled"}
+      </p>
     </div>
   );
 }

@@ -14,11 +14,42 @@ export type FinanceClient = {
   slug: string;
   status: string;
   country: string | null;
+  account_id: string | null;
+  onboarding_fee: number | null;
+  onboarding_fee_currency: string | null;
+  monthly_fee: number | null;
+  monthly_fee_currency: string | null;
 };
+
+export type ClientAccount = {
+  id: string;
+  name: string;
+  country: string | null;
+  status: string;
+  notes: string | null;
+};
+
+export type ClientAccountInput = Omit<ClientAccount, "id">;
+
+export type Expense = {
+  id: string;
+  client_id: string | null;
+  spent_on: string;
+  category: string;
+  vendor: string | null;
+  gross_amount: number | null;
+  gross_currency: string;
+  fx_rate: number | null;
+  net_eur: number;
+  description: string | null;
+};
+
+export type ExpenseInput = Omit<Expense, "id">;
 
 export type FinanceContact = {
   id: string;
   client_id: string;
+  account_id: string | null;
   name: string;
   role: string | null;
   email: string | null;
@@ -47,6 +78,7 @@ export type FinancePayment = {
   client_id: string;
   contact_id: string | null;
   paid_on: string;
+  kind: string;
   services: string[] | null;
   payment_type: string | null;
   invoice_no: string | null;
@@ -62,6 +94,7 @@ export type PaymentInput = {
   client_id: string;
   contact_id: string | null;
   paid_on: string;
+  kind: string;
   services: string[];
   payment_type: string | null;
   invoice_no: string | null;
@@ -95,6 +128,8 @@ export const FINANCE_KEYS = {
   contactPhones: ["admin", "finance", "contact-phones"] as const,
   payments: ["admin", "finance", "payments"] as const,
   paymentMethods: ["admin", "finance", "payment-methods"] as const,
+  expenses: ["admin", "finance", "expenses"] as const,
+  accounts: ["admin", "finance", "accounts"] as const,
 };
 
 /**
@@ -127,7 +162,9 @@ export function useFinanceClients() {
       fetchAllRows<FinanceClient>((from, to) =>
         supabase
           .from("clients")
-          .select("id, name, slug, status, country")
+          .select(
+            "id, name, slug, status, country, account_id, onboarding_fee, onboarding_fee_currency, monthly_fee, monthly_fee_currency",
+          )
           .order("name")
           .range(from, to),
       ),
@@ -141,7 +178,7 @@ export function useFinanceContacts() {
       fetchAllRows<FinanceContact>((from, to) =>
         supabase
           .from("client_contacts")
-          .select("id, client_id, name, role, email, phone, is_primary")
+          .select("id, client_id, account_id, name, role, email, phone, is_primary")
           .order("name")
           .range(from, to),
       ),
@@ -184,7 +221,7 @@ export function usePayments() {
         supabase
           .from("payments")
           .select(
-            "id, client_id, contact_id, paid_on, services, payment_type, invoice_no, gross_amount, gross_currency, fx_rate, net_eur, payment_method, description",
+            "id, client_id, contact_id, paid_on, kind, services, payment_type, invoice_no, gross_amount, gross_currency, fx_rate, net_eur, payment_method, description",
           )
           .order("paid_on", { ascending: false })
           .order("id")
@@ -333,4 +370,102 @@ async function clearPrimary(kind: "email" | "phone", contactId: string) {
     .eq("contact_id", contactId)
     .eq("is_primary", true);
   if (error) throw new Error(error.message);
+}
+
+/* ------------------------------------------------------------- Expenses */
+
+export function useExpenses() {
+  return useQuery({
+    queryKey: FINANCE_KEYS.expenses,
+    queryFn: () =>
+      fetchAllRows<Expense>((from, to) =>
+        supabase
+          .from("expenses")
+          .select(
+            "id, client_id, spent_on, category, vendor, gross_amount, gross_currency, fx_rate, net_eur, description",
+          )
+          .order("spent_on", { ascending: false })
+          .order("id")
+          .range(from, to),
+      ),
+  });
+}
+
+export function useSaveExpense() {
+  const invalidate = useFinanceInvalidate();
+  return useMutation({
+    mutationFn: async ({ id, values }: { id?: string | undefined; values: ExpenseInput }) => {
+      const { error } = id
+        ? await supabase.from("expenses").update(values).eq("id", id)
+        : await supabase.from("expenses").insert(values);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteExpense() {
+  const invalidate = useFinanceInvalidate();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("expenses").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: invalidate,
+  });
+}
+
+/* ------------------------------------------------------- Client accounts */
+
+export function useClientAccounts() {
+  return useQuery({
+    queryKey: FINANCE_KEYS.accounts,
+    queryFn: () =>
+      fetchAllRows<ClientAccount>((from, to) =>
+        supabase
+          .from("client_accounts")
+          .select("id, name, country, status, notes")
+          .order("name")
+          .range(from, to),
+      ),
+  });
+}
+
+export function useSaveClientAccount() {
+  const invalidate = useFinanceInvalidate();
+  return useMutation({
+    mutationFn: async ({ id, values }: { id?: string | undefined; values: ClientAccountInput }) => {
+      const { error } = id
+        ? await supabase.from("client_accounts").update(values).eq("id", id)
+        : await supabase.from("client_accounts").insert(values);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteClientAccount() {
+  const invalidate = useFinanceInvalidate();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("client_accounts").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: invalidate,
+  });
+}
+
+/** Moves a project under a client, or detaches it. */
+export function useAssignProjectAccount() {
+  const invalidate = useFinanceInvalidate();
+  return useMutation({
+    mutationFn: async ({ clientId, accountId }: { clientId: string; accountId: string | null }) => {
+      const { error } = await supabase
+        .from("clients")
+        .update({ account_id: accountId })
+        .eq("id", clientId);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: invalidate,
+  });
 }

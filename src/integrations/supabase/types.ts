@@ -14,8 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      client_accounts: {
+        Row: {
+          country: string | null
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       client_contacts: {
         Row: {
+          account_id: string | null
           client_id: string
           created_at: string
           email: string | null
@@ -27,6 +58,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          account_id?: string | null
           client_id: string
           created_at?: string
           email?: string | null
@@ -38,6 +70,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          account_id?: string | null
           client_id?: string
           created_at?: string
           email?: string | null
@@ -50,6 +83,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "client_contacts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "client_accounts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "client_contacts_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -60,6 +100,7 @@ export type Database = {
       }
       clients: {
         Row: {
+          account_id: string | null
           billing_cycle: string | null
           country: string | null
           created_at: string
@@ -86,6 +127,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          account_id?: string | null
           billing_cycle?: string | null
           country?: string | null
           created_at?: string
@@ -112,6 +154,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          account_id?: string | null
           billing_cycle?: string | null
           country?: string | null
           created_at?: string
@@ -137,7 +180,15 @@ export type Database = {
           thumbnail_source?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clients_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "client_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contact_emails: {
         Row: {
@@ -211,6 +262,59 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "client_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          category: string
+          client_id: string | null
+          created_at: string
+          description: string | null
+          fx_rate: number | null
+          gross_amount: number | null
+          gross_currency: string
+          id: string
+          net_eur: number
+          spent_on: string
+          updated_at: string
+          vendor: string | null
+        }
+        Insert: {
+          category?: string
+          client_id?: string | null
+          created_at?: string
+          description?: string | null
+          fx_rate?: number | null
+          gross_amount?: number | null
+          gross_currency?: string
+          id?: string
+          net_eur?: number
+          spent_on: string
+          updated_at?: string
+          vendor?: string | null
+        }
+        Update: {
+          category?: string
+          client_id?: string | null
+          created_at?: string
+          description?: string | null
+          fx_rate?: number | null
+          gross_amount?: number | null
+          gross_currency?: string
+          id?: string
+          net_eur?: number
+          spent_on?: string
+          updated_at?: string
+          vendor?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
         ]
@@ -322,6 +426,7 @@ export type Database = {
           gross_currency: string
           id: string
           invoice_no: string | null
+          kind: string
           net_eur: number
           paid_on: string
           payment_method: string | null
@@ -339,6 +444,7 @@ export type Database = {
           gross_currency?: string
           id?: string
           invoice_no?: string | null
+          kind?: string
           net_eur?: number
           paid_on: string
           payment_method?: string | null
@@ -356,6 +462,7 @@ export type Database = {
           gross_currency?: string
           id?: string
           invoice_no?: string | null
+          kind?: string
           net_eur?: number
           paid_on?: string
           payment_method?: string | null
