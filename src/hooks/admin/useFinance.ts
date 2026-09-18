@@ -14,7 +14,37 @@ export type FinanceClient = {
   slug: string;
   status: string;
   country: string | null;
+  account_id: string | null;
+  onboarding_fee: number | null;
+  onboarding_fee_currency: string | null;
+  monthly_fee: number | null;
+  monthly_fee_currency: string | null;
 };
+
+export type ClientAccount = {
+  id: string;
+  name: string;
+  country: string | null;
+  status: string;
+  notes: string | null;
+};
+
+export type ClientAccountInput = Omit<ClientAccount, "id">;
+
+export type Expense = {
+  id: string;
+  client_id: string | null;
+  spent_on: string;
+  category: string;
+  vendor: string | null;
+  gross_amount: number | null;
+  gross_currency: string;
+  fx_rate: number | null;
+  net_eur: number;
+  description: string | null;
+};
+
+export type ExpenseInput = Omit<Expense, "id">;
 
 export type FinanceContact = {
   id: string;
