@@ -538,6 +538,53 @@ export type Database = {
         }
         Relationships: []
       }
+      project_standard_assignments: {
+        Row: {
+          applied_revision: string
+          client_id: string
+          created_at: string
+          id: string
+          notes: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          standard_slug: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          applied_revision?: string
+          client_id: string
+          created_at?: string
+          id?: string
+          notes?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          standard_slug: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          applied_revision?: string
+          client_id?: string
+          created_at?: string
+          id?: string
+          notes?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          standard_slug?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_standard_assignments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       site_settings: {
         Row: {
           address_city: string
@@ -579,6 +626,48 @@ export type Database = {
           primary_domain?: string
           social_links?: Json
           tagline?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      standard_drafts: {
+        Row: {
+          base_revision: string
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          reason: string
+          status: string
+          target_kind: string
+          target_slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          base_revision?: string
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          reason?: string
+          status?: string
+          target_kind: string
+          target_slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          base_revision?: string
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          reason?: string
+          status?: string
+          target_kind?: string
+          target_slug?: string
+          title?: string
           updated_at?: string
         }
         Relationships: []

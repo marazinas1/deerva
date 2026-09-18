@@ -6,22 +6,30 @@ import readme from "../../../docs/standards/README.md?raw";
 import contentModel from "../../../docs/standards/00-content-model.md?raw";
 import designSystem from "../../../docs/standards/01-design-system.md?raw";
 import adminStructure from "../../../docs/standards/02-admin-structure.md?raw";
+import adminUi from "../../../docs/standards/02-admin-ui.md?raw";
+import adminScreens from "../../../docs/standards/02-admin-screens.md?raw";
 import rolesAccess from "../../../docs/standards/03-roles-and-access.md?raw";
 import seoPerformance from "../../../docs/standards/04-seo-and-performance.md?raw";
 import analytics from "../../../docs/standards/05-analytics-and-attribution.md?raw";
 import lifecycle from "../../../docs/standards/06-project-lifecycle.md?raw";
 import techBaseline from "../../../docs/standards/07-tech-baseline.md?raw";
+import adminPrompt from "../../../docs/standards/admin-template-prompt.md?raw";
+import adminAudit from "../../../docs/standards/admin-brandbook-audit.md?raw";
 
 export const DOCS: Record<string, string> = {
   "standards-overview": readme,
   "content-model": contentModel,
   "design-system": designSystem,
   "admin-structure": adminStructure,
+  "admin-ui": adminUi,
+  "admin-screens": adminScreens,
   "roles-and-access": rolesAccess,
   "seo-and-performance": seoPerformance,
   "analytics-and-attribution": analytics,
   "project-lifecycle": lifecycle,
   "tech-baseline": techBaseline,
+  "admin-template-prompt": adminPrompt,
+  "admin-brandbook-audit": adminAudit,
   "agents-guide": agents,
   "frontend-guide": frontend,
   "deerva-plan": plan,

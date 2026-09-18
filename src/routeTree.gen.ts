@@ -23,6 +23,8 @@ import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as ApiPublicPvRouteImport } from './routes/api/public/pv'
+import { Route as AuthenticatedAdminStandardsIndexRouteImport } from './routes/_authenticated/admin/standards.index'
+import { Route as AuthenticatedAdminStandardsSlugRouteImport } from './routes/_authenticated/admin/standards.$slug'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 
@@ -99,6 +101,18 @@ const ApiPublicPvRoute = ApiPublicPvRouteImport.update({
   path: '/api/public/pv',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminStandardsIndexRoute =
+  AuthenticatedAdminStandardsIndexRouteImport.update({
+    id: '/standards/',
+    path: '/standards/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminStandardsSlugRoute =
+  AuthenticatedAdminStandardsSlugRouteImport.update({
+    id: '/standards/$slug',
+    path: '/standards/$slug',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   id: '/lovable/email/auth/preview',
   path: '/lovable/email/auth/preview',
@@ -124,8 +138,10 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/public/pv': typeof ApiPublicPvRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/standards/$slug': typeof AuthenticatedAdminStandardsSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/admin/standards/': typeof AuthenticatedAdminStandardsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -140,8 +156,10 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/public/pv': typeof ApiPublicPvRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/standards/$slug': typeof AuthenticatedAdminStandardsSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/admin/standards': typeof AuthenticatedAdminStandardsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -159,8 +177,10 @@ export interface FileRoutesById {
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/public/pv': typeof ApiPublicPvRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/standards/$slug': typeof AuthenticatedAdminStandardsSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/_authenticated/admin/standards/': typeof AuthenticatedAdminStandardsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -178,8 +198,10 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/api/public/pv'
     | '/admin/'
+    | '/admin/standards/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/admin/standards/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -194,8 +216,10 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/api/public/pv'
     | '/admin'
+    | '/admin/standards/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/admin/standards'
   id:
     | '__root__'
     | '/'
@@ -212,8 +236,10 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/users'
     | '/api/public/pv'
     | '/_authenticated/admin/'
+    | '/_authenticated/admin/standards/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/_authenticated/admin/standards/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -328,6 +354,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPvRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/standards/': {
+      id: '/_authenticated/admin/standards/'
+      path: '/standards'
+      fullPath: '/admin/standards/'
+      preLoaderRoute: typeof AuthenticatedAdminStandardsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/standards/$slug': {
+      id: '/_authenticated/admin/standards/$slug'
+      path: '/standards/$slug'
+      fullPath: '/admin/standards/$slug'
+      preLoaderRoute: typeof AuthenticatedAdminStandardsSlugRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/lovable/email/auth/preview': {
       id: '/lovable/email/auth/preview'
       path: '/lovable/email/auth/preview'
@@ -352,6 +392,8 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminStandardsSlugRoute: typeof AuthenticatedAdminStandardsSlugRoute
+  AuthenticatedAdminStandardsIndexRoute: typeof AuthenticatedAdminStandardsIndexRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
@@ -362,6 +404,9 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
     AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminStandardsSlugRoute: AuthenticatedAdminStandardsSlugRoute,
+    AuthenticatedAdminStandardsIndexRoute:
+      AuthenticatedAdminStandardsIndexRoute,
   }
 
 const AuthenticatedAdminRouteRouteWithChildren =

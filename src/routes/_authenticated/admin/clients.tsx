@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Github,
   Globe,
@@ -29,6 +29,7 @@ import {
 } from "@/hooks/admin/useFinance";
 import PaymentForm from "@/components/admin/finance/PaymentForm";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { useProjectStandardAssignments, useStandardsLibrary } from "@/hooks/admin/useStandards";
 import { collected, eurExact, shortDate } from "@/lib/finance";
 
 import { Badge } from "@/components/ui/badge";
@@ -223,6 +224,8 @@ function ProjectsPage() {
   const financeContacts = useFinanceContacts();
   const paymentMethods = usePaymentMethods();
   const savePayment = useSavePayment();
+  const standardsLibrary = useStandardsLibrary();
+  const standardAssignments = useProjectStandardAssignments();
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [current, setCurrent] = useState<ClientRow | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -234,7 +237,11 @@ function ProjectsPage() {
   } | null>(null);
 
   const { data: me } = useQuery({ queryKey: ["admin", "me"], queryFn: () => getAdminMe() });
-  const { data: clients, isLoading, error } = useQuery({
+  const {
+    data: clients,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["admin", "clients"],
     queryFn: () => listClients(),
   });
@@ -275,7 +282,8 @@ function ProjectsPage() {
   const recurring = rows.reduce<Record<string, number>>((totals, row) => {
     if (row.monthly_fee == null) return totals;
     const key = row.monthly_fee_currency ?? "EUR";
-    const factor = row.billing_cycle === "annual" ? 1 / 12 : row.billing_cycle === "semiannual" ? 1 / 6 : 1;
+    const factor =
+      row.billing_cycle === "annual" ? 1 / 12 : row.billing_cycle === "semiannual" ? 1 / 6 : 1;
     totals[key] = (totals[key] ?? 0) + row.monthly_fee * factor;
     return totals;
   }, {});
@@ -340,24 +348,15 @@ function ProjectsPage() {
   });
 
   const capture = useMutation({
-    mutationFn: ({
-      id,
-      url,
-      mode,
-    }: {
-      id: string;
-      url: string;
-      mode: "auto" | "screenshot";
-    }) => fetchClientImage({ data: { id, url, mode } }),
+    mutationFn: ({ id, url, mode }: { id: string; url: string; mode: "auto" | "screenshot" }) =>
+      fetchClientImage({ data: { id, url, mode } }),
     onSuccess: async (result, variables) => {
       try {
         await normaliseFetched(variables.id, result.source);
       } catch {
         // The image is already saved; only the extra compression failed.
       }
-      toast.success(
-        result.source === "og" ? "Image taken from the site" : "Screenshot saved",
-      );
+      toast.success(result.source === "og" ? "Image taken from the site" : "Screenshot saved");
       refresh();
     },
     onError: (error: Error) => toast.error(error.message),
@@ -427,6 +426,18 @@ function ProjectsPage() {
   }
 
   const liveClient = form.id ? (rows.find((row) => row.id === form.id) ?? current) : null;
+  const projectStandards = (standardsLibrary.data ?? []).filter((item) => item.kind === "standard");
+  const projectAssignments = (standardAssignments.data ?? []).filter(
+    (item) => item.client_id === form.id,
+  );
+  const reviewNeeded = projectStandards.filter((standard) => {
+    const assignment = projectAssignments.find((item) => item.standard_slug === standard.slug);
+    return (
+      !assignment ||
+      assignment.status === "review_needed" ||
+      (assignment.status === "compliant" && assignment.applied_revision !== standard.revision)
+    );
+  }).length;
 
   return (
     <div className="w-full">
@@ -507,9 +518,15 @@ function ProjectsPage() {
           Could not load projects. {error instanceof Error ? error.message : "Please try again."}
         </div>
       ) : isLoading ? (
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loading projects">
+        <div
+          className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+          aria-label="Loading projects"
+        >
           {[0, 1, 2].map((item) => (
-            <div key={item} className="h-72 animate-pulse rounded-lg border border-border bg-card" />
+            <div
+              key={item}
+              className="h-72 animate-pulse rounded-lg border border-border bg-card"
+            />
           ))}
         </div>
       ) : visible.length === 0 ? (
@@ -561,7 +578,10 @@ function ProjectsPage() {
                       ) : null}
                       <span className="truncate">{client.name}</span>
                     </h2>
-                    <Badge className={`capitalize ${STATUS_TONE[client.status] ?? ""}`} variant="secondary">
+                    <Badge
+                      className={`capitalize ${STATUS_TONE[client.status] ?? ""}`}
+                      variant="secondary"
+                    >
                       {client.status}
                     </Badge>
                   </div>
@@ -853,6 +873,22 @@ function ProjectsPage() {
 
           {form.id ? (
             <div className="space-y-6 border-t border-border pt-5">
+              <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-sm font-medium text-foreground">Standards coverage</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {standardAssignments.isLoading || standardsLibrary.isLoading
+                      ? "Loading coverage…"
+                      : reviewNeeded > 0
+                        ? `${reviewNeeded} of ${projectStandards.length} standards need review.`
+                        : `All ${projectStandards.length} standards are reviewed.`}
+                  </p>
+                </div>
+                <Button asChild type="button" size="sm" variant="outline">
+                  <Link to="/admin/standards">Open coverage</Link>
+                </Button>
+              </section>
+
               <section className="space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-sm font-medium text-foreground">Thumbnail</h3>
@@ -1250,10 +1286,7 @@ function ContactChannels({ contactId }: { contactId: string }) {
                   size="sm"
                   className="h-auto p-0 text-muted-foreground"
                   onClick={() =>
-                    setPrimary.mutate(
-                      { kind: row.kind, contactId, id: row.id },
-                      { onError: fail },
-                    )
+                    setPrimary.mutate({ kind: row.kind, contactId, id: row.id }, { onError: fail })
                   }
                 >
                   Make primary

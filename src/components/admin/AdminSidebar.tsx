@@ -4,6 +4,7 @@ import {
   BarChart3,
   Building2,
   LayoutDashboard,
+  LibraryBig,
   LogOut,
   Settings,
   UserCog,
@@ -62,6 +63,13 @@ const GROUPS: { label: string; items: Item[] }[] = [
         icon: Building2,
         managerOnly: false,
         match: (p) => p.startsWith("/admin/clients"),
+      },
+      {
+        title: "Standards",
+        url: "/admin/standards",
+        icon: LibraryBig,
+        managerOnly: false,
+        match: (p) => p.startsWith("/admin/standards"),
       },
       {
         title: "Finance",
