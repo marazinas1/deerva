@@ -448,10 +448,22 @@ function PaymentsTab({
   function exportCsv() {
     downloadCsv(
       `deerva-payments-${new Date().toISOString().slice(0, 10)}.csv`,
-      ["Date", "Client", "Services", "Type", "Invoice", "Gross", "Currency", "Net EUR", "Method"],
+      [
+        "Date",
+        "Client",
+        "Covers",
+        "Services",
+        "Type",
+        "Invoice",
+        "Gross",
+        "Currency",
+        "Net EUR",
+        "Method",
+      ],
       rows.map((row) => [
         row.paid_on,
         clientName(row.client_id),
+        PAYMENT_KIND_LABEL[row.kind] ?? row.kind,
         (row.services ?? []).join(" / "),
         row.payment_type,
         row.invoice_no,
