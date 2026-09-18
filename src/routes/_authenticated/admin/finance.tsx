@@ -753,13 +753,34 @@ function MethodsTab({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-ink">{method.name}</span>
+                  <Badge variant="outline">{method.currency}</Badge>
                   {!method.is_active ? <Badge variant="secondary">Inactive</Badge> : null}
                 </div>
                 <p className="truncate text-xs text-stone">
                   {PAYMENT_METHOD_KIND_LABEL[method.kind] ?? method.kind}
+                  {method.iban ? ` · ${method.iban}` : ""}
                   {method.account_number ? ` · ${method.account_number}` : ""}
+                  {method.routing_number ? ` · ABA ${method.routing_number}` : ""}
                 </p>
               </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                title="Copy invoice bank details"
+                onClick={() => {
+                  const block = methodInvoiceBlock(method);
+                  if (!block) {
+                    toast.error("Fill in the bank details first.");
+                    return;
+                  }
+                  void navigator.clipboard
+                    .writeText(block)
+                    .then(() => toast.success("Bank details copied"))
+                    .catch(() => toast.error("Could not copy"));
+                }}
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
               <Button variant="ghost" size="icon" onClick={() => setEditing(method)}>
                 <Pencil className="h-4 w-4" />
               </Button>
