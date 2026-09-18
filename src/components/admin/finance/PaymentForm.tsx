@@ -97,7 +97,8 @@ export default function PaymentForm({
 
   // The three amount fields stay in sync: gross / rate = net EUR.
   // Editing any one of them recalculates the other, so the numbers always agree.
-  const fmt = (n: number) => String(round2(n));
+  const fmt = (n: number) => String(Math.round(n * 100) / 100);
+  const fmt6 = (n: number) => String(Math.round(n * 1e6) / 1e6);
 
   function applyGross(value: string) {
     setGross(value);
