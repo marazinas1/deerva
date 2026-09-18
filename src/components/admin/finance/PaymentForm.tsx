@@ -19,8 +19,10 @@ import {
   eurExact,
   FINANCE_CURRENCIES,
   FINANCE_PAYMENT_TYPES,
+  FINANCE_PAYMENT_KINDS,
   FINANCE_SERVICES,
   invoiceNoExample,
+  PAYMENT_KIND_LABEL,
   toNumber,
 } from "@/lib/finance";
 import { saveClient } from "@/lib/admin.functions";
@@ -139,6 +141,7 @@ export default function PaymentForm({
       client_id: clientId,
       contact_id: contactId || null,
       paid_on: paidOn,
+      kind,
       services,
       payment_type: paymentType || null,
       invoice_no: invoiceNo.trim() || null,
