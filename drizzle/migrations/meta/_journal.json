@@ -15,6 +15,13 @@
       "when": 1789720929070,
       "tag": "0001_payment_methods_wise_bank_details",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789729503575,
+      "tag": "0002_create_standards_library",
+      "breakpoints": true
     }
   ]
 }
