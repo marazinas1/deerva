@@ -5,7 +5,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
 export type StandardDraft = Database["public"]["Tables"]["standard_drafts"]["Row"];
-export type ProjectStandardAssignment = Database["public"]["Tables"]["project_standard_assignments"]["Row"];
+export type ProjectStandardAssignment =
+  Database["public"]["Tables"]["project_standard_assignments"]["Row"];
 
 const targetKind = z.enum(["standard", "skill", "document"]);
 const draftStatus = z.enum(["draft", "ready", "implemented", "archived"]);
@@ -93,13 +94,17 @@ export const listProjectStandardAssignments = createServerFn({ method: "GET" })
 
 export const saveProjectStandardAssignment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({
-    client_id: z.string().uuid(),
-    standard_slug: z.string().min(1).max(120),
-    applied_revision: z.string().max(64),
-    status: coverageStatus,
-    notes: z.string().max(2000),
-  }).parse(input))
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        client_id: z.string().uuid(),
+        standard_slug: z.string().min(1).max(120),
+        applied_revision: z.string().max(64),
+        status: coverageStatus,
+        notes: z.string().max(2000),
+      })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
     const payload = {
       ...data,

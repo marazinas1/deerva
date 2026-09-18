@@ -29,15 +29,24 @@ type AssignmentInput = {
 };
 
 export function useStandardsLibrary() {
-  return useQuery({ queryKey: ["admin", "standards", "library"], queryFn: () => getStandardsLibrary() });
+  return useQuery({
+    queryKey: ["admin", "standards", "library"],
+    queryFn: () => getStandardsLibrary(),
+  });
 }
 
 export function useStandardDrafts() {
-  return useQuery({ queryKey: ["admin", "standards", "drafts"], queryFn: () => listStandardDrafts() });
+  return useQuery({
+    queryKey: ["admin", "standards", "drafts"],
+    queryFn: () => listStandardDrafts(),
+  });
 }
 
 export function useProjectStandardAssignments() {
-  return useQuery({ queryKey: ["admin", "standards", "coverage"], queryFn: () => listProjectStandardAssignments() });
+  return useQuery({
+    queryKey: ["admin", "standards", "coverage"],
+    queryFn: () => listProjectStandardAssignments(),
+  });
 }
 
 export function useSaveStandardDraft() {
@@ -60,6 +69,7 @@ export function useSaveProjectStandardAssignment() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: AssignmentInput) => saveProjectStandardAssignment({ data }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "standards", "coverage"] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["admin", "standards", "coverage"] }),
   });
 }
