@@ -54,7 +54,7 @@ function SetPassword() {
   }
 
   const fieldClass =
-    "w-full rounded-sm border border-input bg-background px-4 py-3 text-ink transition focus:outline-hidden focus:ring-1 focus:ring-ink";
+    "w-full rounded-sm border border-input bg-background px-4 py-3 text-foreground transition focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2";
 
   return (
     <AuthSplit>
@@ -67,7 +67,7 @@ function SetPassword() {
           <div className="space-y-2">
             <label
               htmlFor="password"
-              className="block text-xs uppercase tracking-[0.2em] text-stone"
+              className="block text-xs uppercase tracking-[0.2em] text-muted-foreground"
             >
               New password
             </label>
@@ -85,7 +85,7 @@ function SetPassword() {
           <div className="space-y-2">
             <label
               htmlFor="confirm"
-              className="block text-xs uppercase tracking-[0.2em] text-stone"
+              className="block text-xs uppercase tracking-[0.2em] text-muted-foreground"
             >
               Repeat password
             </label>
@@ -116,7 +116,7 @@ function SetPassword() {
         </form>
       </AuthCard>
 
-      <p className="mt-8 text-xs uppercase tracking-[0.15em] text-stone">
+      <p className="mt-8 text-xs uppercase tracking-[0.15em] text-muted-foreground">
         Authorized Personnel Only
       </p>
     </AuthSplit>
