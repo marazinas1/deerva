@@ -82,4 +82,5 @@ Clients can ask for their current setup to become the pinned default. They press
 - Every destructive action confirms and says what will be lost.
 - Saving gives a toast. Unsaved changes warn before navigating away.
 - Editors see read-only notices instead of hidden buttons — silence looks like a bug.
+- Clickable cards and rows show the pointer cursor on hover (see design system → Cursor).
 - The panel is usable on a phone. Owners check enquiries from a phone.

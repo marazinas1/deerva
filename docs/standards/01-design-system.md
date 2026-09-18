@@ -47,6 +47,12 @@ Behaviour, identical everywhere:
 - disabled: 50% opacity, no pointer events
 - loading: spinner replaces the label, width does not change
 
+## Cursor
+
+- Every interactive element — buttons, links, clickable cards, table rows that open something, icon buttons — shows `cursor: pointer` on hover.
+- Disabled elements show `cursor: not-allowed`.
+- Non-interactive text never shows a pointer.
+
 ## Layout
 
 - Page container: `max-w-7xl` with `px-4 md:px-6 lg:px-8`. Prose blocks cap at ~65 characters.

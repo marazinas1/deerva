@@ -52,6 +52,14 @@ Elgesys visur vienodas:
 - disabled: 50% opacity, be pointer events
 - loading: spinneris pakeičia tekstą, plotis nesikeičia
 
+## Žymeklis (cursor)
+
+- Kiekvienas interaktyvus elementas — mygtukai, nuorodos, paspaudžiamos
+  kortelės, lentelės eilutės, kurios ką nors atidaro, ikonų mygtukai —
+  užvedus pelę rodo `cursor: pointer`.
+- Išjungti (disabled) elementai rodo `cursor: not-allowed`.
+- Neinteraktyvus tekstas niekada nerodo pointer žymeklio.
+
 ## Išdėstymas
 
 - Puslapio konteineris: `max-w-7xl` su `px-4 md:px-6 lg:px-8`. Teksto blokai iki ~65 simbolių.
